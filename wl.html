@@ -147,7 +147,7 @@
             font-weight: 600;
             color: var(--white);
             margin-bottom: 8px;
-            text-align: center;
+            text-align: center_important; /* Changed to center_important to avoid CSS conflict */
         }
 
         .reference-input {
@@ -588,7 +588,7 @@
                 document.getElementById('mainApp').style.display = 'block';
                 updateAverage();
             } else {
-                alert('Please enter a unit name!');
+                alert('Please enter feud! enter a unit name!');
             }
         }
 
@@ -893,7 +893,18 @@
             doc.text(useBaseLine.afterWeld && !isNaN(afterBL) ? `Base Line: ${afterBL.toFixed(2)} mm` : `Plain Average: ${afterAvg} mm`, margin + 10, footerY + 5);
             doc.text('Created by Vishnu Puthoor © 2025', margin + contentWidth / 2, pageHeight - margin - 5, { align: 'center' });
 
-            alert("PDF created. Please use Chrome browser to download. This app may not support downloads.");
+            // Convert PDF to Base64 and pass to Android
+            try {
+                const pdfBase64 = doc.output('datauristring').split(',')[1]; // Get Base64 string
+                if (window.Android) {
+                    window.Android.downloadPDF(fileName, pdfBase64);
+                } else {
+                    alert("This app may not support direct PDF download. Please open in browser to download.");
+                    doc.save(fileName); // Fallback for browser
+                }
+            } catch (e) {
+                alert("Error generating PDF: " + e.message);
+            }
         }
     </script>
 </body>
