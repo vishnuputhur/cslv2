@@ -19,36 +19,45 @@
         }
         h1 {
             color: #333;
+            margin-bottom: 20px;
         }
         .button {
             display: inline-block;
             padding: 12px 24px;
             margin: 10px;
-            background-color: #4CAF50;
             color: white;
             text-decoration: none;
             border: none;
             border-radius: 5px;
             font-size: 16px;
             cursor: pointer;
-            width: 150px;
-        }
-        .button:hover {
-            background-color: #45a049;
+            width: 180px;
         }
         .menu-btn {
             background-color: #008CBA;
         }
-        .menu-btn:hover {
-            background-color: #007B9E;
+        .download-btn {
+            background-color: #FF5733;
+        }
+        .check-btn {
+            background-color: #4CAF50;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Welcome</h1>
+        <!-- Menu Button -->
         <button class="button menu-btn" onclick="window.location.href='https://vtsoft.netlify.app'">Menu</button>
-        <button class="button" onclick="window.location.href='wl.html'">Check</button>
+        
+        <!-- Check Button -->
+        <button class="button check-btn" onclick="window.location.href='wl.html'">Check</button>
+        
+        <!-- Download APK Button (Direct Google Drive Link) -->
+        <button class="button download-btn" 
+                onclick="window.location.href='https://drive.google.com/uc?export=download&id=10I7Yl504HAK97tnIHwLOwbS7MFl-Ghoe'">
+            Download APK
+        </button>
     </div>
 </body>
 </html>
