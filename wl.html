@@ -893,7 +893,7 @@
             doc.text(useBaseLine.afterWeld && !isNaN(afterBL) ? `Base Line: ${afterBL.toFixed(2)} mm` : `Plain Average: ${afterAvg} mm`, margin + 10, footerY + 5);
             doc.text('Created by Vishnu Puthoor © 2025', margin + contentWidth / 2, pageHeight - margin - 5, { align: 'center' });
 
-            doc.output('dataurlnewwindow');
+            alert("PDF created. Please use Chrome browser to download. This app may not support downloads.");
         }
     </script>
 </body>
