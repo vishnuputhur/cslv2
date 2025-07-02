@@ -17,6 +17,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <style>
+        /* [Your existing CSS remains unchanged] */
         :root {
             --dark-blue: #1e3a8a;
             --medium-blue: #2563eb;
@@ -958,16 +959,14 @@
             doc.text(useBaseLine.afterWeld && !isNaN(afterBL) ? `Base Line: ${afterBL.toFixed(2)} mm` : `Plain Average: ${afterAvg} mm`, margin + 10, footerY + 5);
             doc.text('Created by Vishnu Puthoor © 2025', margin + contentWidth / 2, pageHeight - margin - 5, { align: 'center' });
 
-            // Convert PDF to Base64 and send to Android
-            const pdfBase64 = doc.output('datauristring').split(',')[1];
-            if (window.Android && window.Android.downloadFile) {
-                console.log("Attempting to send to Android: " + fileName);
-                window.Android.downloadFile('pdf', pdfBase64, fileName); // Call Android interface
-                alert("PDF sent to Android for download. Check device storage."); // Notify user
-            } else {
-                console.log("Android interface not available, falling back to browser download: " + fileName);
-                doc.save(fileName); // Fallback for browser
-            }
+            // Generate PDF data URI and trigger download via WebView
+            const pdfDataUri = doc.output('datauristring');
+            const link = document.createElement('a');
+            link.href = pdfDataUri;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
     </script>
 </body>
