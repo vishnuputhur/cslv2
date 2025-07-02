@@ -244,7 +244,7 @@
 
         .grid-cell input {
             width: 100%;
-            box-sizing: border-box;
+            box-sizing: box-sizing;
             padding: 6px;
             border-radius: 5px;
             border: 1px solid #ccc;
@@ -959,7 +959,7 @@
             doc.text(useBaseLine.afterWeld && !isNaN(afterBL) ? `Base Line: ${afterBL.toFixed(2)} mm` : `Plain Average: ${afterAvg} mm`, margin + 10, footerY + 5);
             doc.text('Created by Vishnu Puthoor © 2025', margin + contentWidth / 2, pageHeight - margin - 5, { align: 'center' });
 
-            // Generate PDF data URI and trigger download via WebView
+            // Generate PDF data URI and trigger download
             const pdfDataUri = doc.output('datauristring');
             const link = document.createElement('a');
             link.href = pdfDataUri;
