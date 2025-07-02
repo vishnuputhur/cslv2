@@ -967,6 +967,16 @@
                 alert('Download failed: Android interface not available');
             }
         }
+
+        // Add permission prompt
+        function checkPermissionAndDownload() {
+            if (window.Android) {
+                window.Android.downloadFile('pdf', '', 'test.pdf'); // Test call to trigger permission prompt
+                setTimeout(downloadPDF, 1000); // Retry download after potential permission grant
+            } else {
+                alert('Android interface not available');
+            }
+        }
     </script>
 </body>
 </html>
