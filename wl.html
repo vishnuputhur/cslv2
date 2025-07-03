@@ -1,103 +1,38 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crash Test V21</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f0f0f0;
-        }
-        button {
-            padding: 10px 20px;
-            margin: 10px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: #2563eb;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
-        button:hover {
-            background-color: #3b82f6;
-        }
-        input {
-            margin: 10px;
-            padding: 8px;
-            font-size: 16px;
-        }
-    </style>
+  <title>Calculation Result</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
-<body>
-    <h1>Crash Test V21</h1>
-    <input type="text" id="unit" placeholder="Enter Unit (e.g., TEST)" />
-    <input type="text" id="data" placeholder="Enter Data (e.g., A1 | 10.5 mm)" />
-    <button onclick="testPDF()">Download PDF</button>
-    <button onclick="testShare()">Copy Data</button>
+<body style="font-family: sans-serif; padding: 20px; background-color: #f0f0f0;">
 
-    <script>
-        async function testPDF() {
-            try {
-                alert('PDF: Starting...');
-                const unit = document.getElementById('unit').value || 'TEST';
-                const data = document.getElementById('data').value || 'A1 | 10.5 mm | +0.00 mm';
-                alert('PDF: Preparing request...');
-                const controller = new AbortController();
-                const timeout = setTimeout(() => controller.abort(), 10000); // 10-second timeout
-                alert('PDF: Sending fetch request...');
-                const response = await fetch('https://api.pdfshift.io/v3/convert/pdf', {
-                    method: 'POST',
-                    headers: {
-                        'X-API-Key': 'sk_32135444fbbd7f9ab281f731fb742b7299eefdf3', // Your API key
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        source: '<h1>Test PDF</h1>', // Simplified source
-                        filename: `UnitData_${unit}_030725.pdf`,
-                        landscape: false,
-                        use_print: false
-                    }),
-                    signal: controller.signal
-                });
-                clearTimeout(timeout);
-                alert('PDF: Server responded with status ' + response.status);
-                if (!response.ok) throw new Error('PDFShift failed: Status ' + response.status + ' - ' + (await response.text()));
-                const fileUrl = await response.text();
-                alert('PDF: Received URL: ' + fileUrl.substring(0, 50) + '...');
-                if (!fileUrl.startsWith('http')) throw new Error('Invalid URL from PDFShift: ' + fileUrl);
-                // Try redirect again
-                window.open(fileUrl, '_blank');
-                alert('PDF: Redirected to browser for download!');
-            } catch (error) {
-                alert('PDF Error: ' + error.message);
-                const unit = document.getElementById('unit').value || 'TEST';
-                const data = document.getElementById('data').value || 'A1 | 10.5 mm | +0.00 mm';
-                const text = `Cochin Shipyard Limited\nUnit: ${unit}\nData: ${data}\nDate: 03 July 2025`;
-                await navigator.clipboard.writeText(text);
-                alert('PDF Fallback: Copied to clipboard! Paste to save.');
-            }
-        }
+  <h2>Calculation Result</h2>
 
-        async function testShare() {
-            try {
-                alert('Copy: Starting...');
-                const unit = document.getElementById('unit').value || 'TEST';
-                const data = document.getElementById('data').value || 'A1 | 10.5 mm | +0.00 mm';
-                const text = `Cochin Shipyard Limited\nUnit: ${unit}\nData: ${data}\nDate: 03 July 2025`;
-                alert('Copy: Copying to clipboard...');
-                await navigator.clipboard.writeText(text);
-                alert('Copy: Copied to clipboard! Paste to save.');
-            } catch (error) {
-                alert('Copy Error: ' + error.message);
-            }
-        }
-    </script>
+  <!-- PDF content area -->
+  <div id="result" style="background: #fff; padding: 20px; border: 1px solid #ccc;">
+    <p><strong>Name:</strong> Vishnu</p>
+    <p><strong>Amount:</strong> ₹12,500</p>
+    <p><strong>Interest:</strong> ₹1,250</p>
+    <p><strong>Total:</strong> ₹13,750</p>
+  </div>
+
+  <br>
+  <button onclick="generatePDF()" style="padding: 10px 20px;">Generate PDF</button>
+
+  <script>
+    function generatePDF() {
+      const element = document.getElementById("result");
+      var opt = {
+        margin:       0.5,
+        filename:     'calculation_result.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(element).save();
+    }
+  </script>
+
 </body>
 </html>
