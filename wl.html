@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crash Test V6</title>
+    <title>Crash Test V8</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -31,7 +31,7 @@
     </style>
 </head>
 <body>
-    <h1>Crash Test V6</h1>
+    <h1>Crash Test V8</h1>
     <button onclick="testPDF()">Test PDF</button>
     <button onclick="testTXT()">Test TXT</button>
     <button onclick="testShare()">Test Share</button>
@@ -40,8 +40,7 @@
         async function testPDF() {
             try {
                 alert('PDF: Starting...');
-                // Test static HTTP PDF URL
-                const pdfUrl = 'https://vishnuputhur.github.io/cslv2/sample.pdf'; // Replace with your hosted PDF
+                const pdfUrl = 'https://vishnuputhur.github.io/cslv2/sample.pdf'; // Verified working
                 alert('PDF: Navigating to ' + pdfUrl);
                 window.location.href = pdfUrl;
                 alert('PDF: Download attempted!');
@@ -53,10 +52,17 @@
         async function testTXT() {
             try {
                 alert('TXT: Starting...');
-                // Test static HTTP TXT URL
-                const txtUrl = 'https://vishnuputhur.github.io/cslv2/sample.txt'; // Replace with your hosted TXT
-                alert('TXT: Navigating to ' + txtUrl);
-                window.location.href = txtUrl;
+                const textContent = `Crash Test V8 TXT\nDate: 03 July 2025\nData: A1 = 10.5 mm`;
+                const blob = new Blob([textContent], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                alert('TXT: Created Blob URL: ' + url);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'CrashTest030725.txt';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
                 alert('TXT: Download attempted!');
             } catch (error) {
                 alert('TXT Error: ' + error.message);
@@ -66,7 +72,7 @@
         async function testShare() {
             try {
                 alert('Share: Starting...');
-                const text = 'Crash Test V6\nDate: 03 July 2025\nData: A1 = 10.5 mm';
+                const text = 'Crash Test V8\nDate: 03 July 2025\nData: A1 = 10.5 mm';
                 alert('Share: Copying to clipboard...');
                 await navigator.clipboard.writeText(text);
                 alert('Share: Copied to clipboard! Paste somewhere to verify.');
