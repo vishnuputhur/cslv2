@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crash Test V17</title>
+    <title>Crash Test V18</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -36,7 +36,7 @@
     </style>
 </head>
 <body>
-    <h1>Crash Test V17</h1>
+    <h1>Crash Test V18</h1>
     <input type="text" id="unit" placeholder="Enter Unit (e.g., TEST)" />
     <input type="text" id="data" placeholder="Enter Data (e.g., A1 | 10.5 mm)" />
     <button onclick="testPDF()">Download PDF</button>
@@ -73,17 +73,24 @@
                 clearTimeout(timeout);
                 alert('PDF: Server responded with status ' + response.status);
                 if (!response.ok) throw new Error('PDFShift failed: Status ' + response.status + ' - ' + (await response.text()));
-                const fileUrl = await response.text(); // Expect URL from PDFShift
-                alert('PDF: Received URL: ' + fileUrl.substring(0, 50) + '...');
-                if (!fileUrl.startsWith('http')) throw new Error('Invalid URL from PDFShift: ' + fileUrl);
-                // Avoid window.location.href, let DownloadListener handle
+                const fileContent = await response.text(); // Log full response
+                alert('PDF: Received content (first 50 chars): ' + fileContent.substring(0, 50) + '...');
+                let fileUrl;
+                if (fileContent.startsWith('http')) {
+                    fileUrl = fileContent;
+                } else {
+                    const blob = await response.blob(); // Try binary if not URL
+                    fileUrl = window.URL.createObjectURL(blob);
+                }
+                alert('PDF: Navigating to ' + fileUrl.substring(0, 50) + '...');
                 const link = document.createElement('a');
                 link.href = fileUrl;
-                link.target = '_blank'; // Open in new context if possible
+                link.download = `UnitData_${unit}_030725.pdf`;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-                alert('PDF: Download triggered!');
+                if (fileUrl.startsWith('blob')) window.URL.revokeObjectURL(fileUrl);
+                alert('PDF: Download attempted!');
             } catch (error) {
                 alert('PDF Error: ' + error.message);
                 // Fallback to clipboard
