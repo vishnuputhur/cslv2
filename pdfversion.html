@@ -1,0 +1,53 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Download PDF Version</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    td, th { border: 1px solid #888; padding: 8px; text-align: left; }
+    button { margin-top: 20px; padding: 10px 20px; }
+  </style>
+</head>
+<body>
+
+  <h2>Calculation Result</h2>
+
+  <table id="resultTable">
+    <thead>
+      <tr><th>Item</th><th>Amount</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Basic</td><td>₹12,000</td></tr>
+      <tr><td>DA</td><td>₹3,000</td></tr>
+      <tr><td>PF</td><td>₹1,800</td></tr>
+      <tr><td>Total</td><td>₹16,800</td></tr>
+    </tbody>
+  </table>
+
+  <button onclick="downloadPDF()">Download PDF</button>
+
+  <script>
+    async function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      doc.setFontSize(16);
+      doc.text("Calculation Report", 14, 20);
+
+      doc.autoTable({
+        html: '#resultTable',
+        startY: 30,
+        theme: 'striped',
+        headStyles: { fillColor: [0, 102, 204] },
+      });
+
+      doc.save("CalculationReport.pdf");
+    }
+  </script>
+
+</body>
+</html>
