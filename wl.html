@@ -47,7 +47,7 @@
     <input type="text" id="data" placeholder="Enter Data (e.g., A1 | 10.5 mm)" />
     <button class="button" onclick="downloadPDF()">Download PDF</button>
     <button class="button" onclick="copyData()">Copy Data</button>
-    <div id="content"></div> <!-- Content for printing -->
+    <div id="content"></div>
 
     <script>
         async function downloadPDF() {
@@ -65,10 +65,9 @@
                 document.getElementById('content').innerHTML = content;
                 document.getElementById('content').style.display = 'block';
                 alert('PDF: Triggering print...');
-                window.location.href = "print://trigger"; // Trigger PrintManager
+                window.location.href = "print://trigger";
             } catch (error) {
                 alert('PDF Error: ' + error.message);
-                // Fallback to clipboard
                 const unit = document.getElementById('unit').value || 'TEST';
                 const data = document.getElementById('data').value || 'A1 | 10.5 mm | +0.00 mm';
                 const text = `Cochin Shipyard Limited\nUnit: ${unit}\nData: ${data}\nDate: 03 July 2025`;
