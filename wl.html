@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crash Test</title>
+    <title>Crash Test V2</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         body {
@@ -32,82 +32,72 @@
     </style>
 </head>
 <body>
-    <h1>Crash Test Page</h1>
-    <button onclick="downloadPDF()">Download PDF</button>
-    <button onclick="downloadTXT()">Download TXT</button>
-    <button onclick="testShare()">Share Test</button>
+    <h1>Crash Test V2</h1>
+    <button onclick="testPDF()">Test PDF</button>
+    <button onclick="testTXT()">Test TXT</button>
+    <button onclick="testShare()">Test Share</button>
 
     <script>
-        function downloadPDF() {
+        function testPDF() {
             try {
-                console.log('Starting PDF generation...');
+                console.log('PDF: Starting...');
+                alert('PDF: Starting generation...');
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
-                doc.text('Crash Test PDF', 10, 10);
-                const blob = doc.output('blob');
-                console.log('PDF Blob created');
-                const url = URL.createObjectURL(blob);
-                console.log('PDF Blob URL:', url);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = 'CrashTest030725.pdf';
-                document.body.appendChild(link);
-                console.log('Triggering PDF download...');
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(url);
-                alert('PDF ഡൗൺലോഡ് ശ്രമിച്ചു! Downloads folder check ചെയ്യുക.');
+                doc.text('Crash Test V2 PDF', 10, 10);
+                const dataUri = doc.output('datauristring');
+                console.log('PDF: Data URI created:', dataUri.substring(0, 50) + '...');
+                alert('PDF: Data URI created. Attempting navigation...');
+                window.location.href = dataUri; // Direct navigation
+                console.log('PDF: Navigation triggered');
+                alert('PDF: Download attempted!');
             } catch (error) {
                 console.error('PDF Error:', error.message);
-                alert('PDF ഡൗൺലോഡ് പരാജയപ്പെട്ടു: ' + error.message);
+                alert('PDF Error: ' + error.message);
             }
         }
 
-        function downloadTXT() {
+        function testTXT() {
             try {
-                console.log('Starting TXT generation...');
-                const textContent = `Crash Test TXT\nDate: 03 July 2025\nData: A1 = 10.5 mm`;
-                const blob = new Blob([textContent], { type: 'text/plain' });
-                console.log('TXT Blob created');
-                const url = URL.createObjectURL(blob);
-                console.log('TXT Blob URL:', url);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = 'CrashTest030725.txt';
-                document.body.appendChild(link);
-                console.log('Triggering TXT download...');
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(url);
-                alert('TXT ഡൗൺലോഡ് ശ്രമിച്ചു! Downloads folder check ചെയ്യുക.');
+                console.log('TXT: Starting...');
+                alert('TXT: Starting generation...');
+                const textContent = `Crash Test V2 TXT\nDate: 03 July 2025\nData: A1 = 10.5 mm`;
+                const dataUri = `data:text/plain;charset=utf-8,${encodeURIComponent(textContent)}`;
+                console.log('TXT: Data URI created:', dataUri.substring(0, 50) + '...');
+                alert('TXT: Data URI created. Attempting navigation...');
+                window.location.href = dataUri; // Direct navigation
+                console.log('TXT: Navigation triggered');
+                alert('TXT: Download attempted!');
             } catch (error) {
                 console.error('TXT Error:', error.message);
-                alert('TXT ഡൗൺലോഡ് പരാജയപ്പെട്ടു: ' + error.message);
+                alert('TXT Error: ' + error.message);
             }
         }
 
         function testShare() {
             try {
-                console.log('Starting Share...');
-                const textContent = `Crash Test Share\nDate: 03 July 2025\nData: A1 = 10.5 mm`;
+                console.log('Share: Starting...');
+                alert('Share: Starting...');
                 if (navigator.share) {
+                    console.log('Share: Web Share API supported');
+                    alert('Share: API supported. Attempting share...');
                     navigator.share({
-                        title: 'Crash Test',
-                        text: textContent
+                        title: 'Crash Test V2',
+                        text: `Crash Test V2\nDate: 03 July 2025\nData: A1 = 10.5 mm`
                     }).then(() => {
-                        console.log('Share successful');
-                        alert('Share വിജയിച്ചു!');
+                        console.log('Share: Successful');
+                        alert('Share: Successful!');
                     }).catch(error => {
                         console.error('Share Error:', error.message);
-                        alert('Share പരാജയപ്പെട്ടു: ' + error.message);
+                        alert('Share Error: ' + error.message);
                     });
                 } else {
-                    console.log('Web Share API not supported');
-                    alert('Share API support ചെയ്യുന്നില്ല.');
+                    console.log('Share: Web Share API not supported');
+                    alert('Share: Web Share API not supported');
                 }
             } catch (error) {
                 console.error('Share Error:', error.message);
-                alert('Share പരാജയപ്പെട്ടു: ' + error.message);
+                alert('Share Error: ' + error.message);
             }
         }
     </script>
