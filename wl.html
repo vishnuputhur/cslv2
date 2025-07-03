@@ -1,38 +1,53 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Calculation Result</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cochin Shipyard Data</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background-color: #f0f0f0; text-align: center; }
+        .button { padding: 10px 20px; margin: 10px; font-size: 16px; cursor: pointer; background-color: #2563eb; color: white; border: none; border-radius: 5px; }
+        .button:hover { background-color: #3b82f6; }
+        input { margin: 10px; padding: 8px; font-size: 16px; }
+        #content { display: none; } /* Hidden div for print content */
+    </style>
 </head>
-<body style="font-family: sans-serif; padding: 20px; background-color: #f0f0f0;">
+<body>
+    <h1>Cochin Shipyard Data</h1>
+    <input type="text" id="unit" placeholder="Enter Unit (e.g., TEST)" />
+    <input type="text" id="data" placeholder="Enter Data (e.g., A1 | 10.5 mm)" />
+    <button class="button" onclick="prepareAndPrint()">Download PDF</button>
+    <button class="button" onclick="copyData()">Copy Data</button>
+    <div id="content"></div> <!-- Content to print -->
 
-  <h2>Calculation Result</h2>
+    <script>
+        function prepareAndPrint() {
+            const unit = document.getElementById('unit').value || 'TEST';
+            const data = document.getElementById('data').value || 'A1 | 10.5 mm | +0.00 mm';
+            const content = `
+                <h1>Cochin Shipyard Limited</h1>
+                <p>Unit: ${unit}</p>
+                <p>Data: ${data}</p>
+                <p>Date: 03 July 2025</p>
+            `;
+            document.getElementById('content').innerHTML = content;
+            document.getElementById('content').style.display = 'block';
+            window.location.href = "print://trigger"; // Trigger print
+        }
 
-  <!-- PDF content area -->
-  <div id="result" style="background: #fff; padding: 20px; border: 1px solid #ccc;">
-    <p><strong>Name:</strong> Vishnu</p>
-    <p><strong>Amount:</strong> ₹12,500</p>
-    <p><strong>Interest:</strong> ₹1,250</p>
-    <p><strong>Total:</strong> ₹13,750</p>
-  </div>
-
-  <br>
-  <button onclick="generatePDF()" style="padding: 10px 20px;">Generate PDF</button>
-
-  <script>
-    function generatePDF() {
-      const element = document.getElementById("result");
-      var opt = {
-        margin:       0.5,
-        filename:     'calculation_result.pdf',
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2 },
-        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
-      };
-
-      html2pdf().set(opt).from(element).save();
-    }
-  </script>
-
+        async function copyData() {
+            try {
+                alert('Copy: Starting...');
+                const unit = document.getElementById('unit').value || 'TEST';
+                const data = document.getElementById('data').value || 'A1 | 10.5 mm | +0.00 mm';
+                const text = `Cochin Shipyard Limited\nUnit: ${unit}\nData: ${data}\nDate: 03 July 2025`;
+                alert('Copy: Copying to clipboard...');
+                await navigator.clipboard.writeText(text);
+                alert('Copy: Copied to clipboard! Paste to save.');
+            } catch (error) {
+                alert('Copy Error: ' + error.message);
+            }
+        }
+    </script>
 </body>
 </html>
