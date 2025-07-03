@@ -7,13 +7,12 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
             margin: 0;
             background-color: #f0f0f0;
+            padding: 20px;
+        }
+        .container {
+            text-align: center;
         }
         .button {
             padding: 10px 20px;
@@ -39,29 +38,130 @@
             padding: 10px;
             border: 1px solid #ccc;
         }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .page-break {
+            page-break-before: always;
+        }
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            width: 70%;
+            border-radius: 5px;
+        }
+        .close {
+            float: right;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        @page {
+            size: A4;
+            margin: 1cm;
+        }
     </style>
 </head>
 <body>
-    <h1>Cochin Shipyard Data</h1>
-    <input type="text" id="unit" placeholder="Enter Unit (e.g., TEST)" />
-    <input type="text" id="data" placeholder="Enter Data (e.g., A1 | 10.5 mm)" />
-    <button class="button" onclick="downloadPDF()">Download PDF</button>
-    <button class="button" onclick="copyData()">Copy Data</button>
-    <div id="content"></div>
+    <div class="container">
+        <h1>Cochin Shipyard Data</h1>
+        <input type="text" id="unit" placeholder="Enter Unit (e.g., TEST)" />
+        <input type="text" id="data" placeholder="Enter Data (e.g., A1 | 10.5 mm)" />
+        <button class="button" onclick="openModal()">Add Data</button>
+        <button class="button" onclick="downloadPDF()">Download PDF</button>
+        <button class="button" onclick="copyData()">Copy Data</button>
+        <div id="content"></div>
+    </div>
+
+    <!-- Modal -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Add Measurement</h2>
+            <input type="text" id="modalParam" placeholder="Parameter (e.g., Water Level)" />
+            <input type="text" id="modalValue" placeholder="Value (e.g., 10.5)" />
+            <input type="text" id="modalUnit" placeholder="Unit (e.g., mm)" />
+            <button class="button" onclick="addData()">Add</button>
+            <div id="dataList"></div>
+        </div>
+    </div>
 
     <script>
+        let dataArray = [];
+
+        function openModal() {
+            document.getElementById('myModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('myModal').style.display = 'none';
+        }
+
+        function addData() {
+            const param = document.getElementById('modalParam').value;
+            const value = document.getElementById('modalValue').value;
+            const unit = document.getElementById('modalUnit').value;
+            if (param && value && unit) {
+                dataArray.push({ param, value, unit });
+                document.getElementById('dataList').innerHTML += `<p>${param}: ${value} ${unit}</p>`;
+                document.getElementById('modalParam').value = '';
+                document.getElementById('modalValue').value = '';
+                document.getElementById('modalUnit').value = '';
+            }
+        }
+
         async function downloadPDF() {
             try {
                 alert('PDF: Starting...');
                 const unit = document.getElementById('unit').value || 'TEST';
                 const data = document.getElementById('data').value || 'A1 | 10.5 mm | +0.00 mm';
                 alert('PDF: Preparing content...');
-                const content = `
-                    <h1>Cochin Shipyard Limited</h1>
-                    <p>Unit: ${unit}</p>
-                    <p>Data: ${data}</p>
-                    <p>Date: 03 July 2025</p>
+                let content = `
+                    <h1>Cochin Shipyard Limited - Unit ${unit}</h1>
+                    <h2>Water Level and Measurement Data</h2>
+                    <table>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Value</th>
+                            <th>Unit</th>
+                            <th>Date</th>
+                        </tr>
                 `;
+                // Add default data
+                content += `
+                        <tr><td>Water Level</td><td>10.5</td><td>mm</td><td>03 July 2025</td></tr>
+                        <tr><td>Temperature</td><td>28.3</td><td>°C</td><td>03 July 2025</td></tr>
+                `;
+                // Add user data
+                dataArray.forEach(item => {
+                    content += `<tr><td>${item.param}</td><td>${item.value}</td><td>${item.unit}</td><td>03 July 2025</td></tr>`;
+                });
+                content += `</table><div class="page-break"></div><h2>Additional Measurements</h2><table><tr><th>Parameter</th><th>Value</th><th>Unit</th><th>Date</th></tr>`;
+                content += `
+                        <tr><td>Flow Rate</td><td>15.2</td><td>L/min</td><td>03 July 2025</td></tr>
+                        <tr><td>Vibration</td><td>0.5</td><td>mm/s</td><td>03 July 2025</td></tr>
+                `;
+                content += `</table><p>Data Input: ${data}</p>`;
                 document.getElementById('content').innerHTML = content;
                 document.getElementById('content').style.display = 'block';
                 alert('PDF: Triggering print...');
@@ -89,6 +189,14 @@
                 alert('Copy Error: ' + error.message);
             }
         }
+
+        // Close modal on outside click
+        window.onclick = function(event) {
+            const modal = document.getElementById('myModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        };
     </script>
 </body>
 </html>
