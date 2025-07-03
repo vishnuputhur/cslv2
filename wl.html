@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Download</title>
+    <title>Crash Test</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         body {
@@ -32,56 +32,82 @@
     </style>
 </head>
 <body>
-    <h1>Test Download Page</h1>
+    <h1>Crash Test Page</h1>
     <button onclick="downloadPDF()">Download PDF</button>
     <button onclick="downloadTXT()">Download TXT</button>
+    <button onclick="testShare()">Share Test</button>
 
     <script>
         function downloadPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            const fileName = `TestWaterLevel030725.pdf`;
-
-            // Simple PDF content
-            doc.setFontSize(12);
-            doc.text('Test PDF from Cochin Shipyard', 10, 10);
-            doc.text('Date: 03 July 2025', 10, 20);
-            doc.text('Sample Data: A1 = 10.5 mm', 10, 30);
-
             try {
-                const pdfBase64 = doc.output('datauristring').split(',')[1];
-                const dataUri = `data:application/pdf;base64,${pdfBase64}`;
-                console.log('PDF URL:', dataUri.substring(0, 50) + '...');
+                console.log('Starting PDF generation...');
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                doc.text('Crash Test PDF', 10, 10);
+                const blob = doc.output('blob');
+                console.log('PDF Blob created');
+                const url = URL.createObjectURL(blob);
+                console.log('PDF Blob URL:', url);
                 const link = document.createElement('a');
-                link.setAttribute('href', dataUri);
-                link.setAttribute('download', fileName);
+                link.href = url;
+                link.download = 'CrashTest030725.pdf';
                 document.body.appendChild(link);
+                console.log('Triggering PDF download...');
                 link.click();
                 document.body.removeChild(link);
+                URL.revokeObjectURL(url);
                 alert('PDF ഡൗൺലോഡ് ശ്രമിച്ചു! Downloads folder check ചെയ്യുക.');
             } catch (error) {
-                console.error('PDF Error:', error);
+                console.error('PDF Error:', error.message);
                 alert('PDF ഡൗൺലോഡ് പരാജയപ്പെട്ടു: ' + error.message);
             }
         }
 
         function downloadTXT() {
-            const fileName = `TestWaterLevel030725.txt`;
-            const textContent = `Cochin Shipyard Limited\nTest Water Level\nDate: 03 July 2025\n\nSample Data\nA1 | 10.5 mm | +0.00 mm\nCreated by Vishnu Puthoor © 2025`;
-
             try {
-                const dataUri = `data:text/plain;charset=utf-8,${encodeURIComponent(textContent)}`;
-                console.log('TXT URL:', dataUri.substring(0, 50) + '...');
+                console.log('Starting TXT generation...');
+                const textContent = `Crash Test TXT\nDate: 03 July 2025\nData: A1 = 10.5 mm`;
+                const blob = new Blob([textContent], { type: 'text/plain' });
+                console.log('TXT Blob created');
+                const url = URL.createObjectURL(blob);
+                console.log('TXT Blob URL:', url);
                 const link = document.createElement('a');
-                link.setAttribute('href', dataUri);
-                link.setAttribute('download', fileName);
+                link.href = url;
+                link.download = 'CrashTest030725.txt';
                 document.body.appendChild(link);
+                console.log('Triggering TXT download...');
                 link.click();
                 document.body.removeChild(link);
+                URL.revokeObjectURL(url);
                 alert('TXT ഡൗൺലോഡ് ശ്രമിച്ചു! Downloads folder check ചെയ്യുക.');
             } catch (error) {
-                console.error('TXT Error:', error);
+                console.error('TXT Error:', error.message);
                 alert('TXT ഡൗൺലോഡ് പരാജയപ്പെട്ടു: ' + error.message);
+            }
+        }
+
+        function testShare() {
+            try {
+                console.log('Starting Share...');
+                const textContent = `Crash Test Share\nDate: 03 July 2025\nData: A1 = 10.5 mm`;
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'Crash Test',
+                        text: textContent
+                    }).then(() => {
+                        console.log('Share successful');
+                        alert('Share വിജയിച്ചു!');
+                    }).catch(error => {
+                        console.error('Share Error:', error.message);
+                        alert('Share പരാജയപ്പെട്ടു: ' + error.message);
+                    });
+                } else {
+                    console.log('Web Share API not supported');
+                    alert('Share API support ചെയ്യുന്നില്ല.');
+                }
+            } catch (error) {
+                console.error('Share Error:', error.message);
+                alert('Share പരാജയപ്പെട്ടു: ' + error.message);
             }
         }
     </script>
