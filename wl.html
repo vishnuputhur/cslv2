@@ -219,7 +219,6 @@
             text-align: center;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             transition: transform 0.2s ease;
-            min-height: 100px; /* Original height restored */
         }
 
         .grid-cell:hover {
@@ -300,7 +299,7 @@
             cursor: pointer;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             transition: all 0.2s ease;
-            min-width: 120px; /* Original width restored */
+            flex: 1;
         }
 
         button:hover {
@@ -523,6 +522,7 @@
             </div>
             <div class="button-row">
                 <button onclick="downloadPDF()">Download PDF</button>
+                <button onclick="downloadTXT()">Download TXT</button>
                 <button onclick="saveAndExit()">Save & Exit</button>
             </div>
         </div>
@@ -934,7 +934,7 @@
                     const defaultLabel = String.fromCharCode(65 + i) + (j + 1);
                     const label = gridData.customLabels[defaultLabel] || defaultLabel;
                     const value = gridData.afterWeld[defaultLabel] || 'N/A';
-                    const diff = !isNaN(value) && value !== '' ? (value - afterReference).toFixed(2) : '0.00';
+                    const diff = !isNaN(value) && value !== '' ? (value - beforeReference).toFixed(2) : '0.00';
                     const color = !isNaN(value) && value !== '' && Math.abs(diff) <= afterTol ? [22, 163, 74] : [220, 38, 38];
                     afterTableData.push([
                         label,
@@ -959,23 +959,77 @@
             doc.text(useBaseLine.afterWeld && !isNaN(afterBL) ? `Base Line: ${afterBL.toFixed(2)} mm` : `Plain Average: ${afterAvg} mm`, margin + 10, footerY + 5);
             doc.text('Created by Vishnu Puthoor © 2025', margin + contentWidth / 2, pageHeight - margin - 5, { align: 'center' });
 
-            // Generate PDF as Base64 and send to Android
-            const pdfBase64 = doc.output('datauristring').split(',')[1]; // Extract Base64 data
-            if (window.Android && window.Android.downloadFile) {
-                window.Android.downloadFile('pdf', pdfBase64, fileName);
-            } else {
-                alert('Download failed: Android interface not available');
+            // Convert PDF to base64 data URI
+            try {
+                const pdfBase64 = doc.output('datauristring').split(',')[1]; // Get base64 part
+                const dataUri = `data:application/pdf;base64,${pdfBase64}`;
+                console.log('PDF Download URL:', dataUri.substring(0, 50) + '...'); // Log for debugging
+                const link = document.createElement('a');
+                link.setAttribute('href', dataUri);
+                link.setAttribute('download', fileName);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (error) {
+                console.error('PDF download error:', error);
+                alert('PDF ഡൗൺലോഡ് ചെയ്യാൻ കഴിയുന്നില്ല. TXT ഡൗൺലോഡ് ശ്രമിക്കുക.');
             }
         }
 
-        // Add permission prompt
-        function checkPermissionAndDownload() {
-            if (window.Android) {
-                window.Android.downloadFile('pdf', '', 'test.pdf'); // Test call to trigger permission prompt
-                setTimeout(downloadPDF, 1000); // Retry download after potential permission grant
-            } else {
-                alert('Android interface not available');
+        function downloadTXT() {
+            const unitName = document.getElementById('appTitle').innerText.split(' ')[0];
+            const fileName = `${unitName}WaterLevel${dateStr}${timeStr}.txt`;
+
+            // Before Weld Data
+            const beforeValues = Object.values(gridData.beforeWeld).filter(v => !isNaN(v) && v !== '');
+            const beforeAvg = beforeValues.length ? (beforeValues.reduce((a, b) => a + b, 0) / beforeValues.length).toFixed(2) : 0;
+            const beforeBL = parseFloat(baseLine.beforeWeld);
+            const beforeReference = useBaseLine.beforeWeld && !isNaN(beforeBL) ? beforeBL : beforeAvg;
+            const beforeTol = tolerance.beforeWeld || 2;
+
+            let beforeTableContent = `Cochin Shipyard Limited\n${unitName} Before Weld Water Level Details\nDate: ${now.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}\n\nBefore Weld Data\nTolerance: ${beforeTol} mm\n${useBaseLine.beforeWeld && !isNaN(beforeBL) ? `Base Line: ${beforeBL.toFixed(2)} mm` : `Plain Average: ${beforeAvg} mm`}\n\nCell | Value (mm) | Difference (mm)\n-----|------------|---------------\n`;
+            
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    const defaultLabel = String.fromCharCode(65 + i) + (j + 1);
+                    const label = gridData.customLabels[defaultLabel] || defaultLabel;
+                    const value = gridData.beforeWeld[defaultLabel] || 'N/A';
+                    const diff = !isNaN(value) && value !== '' ? (value - beforeReference).toFixed(2) : '0.00';
+                    beforeTableContent += `${label.padEnd(5)}| ${value.padEnd(11)}| ${diff > 0 ? '+' : ''}${diff} mm\n`;
+                }
             }
+
+            // After Weld Data
+            const afterValues = Object.values(gridData.afterWeld).filter(v => !isNaN(v) && v !== '');
+            const afterAvg = afterValues.length ? (afterValues.reduce((a, b) => a + b, 0) / afterValues.length).toFixed(2) : 0;
+            const afterBL = parseFloat(baseLine.afterWeld);
+            const afterReference = useBaseLine.afterWeld && !isNaN(afterBL) ? afterBL : afterAvg;
+            const afterTol = tolerance.afterWeld || 2;
+
+            let afterTableContent = `\n${unitName} After Weld Water Level Details\n\nAfter Weld Data\nTolerance: ${afterTol} mm\n${useBaseLine.afterWeld && !isNaN(afterBL) ? `Base Line: ${afterBL.toFixed(2)} mm` : `Plain Average: ${afterAvg} mm`}\n\nCell | Value (mm) | Difference (mm)\n-----|------------|---------------\n`;
+            
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    const defaultLabel = String.fromCharCode(65 + i) + (j + 1);
+                    const label = gridData.customLabels[defaultLabel] || defaultLabel;
+                    const value = gridData.afterWeld[defaultLabel] || 'N/A';
+                    const diff = !isNaN(value) && value !== '' ? (value - afterReference).toFixed(2) : '0.00';
+                    afterTableContent += `${label.padEnd(5)}| ${value.padEnd(11)}| ${diff > 0 ? '+' : ''}${diff} mm\n`;
+                }
+            }
+
+            // Combine content
+            const textContent = `${beforeTableContent}${afterTableContent}\nCreated by Vishnu Puthoor © 2025`;
+
+            // Trigger download
+            const dataUri = `data:text/plain;charset=utf-8,${encodeURIComponent(textContent)}`;
+            console.log('TXT Download URL:', dataUri.substring(0, 50) + '...'); // Log for debugging
+            const link = document.createElement('a');
+            link.setAttribute('href', dataUri);
+            link.setAttribute('download', fileName);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
     </script>
 </body>
