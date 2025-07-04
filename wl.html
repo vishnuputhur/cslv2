@@ -465,6 +465,11 @@
                 min-width: 120px;
             }
         }
+
+        /* Optional: Hide unwanted elements during print (adjust class names as needed) */
+        @media print {
+            header, footer, .ads { display: none !important; }
+        }
     </style>
 </head>
 <body>
@@ -525,6 +530,7 @@
                 <button onclick="saveAndExit()">Save & Exit</button>
                 <button onclick="testPDF()">Test PDF Generation</button>
                 <button onclick="openWhatsApp()">Contact Support</button>
+                <button onclick="redirectToChrome()">Open in Chrome for PDF</button> <!-- New Button -->
             </div>
         </div>
     </div>
@@ -964,35 +970,13 @@
         }
 
         function testPDF() {
-            alert("Function started"); // Debug: Confirm function runs
-            const { jsPDF } = window.jspdf;
-            if (!jsPDF) {
-                alert("jsPDF not loaded! Check internet or script URL.");
-                return;
-            }
-            alert("jsPDF loaded successfully"); // Debug: Confirm jsPDF is available
-            const doc = new jsPDF();
+            alert("Attempting to generate PDF via print...");
+            window.location.href = 'print://trigger'; // Triggers WebView print
+        }
 
-            // Basic PDF content
-            doc.setFontSize(20);
-            doc.text("Test PDF Generation", 10, 10);
-            doc.setFontSize(12);
-            doc.text("This is a test PDF created on " + new Date().toLocaleDateString(), 10, 20);
-            doc.text("Cochin Shipyard Limited", 10, 30);
-            doc.text("Unit: TEST_UNIT", 10, 40);
-            doc.text("Date: " + new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }), 10, 50);
-
-            // Save the PDF
-            const now = new Date();
-            const dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' }).replace(/\//g, '');
-            const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false }).replace(':', '');
-            const fileName = `TestPDF_${dateStr}${timeStr}.pdf`;
-            try {
-                doc.save(fileName);
-                alert("PDF generation attempted. Check Downloads for " + fileName); // Debug: Confirm save attempt
-            } catch (e) {
-                alert("PDF save failed: " + e.message); // Debug: Catch any errors
-            }
+        function redirectToChrome() {
+            const url = 'https://vishnuputhur.github.io/cslv2/index.html'; // Current page URL
+            window.location.href = 'openchrome://' + url; // Triggers Chrome redirect
         }
 
         function openWhatsApp() {
@@ -1000,16 +984,6 @@
             const whatsappUrl = `whatsapp://send?phone=${phoneNumber}`;
             window.location.href = whatsappUrl; // Triggers the redirect
         }
-
-<!-- Keep the existing HTML structure as before -->
-    // ... (keep all existing script code) ...
-
-    function testPDF() {
-        alert("Attempting to generate PDF via print...");
-        window.location.href = 'print://trigger'; // Triggers WebView print
-    }
-
-    // ... (keep remaining functions like downloadPDF, openWhatsApp, etc.) ...
-</script>
+    </script>
 </body>
 </html>
