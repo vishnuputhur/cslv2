@@ -526,12 +526,13 @@
                 <button onclick="deleteColumn()">Delete Column</button>
             </div>
             <div class="button-row">
+                <button onclick="toggleOrientation()">Toggle +/-</button>
                 <button onclick="downloadPDF()">Download PDF</button>
                 <button onclick="saveAndExit()">Save & Exit</button>
             </div>
         </div>
     </div>
-    <footer>Created by Vishnu Puthoor © 2025</footer>
+    <footer>VT Soft © 2025</footer>
 
     <script>
         let rows = 4;
@@ -542,6 +543,7 @@
         let baseLine = { beforeWeld: '', afterWeld: '' };
         let currentTab = 'beforeWeld';
         let beforeWeldDifferences = {};
+        let isVertical = false; // Tracks unit orientation for +/- toggle
 
         const now = new Date();
         const dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' }).replace(/\//g, '');
@@ -788,7 +790,8 @@
                     const value = parseFloat(gridData[currentTab][defaultLabel]);
                     const diffEl = document.getElementById(`diff-${defaultLabel}`);
                     if (!isNaN(value) && value !== '') {
-                        const diff = (value - reference).toFixed(2);
+                        let diff = (value - reference).toFixed(2);
+                        if (isVertical) diff = (-diff).toFixed(2); // Invert difference for vertical units
                         diffEl.innerText = `${diff > 0 ? '+' : ''}${diff} mm`;
                         diffEl.className = `difference ${Math.abs(diff) <= tolerance[currentTab] ? 'green' : 'red'}`;
                     } else {
@@ -863,6 +866,12 @@
 
             const url = `openchrome://vishnuputhur.github.io/cslv2/pdfversion.html?unit=${unit}&tab=${tab}&tol=${tolerance}&base=${baseLine}&avg=${avg}&grid=${grid}`;
             window.location.href = url;
+        }
+
+        function toggleOrientation() {
+            isVertical = !isVertical;
+            updateAverage();
+            alert(`Unit orientation toggled to ${isVertical ? 'vertical' : 'horizontal'}. Differences inverted.`);
         }
     </script>
 </body>
