@@ -1,51 +1,67 @@
-
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Download PDF Version</title>
+  <meta charset="UTF-8">
+  <title>PDF Version with Params</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
   <style>
     body { font-family: sans-serif; padding: 20px; }
-    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-    td, th { border: 1px solid #888; padding: 8px; text-align: left; }
-    button { margin-top: 20px; padding: 10px 20px; }
+    #dynamicContent { margin-bottom: 20px; }
+    button { padding: 10px 20px; font-size: 14px; }
   </style>
 </head>
 <body>
 
-  <h2>Calculation Result</h2>
-
-  <table id="resultTable">
-    <thead>
-      <tr><th>Item</th><th>Amount</th></tr>
-    </thead>
-    <tbody>
-      <tr><td>Basic</td><td>₹12,000</td></tr>
-      <tr><td>DA</td><td>₹3,000</td></tr>
-      <tr><td>PF</td><td>₹1,800</td></tr>
-      <tr><td>Total</td><td>₹16,800</td></tr>
-    </tbody>
-  </table>
-
+  <h2>PF Calculation Report</h2>
+  <div id="dynamicContent"></div>
   <button onclick="downloadPDF()">Download PDF</button>
 
   <script>
+    // 1. Read URL parameters
+    const params = new URLSearchParams(window.location.search);
+    const unitName   = params.get("unit")   || "Unknown Unit";
+    const tab        = params.get("tab")    || "beforeWeld";
+    const tolerance  = params.get("tol")    || "N/A";
+    const baseLine   = params.get("base")   || "N/A";
+    const avg        = params.get("avg")    || "N/A";
+
+    // 2. Render dynamic summary
+    document.getElementById("dynamicContent").innerHTML = `
+      <p><strong>Unit:</strong> ${unitName}</p>
+      <p><strong>Tab:</strong> ${tab === "beforeWeld" ? "Before Weld" : "After Weld"}</p>
+      <p><strong>Tolerance (mm):</strong> ${tolerance}</p>
+      <p><strong>Reference (Base/Average) (mm):</strong> ${baseLine !== "N/A" ? baseLine : avg}</p>
+    `;
+
+    // 3. PDF generation
     async function downloadPDF() {
       const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
+      const doc = new jsPDF({ unit: 'mm', format: 'a4' });
 
+      // Header
       doc.setFontSize(16);
-      doc.text("Calculation Report", 14, 20);
+      doc.text("Cochin Shipyard Limited", 105, 15, { align: "center" });
+      doc.setFontSize(14);
+      doc.text("PF Calculation Report", 105, 25, { align: "center" });
+      doc.setFontSize(10);
+      doc.text(`Date: ${new Date().toLocaleDateString()}`, 180, 15, { align: "right" });
 
-      doc.autoTable({
-        html: '#resultTable',
-        startY: 30,
-        theme: 'striped',
-        headStyles: { fillColor: [0, 102, 204] },
+      // Dynamic content
+      doc.setFontSize(12);
+      let y = 40;
+      const lines = [
+        `Unit: ${unitName}`,
+        `Mode: ${tab === "beforeWeld" ? "Before Weld" : "After Weld"}`,
+        `Tolerance: ${tolerance} mm`,
+        `Reference: ${baseLine !== "N/A" ? baseLine : avg} mm`
+      ];
+      lines.forEach(line => {
+        doc.text(line, 20, y);
+        y += 8;
       });
 
-      doc.save("CalculationReport.pdf");
+      // Save
+      doc.save("PF_Calculation_Report.pdf");
     }
   </script>
 
