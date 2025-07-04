@@ -1,3 +1,0 @@
-Crash Test V6
-Date: 03 July 2025
-Data: A1 = 10.5 mm
