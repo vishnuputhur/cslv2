@@ -3,14 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Water Level Calculator</title>
+    <title>Ship Unit Leveling App - Water Level</title>
+    <!-- Google Analytics Tag -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-21G1BS7S3S"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-21G1BS7S3S');
+    </script>
+
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Times+New+Roman&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <style>
         :root {
             --dark-blue: #1e3a8a;
             --medium-blue: #2563eb;
+            --light-blue: #3b82f6;
             --white: #ffffff;
             --light-gray: #f3f4f6;
+            --green: #16a34a;
+            --red: #dc2626;
+            --black: #000000;
         }
 
         body {
@@ -23,63 +38,178 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            transition: background-color 0.3s ease;
         }
 
         .container {
             padding: 20px;
             width: 90%;
             max-width: 600px;
-            margin: 20px auto;
+            margin-top: 80px;
+            margin-bottom: 60px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         h1 {
             font-family: 'Times New Roman', serif;
             font-size: 18px;
+            color: var(--white);
             text-align: center;
-            margin-bottom: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            padding: 15px 10px;
+            margin: 0;
+            transform: translateX(-10px);
+            z-index: 1000;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.1), transparent);
         }
 
-        .input-group {
-            margin-bottom: 15px;
-            text-align: center;
+        .tabs {
+            position: fixed;
+            top: 40px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            z-index: 999;
+            background-color: transparent;
         }
 
-        .input-group label {
-            font-weight: 600;
-            margin-right: 10px;
-        }
-
-        .input-group input, .input-group span {
-            padding: 5px;
+        .tab {
+            padding: 12px 30px;
+            color: var(--white);
+            cursor: pointer;
             font-size: 14px;
-            border-radius: 5px;
+            font-weight: 600;
+            position: relative;
+            border: none;
+            background: none;
+            transition: all 0.3s ease;
+            margin: 0 5px;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .tab::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .tab.active::after {
+            background-color: var(--white);
+        }
+
+        .tab:first-child.active {
+            background-color: var(--dark-blue);
+        }
+
+        .tab:last-child.active {
+            background-color: var(--black);
+        }
+
+        .reference-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 450px;
+            margin: 0 auto;
+        }
+
+        .reference-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+
+        .reference-item.left {
+            align-items: flex-start;
+        }
+
+        .reference-item.center {
+            align-items: center;
+        }
+
+        .reference-item.right {
+            align-items: flex-end;
+        }
+
+        .reference-item label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--white);
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .reference-input {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .reference-input input[type="number"] {
+            width: 60px;
+            height: 30px;
+            padding: 5px;
             border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
             background-color: rgba(255, 255, 255, 0.1);
             color: var(--white);
-            text-align: center;
-        }
-
-        button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            background-color: var(--medium-blue);
-            color: var(--white);
-            font-size: 14px;
+            font-size: 12px;
             font-weight: 600;
-            cursor: pointer;
-            margin-top: 20px;
+            text-align: center;
+            transition: all 0.2s ease;
         }
 
-        button:hover {
-            background-color: #3b82f6;
+        .reference-input input[type="number"]:focus {
+            outline: none;
+            border-color: var(--white);
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .reference-input span {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--white);
+            margin-top: 5px;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin-top: 5px;
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            margin-right: 5px;
+            accent-color: var(--medium-blue);
+            width: 14px;
+            height: 14px;
         }
 
         .grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 10px;
-            margin-top: 20px;
+            margin-bottom: 20px;
         }
 
         .grid-cell {
@@ -87,83 +217,450 @@
             border-radius: 8px;
             padding: 10px;
             text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .grid-cell:hover {
+            transform: translateY(-2px);
+        }
+
+        .grid-cell .previous-diff {
+            font-size: 10px;
+            font-weight: bold;
+            color: var(--black);
+            margin-bottom: 5px;
+        }
+
+        .grid-cell .label-container {
+            display: block;
+            font-weight: 600;
+            font-size: 12px;
             color: var(--dark-blue);
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
+
+        .grid-cell input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 6px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 12px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .grid-cell input.label-input {
+            width: 50px;
+            padding: 2px;
+            font-size: 12px;
+        }
+
+        .difference {
+            font-size: 10px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .difference.green {
+            color: var(--green);
+        }
+
+        .difference.red {
+            color: var(--red);
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+            width: 100%;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            background-color: var(--medium-blue);
+            color: var(--white);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+            flex: 1;
+        }
+
+        button:hover {
+            background-color: var(--light-blue);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--white);
+            padding: 12px 0;
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 480px) {
+            .reference-container {
+                display: flex;
+                flex-wrap: nowrap;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .reference-item {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .reference-item.left {
+                align-items: flex-start;
+            }
+
+            .reference-item.center {
+                align-items: center;
+            }
+
+            .reference-item.right {
+                align-items: flex-end;
+            }
+
+            .reference-input input[type="number"]#baseLine {
+                width: 40px;
+                height: 14px;
+                font-size: 10px;
+                padding: 2px;
+            }
+
+            .reference-input input[type="number"]#tolerance {
+                width: 24px;
+                height: 14px;
+                font-size: 10px;
+                padding: 2px;
+            }
+
+            .reference-item label {
+                font-size: 10px;
+                margin-bottom: 5px;
+            }
+
+            .reference-input span {
+                font-size: 10px;
+                margin-top: 3px;
+            }
+
+            .checkbox-container {
+                margin-top: 3px;
+            }
+
+            .checkbox-container input[type="checkbox"] {
+                width: 12px;
+                height: 12px;
+            }
+
+            .checkbox-container span {
+                font-size: 10px;
+            }
+
+            .button-row {
+                flex-wrap: wrap;
+            }
+
+            button {
+                min-width: 120px;
+            }
+        }
+
+        @media print {
+            header, footer, .ads { display: none !important; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Water Level Calculator</h1>
-        <div class="input-group">
-            <label for="unitName">Unit Name:</label>
-            <input type="text" id="unitName" placeholder="Enter unit name">
+    <div class="container" id="mainApp">
+        <h1 id="appTitle">Ship Unit Leveling App - Water Level</h1>
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('beforeWeld')">Before Weld</button>
+            <button class="tab" onclick="switchTab('afterWeld')">After Weld</button>
         </div>
-        <div class="input-group">
-            <label for="tolerance">Tolerance (mm):</label>
-            <input type="number" id="tolerance" value="2" step="0.1">
+        <div class="reference-container">
+            <div class="reference-item left">
+                <label>Unit Name</label>
+                <div class="reference-input">
+                    <input type="text" id="unitName" placeholder="Enter unit name">
+                </div>
+            </div>
+            <div class="reference-item center">
+                <label>Tolerance</label>
+                <div class="reference-input">
+                    <input type="number" id="tolerance" value="2" step="0.1">
+                </div>
+            </div>
+            <div class="reference-item right">
+                <label>Base Line/Avg</label>
+                <div class="reference-input">
+                    <span id="baseLine">0.00 mm</span>
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="useBaseLine">
+                        <span>Use Base</span>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="input-group" id="beforeBL">
-            <label>Base Line:</label>
-            <span id="baseLine">0.00 mm</span>
+        <div class="grid" id="grid"></div>
+        <div class="button-group">
+            <div class="button-row">
+                <button onclick="addRow()">Add Row</button>
+                <button onclick="deleteRow()">Delete Row</button>
+            </div>
+            <div class="button-row">
+                <button onclick="addColumn()">Add Column</button>
+                <button onclick="deleteColumn()">Delete Column</button>
+            </div>
+            <div class="button-row">
+                <button onclick="openPDFPage()">Download PDF</button>
+            </div>
         </div>
-        <div class="input-group" id="afterAvg" style="display: none;">
-            <label>Average:</label>
-            <span id="afterAvg">0.00 mm</span>
-        </div>
-        <div class="grid" id="grid">
-            <!-- Grid cells will be populated dynamically -->
-        </div>
-        <button onclick="openPDFPage()">Download PDF</button>
     </div>
+    <footer>Created by Vishnu Puthoor © 2025</footer>
 
     <script>
-        let gridData = {};
         let rows = 4;
         let cols = 4;
+        let gridData = { beforeWeld: {}, afterWeld: {}, customLabels: {} };
+        let useBaseLine = { beforeWeld: false, afterWeld: false };
+        let tolerance = { beforeWeld: 2, afterWeld: 2 };
+        let baseLine = { beforeWeld: '', afterWeld: '' };
+        let currentTab = 'beforeWeld';
+        let beforeWeldDifferences = {};
 
-        function renderGrid() {
-            const grid = document.getElementById('grid');
-            grid.innerHTML = '';
-            grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-            for (let i = 0; i < rows; i++) {
-                for (let j = 0; j < cols; j++) {
-                    const defaultLabel = String.fromCharCode(65 + i) + (j + 1);
-                    const cell = document.createElement('div');
-                    cell.className = 'grid-cell';
-                    cell.innerHTML = `<input type="number" step="0.1" id="cell-${defaultLabel}" placeholder="${defaultLabel}" oninput="updateValue('${defaultLabel}', this.value)">`;
-                    grid.appendChild(cell);
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' }).replace(/\//g, '');
+        const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false }).replace(':', '');
+
+        window.onload = () => {
+            setupCheckboxListeners();
+            renderGrid();
+            updateAverage();
+        };
+
+        function setupCheckboxListeners() {
+            const baseLineCheckbox = document.getElementById('useBaseLine');
+            baseLineCheckbox.addEventListener('change', () => {
+                useBaseLine[currentTab] = baseLineCheckbox.checked;
+                updateAverage();
+            });
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.tab:nth-child(${tab === 'beforeWeld' ? 1 : 2})`).classList.add('active');
+            const unitName = document.getElementById('unitName').value || 'Unknown Unit';
+            document.getElementById('appTitle').innerText = `${unitName} ${tab === 'beforeWeld' ? 'Before Weld' : 'After Weld'} Water Level Details`;
+            document.getElementById('tolerance').value = tolerance[tab];
+            document.getElementById('useBaseLine').checked = useBaseLine[tab];
+            renderGrid();
+            updateAverage();
+        }
+
+        function computeBeforeWeldDifferences() {
+            if (currentTab === 'afterWeld') {
+                const values = Object.values(gridData.beforeWeld).filter(v => !isNaN(v) && v !== '');
+                const avg = values.length ? (values.reduce((a, b) => a + b, 0) / values.length).toFixed(2) : 0;
+                const bl = parseFloat(baseLine.beforeWeld);
+                const reference = useBaseLine.beforeWeld && !isNaN(bl) ? bl : avg;
+                beforeWeldDifferences = {};
+                for (let i = 0; i < rows; i++) {
+                    for (let j = 0; j < cols; j++) {
+                        const defaultLabel = String.fromCharCode(65 + i) + (j + 1);
+                        const label = gridData.customLabels[defaultLabel] || defaultLabel;
+                        const value = parseFloat(gridData.beforeWeld[defaultLabel]);
+                        if (!isNaN(value) && value !== '') {
+                            const diff = (value - reference).toFixed(2);
+                            beforeWeldDifferences[label] = `${diff > 0 ? '+' : ''}${diff} mm`;
+                        } else {
+                            beforeWeldDifferences[label] = 'N/A';
+                        }
+                    }
                 }
             }
         }
 
-        function updateValue(label, value) {
-            gridData[label] = value ? parseFloat(value) : '';
-            updateCalculations();
+        function makeLabelEditable(label, defaultLabel) {
+            const span = document.getElementById(`label-${defaultLabel}`);
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'label-input';
+            input.value = gridData.customLabels[defaultLabel] || defaultLabel;
+            input.style.display = 'inline-block';
+
+            input.onblur = function () {
+                const newLabel = this.value.trim();
+                if (newLabel) {
+                    gridData.customLabels[defaultLabel] = newLabel;
+                } else {
+                    delete gridData.customLabels[defaultLabel];
+                }
+                span.innerText = newLabel || defaultLabel;
+                span.style.display = 'block';
+                this.remove();
+                renderGrid();
+            };
+
+            input.onkeypress = function (e) {
+                if (e.key === 'Enter') {
+                    const newLabel = this.value.trim();
+                    if (newLabel) {
+                        gridData.customLabels[defaultLabel] = newLabel;
+                    } else {
+                        delete gridData.customLabels[defaultLabel];
+                    }
+                    span.innerText = newLabel || defaultLabel;
+                    span.style.display = 'block';
+                    this.remove();
+                    renderGrid();
+                }
+            };
+
+            span.style.display = 'none';
+            span.parentNode.insertBefore(input, span.nextSibling);
+            input.focus();
         }
 
-        function updateCalculations() {
-            const values = Object.values(gridData).filter(v => !isNaN(v) && v !== '');
+        function renderGrid() {
+            const grid = document.getElementById('grid');
+            grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+            grid.innerHTML = '';
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    const defaultLabel = String.fromCharCode(65 + i) + (j + 1);
+                    const label = gridData.customLabels[defaultLabel] || defaultLabel;
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell';
+                    const prevDiff = currentTab === 'afterWeld' ? `<div class="previous-diff">${beforeWeldDifferences[label] || 'N/A'}</div>` : '';
+                    cell.innerHTML = `
+                        ${prevDiff}
+                        <span class="label-container" id="label-${defaultLabel}" onclick="makeLabelEditable('${defaultLabel}', '${defaultLabel}')">${label}</span>
+                        <input type="number" step="0.1" value="${gridData[currentTab][defaultLabel] || ''}" oninput="updateValue('${defaultLabel}', this.value)">
+                        <div class="difference" id="diff-${defaultLabel}">0.00 mm</div>
+                    `;
+                    grid.appendChild(cell);
+                }
+            }
+            updateAverage();
+        }
+
+        function updateValue(defaultLabel, value) {
+            gridData[currentTab][defaultLabel] = value ? parseFloat(value) : '';
+            updateAverage();
+            if (currentTab === 'beforeWeld') computeBeforeWeldDifferences();
+        }
+
+        function updateBaseLine(value) {
+            baseLine[currentTab] = value;
+            if (useBaseLine[currentTab]) updateAverage();
+        }
+
+        function updateAverage() {
+            const values = Object.values(gridData[currentTab]).filter(v => !isNaN(v) && v !== '');
             const avg = values.length ? (values.reduce((a, b) => a + b, 0) / values.length).toFixed(2) : '0.00';
-            document.getElementById('baseLine').innerText = `${avg} mm`; // Default to average for before weld
-            if (document.getElementById('afterAvg')) {
-                document.getElementById('afterAvg').innerText = `${avg} mm`;
-                document.getElementById('afterAvg').style.display = 'block';
+            const bl = parseFloat(baseLine[currentTab]);
+            const reference = useBaseLine[currentTab] && !isNaN(bl) ? bl : avg;
+            document.getElementById('baseLine').innerText = `${reference} mm`;
+            tolerance[currentTab] = parseFloat(document.getElementById('tolerance').value) || 2;
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    const defaultLabel = String.fromCharCode(65 + i) + (j + 1);
+                    const value = parseFloat(gridData[currentTab][defaultLabel]);
+                    const diffEl = document.getElementById(`diff-${defaultLabel}`);
+                    if (!isNaN(value) && value !== '') {
+                        const diff = (value - reference).toFixed(2);
+                        diffEl.innerText = `${diff > 0 ? '+' : ''}${diff} mm`;
+                        diffEl.className = `difference ${Math.abs(diff) <= tolerance[currentTab] ? 'green' : 'red'}`;
+                    } else {
+                        diffEl.innerText = '0.00 mm';
+                        diffEl.className = 'difference';
+                    }
+                }
             }
         }
 
-        window.onload = () => {
+        function addRow() {
+            rows++;
             renderGrid();
-            updateCalculations();
-        };
+        }
+
+        function deleteRow() {
+            if (rows > 4) {
+                rows--;
+                for (let j = 0; j < cols; j++) {
+                    const defaultLabel = String.fromCharCode(65 + rows) + (j + 1);
+                    delete gridData[currentTab][defaultLabel];
+                    delete gridData.customLabels[defaultLabel];
+                    if (currentTab === 'beforeWeld') delete beforeWeldDifferences[defaultLabel];
+                }
+                renderGrid();
+            } else {
+                alert('Cannot delete below 4 rows!');
+            }
+        }
+
+        function addColumn() {
+            cols++;
+            renderGrid();
+        }
+
+        function deleteColumn() {
+            if (cols > 4) {
+                cols--;
+                for (let i = 0; i < rows; i++) {
+                    const defaultLabel = String.fromCharCode(65 + i) + (cols + 1);
+                    delete gridData[currentTab][defaultLabel];
+                    delete gridData.customLabels[defaultLabel];
+                    if (currentTab === 'beforeWeld') delete beforeWeldDifferences[defaultLabel];
+                }
+                renderGrid();
+            } else {
+                alert('Cannot delete below 4 columns!');
+            }
+        }
 
         function openPDFPage() {
-            const unit = encodeURIComponent(document.getElementById("unitName").value);
-            const tab = document.getElementById("beforeBL") ? "beforeWeld" : "afterWeld";
-            const tolerance = encodeURIComponent(document.getElementById("tolerance").value);
-            const baseLine = encodeURIComponent(document.getElementById("baseLine")?.innerText || "N/A");
-            const avg = encodeURIComponent(document.getElementById("afterAvg")?.innerText || "N/A");
+            const unit = encodeURIComponent(document.getElementById("unitName").value || 'Unknown Unit');
+            const tab = currentTab;
+            const tolerance = encodeURIComponent(document.getElementById("tolerance").value || '2');
+            const baseLine = encodeURIComponent(document.getElementById("baseLine").innerText || 'N/A');
+            const avg = encodeURIComponent((Object.values(gridData[currentTab]).filter(v => !isNaN(v) && v !== '').length ? (Object.values(gridData[currentTab]).reduce((a, b) => a + b, 0) / Object.values(gridData[currentTab]).filter(v => !isNaN(v) && v !== '').length).toFixed(2) : '0.00') + ' mm');
 
-            const url = `openchrome://vishnuputhur.github.io/cslv2/pdfversion.html?unit=${unit}&tab=${tab}&tol=${tolerance}&base=${baseLine}&avg=${avg}`;
+            const url = `openchrome://vishnuputhur.github.io/cslv2/pdfversion.html?unit=${unit}&tab=${tab}&tol=${tolerance}&base=${baseLine}&avg=${avg}&grid=${encodeURIComponent(JSON.stringify(gridData[currentTab]))}`;
             window.location.href = url;
         }
     </script>
