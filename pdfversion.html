@@ -29,8 +29,9 @@
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         const now = new Date();
-        const dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
-        const fileName = `${unit}_${tab}_WaterLevel_${dateStr.replace(/\//g, '-')}.pdf`;
+        const dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' }).replace(/\//g, '');
+        const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false }).replace(':', '');
+        const fileName = `${unit}WaterLevel${dateStr}${timeStr}.pdf`;
 
         const margin = 15;
         const pageWidth = 210;
@@ -44,7 +45,7 @@
             doc.text('Cochin Shipyard Limited', margin + contentWidth / 2, margin + 10, { align: 'center' });
             doc.setFontSize(12);
             doc.text(`${unit} ${pageTitle}`, margin + contentWidth / 2, margin + 20, { align: 'center' });
-            doc.text(`Date: ${dateStr}`, pageWidth - margin - 10, margin + 20, { align: 'right' });
+            doc.text(`Date: ${now.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}`, pageWidth - margin - 10, margin + 20, { align: 'right' });
         }
 
         // Before Weld Data
@@ -81,10 +82,10 @@
         doc.setFontSize(10);
         doc.text(`Before Weld - Tolerance: ${beforeTol} mm`, margin + 10, footerY);
         doc.text(!isNaN(beforeBL) ? `Base Line: ${beforeBL.toFixed(2)} mm` : `Plain Average: ${beforeAvg} mm`, margin + 10, footerY + 5);
-        doc.text('Created by Vishnu Puthoor © 2025', margin + contentWidth / 2, pageHeight - margin - 5, { align: 'center' });
+        doc.text('VT Soft © 2025', margin + contentWidth / 2, pageHeight - margin - 5, { align: 'center' });
 
-        // After Weld Data (if applicable, adjust logic if needed)
-        if (tab === 'afterWeld') {
+        // After Weld Data (if applicable)
+        if (tab === 'afterWeld' || true) { // Always include both pages for consistency
             doc.addPage();
             addPageHeaderAndBorder('After Weld Water Level Details');
             startY = margin + 30;
@@ -119,7 +120,7 @@
             doc.setFontSize(10);
             doc.text(`After Weld - Tolerance: ${afterTol} mm`, margin + 10, footerY);
             doc.text(!isNaN(afterBL) ? `Base Line: ${afterBL.toFixed(2)} mm` : `Plain Average: ${afterAvg} mm`, margin + 10, footerY + 5);
-            doc.text('Created by Vishnu Puthoor © 2025', margin + contentWidth / 2, pageHeight - margin - 5, { align: 'center' });
+            doc.text('VT Soft © 2025', margin + contentWidth / 2, pageHeight - margin - 5, { align: 'center' });
         }
 
         // Save PDF
