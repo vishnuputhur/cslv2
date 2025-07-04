@@ -1,69 +1,75 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>PDF Version with Params</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <style>
-    body { font-family: sans-serif; padding: 20px; }
-    #dynamicContent { margin-bottom: 20px; }
-    button { padding: 10px 20px; font-size: 14px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Version</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        body { margin: 0; padding: 20px; font-family: Arial, sans-serif; }
+        #content { display: none; }
+    </style>
 </head>
 <body>
+    <div id="content"></div>
 
-  <h2>PF Calculation Report</h2>
-  <div id="dynamicContent"></div>
-  <button onclick="downloadPDF()">Download PDF</button>
+    <script>
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const unit = decodeURIComponent(urlParams.get('unit') || 'Unknown Unit');
+        const tab = decodeURIComponent(urlParams.get('tab') || 'beforeWeld');
+        const tolerance = decodeURIComponent(urlParams.get('tol') || '2');
+        const baseLine = decodeURIComponent(urlParams.get('base') || 'N/A');
+        const avg = decodeURIComponent(urlParams.get('avg') || '0.00 mm');
+        const gridDataStr = decodeURIComponent(urlParams.get('grid') || '{}');
+        const gridData = JSON.parse(gridDataStr);
 
-  <script>
-    // 1. Read URL parameters
-    const params = new URLSearchParams(window.location.search);
-    const unitName   = params.get("unit")   || "Unknown Unit";
-    const tab        = params.get("tab")    || "beforeWeld";
-    const tolerance  = params.get("tol")    || "N/A";
-    const baseLine   = params.get("base")   || "N/A";
-    const avg        = params.get("avg")    || "N/A";
+        // Generate PDF
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
 
-    // 2. Render dynamic summary
-    document.getElementById("dynamicContent").innerHTML = `
-      <p><strong>Unit:</strong> ${unitName}</p>
-      <p><strong>Tab:</strong> ${tab === "beforeWeld" ? "Before Weld" : "After Weld"}</p>
-      <p><strong>Tolerance (mm):</strong> ${tolerance}</p>
-      <p><strong>Reference (Base/Average) (mm):</strong> ${baseLine !== "N/A" ? baseLine : avg}</p>
-    `;
+        // Header
+        doc.setFontSize(16);
+        doc.text(`Cochin Shipyard Limited - ${unit} ${tab} Water Level Details`, 10, 10);
+        doc.setFontSize(12);
+        doc.text(`Date: ${dateStr}`, 10, 20);
+        doc.text(`Tolerance: ${tolerance} mm`, 10, 30);
+        doc.text(`Base Line/Avg: ${baseLine}`, 10, 40);
+        doc.text(`Average: ${avg}`, 10, 50);
 
-    // 3. PDF generation
-    async function downloadPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+        // Prepare table data from gridData
+        const tableData = [];
+        for (let label in gridData) {
+            const value = gridData[label] || 'N/A';
+            const diff = !isNaN(value) && value !== 'N/A' ? (value - (baseLine.replace(' mm', '') || avg.replace(' mm', '') || 0)).toFixed(2) : 'N/A';
+            const color = !isNaN(value) && value !== 'N/A' && Math.abs(diff) <= parseFloat(tolerance) ? [22, 163, 74] : [220, 38, 38];
+            tableData.push([
+                label,
+                value !== 'N/A' ? value + ' mm' : 'N/A',
+                { content: diff !== 'N/A' ? `${diff > 0 ? '+' : ''}${diff} mm` : 'N/A', styles: { textColor: color } }
+            ]);
+        }
 
-      // Header
-      doc.setFontSize(16);
-      doc.text("Cochin Shipyard Limited", 105, 15, { align: "center" });
-      doc.setFontSize(14);
-      doc.text("PF Calculation Report", 105, 25, { align: "center" });
-      doc.setFontSize(10);
-      doc.text(`Date: ${new Date().toLocaleDateString()}`, 180, 15, { align: "right" });
+        // Generate table
+        doc.autoTable({
+            startY: 60,
+            head: [['Cell', 'Value (mm)', 'Difference (mm)']],
+            body: tableData,
+            theme: 'grid',
+            styles: { halign: 'center', cellPadding: 2, lineHeight: 1.5 },
+            margin: { left: 10, right: 10 }
+        });
 
-      // Dynamic content
-      doc.setFontSize(12);
-      let y = 40;
-      const lines = [
-        `Unit: ${unitName}`,
-        `Mode: ${tab === "beforeWeld" ? "Before Weld" : "After Weld"}`,
-        `Tolerance: ${tolerance} mm`,
-        `Reference: ${baseLine !== "N/A" ? baseLine : avg} mm`
-      ];
-      lines.forEach(line => {
-        doc.text(line, 20, y);
-        y += 8;
-      });
+        // Footer
+        const footerY = doc.lastAutoTable.finalY + 10;
+        doc.setFontSize(10);
+        doc.text('Created by Vishnu Puthoor © 2025', 105, footerY, { align: 'center' });
 
-      // Save
-      doc.save("PF_Calculation_Report.pdf");
-    }
-  </script>
-
+        // Save PDF
+        doc.save(`${unit}_${tab}_WaterLevel_${dateStr.replace(/\//g, '-')}.pdf`);
+    </script>
 </body>
 </html>
