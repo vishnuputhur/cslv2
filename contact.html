@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-21G1BS7S3S"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-21G1BS7S3S');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - CSL Calculations</title>
+    <style>
+        body {
+            background-color: #1E3A5F;
+            font-family: 'Poppins', sans-serif;
+            color: #F5E6C4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .top-img {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            cursor: pointer;
+        }
+
+        .sub-title {
+            font-size: 20px;
+            margin-top: 10px;
+            font-weight: bold;
+            font-family: 'Times New Roman', serif;
+            color: #ffffff;
+            text-align: center;
+        }
+
+        .container {
+            background-color: #F5E6C4;
+            color: #1E3A5F;
+            width: 80%;
+            max-width: 600px;
+            padding: 20px;
+            margin: 20px auto;
+            border-radius: 10px;
+            box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);
+            flex-grow: 1;
+            margin-bottom: 5px; /* Reduced from 100px to 5px */
+        }
+
+        .contact-info {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .contact-info h2 {
+            color: #1E3A5F;
+            margin-bottom: 10px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .contact-info p {
+            margin: 8px 0;
+            font-weight: bold;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+            color: #1E3A5F;
+            text-align: left;
+            padding-left: 5%;
+        }
+
+        input, textarea {
+            width: 90%;
+            padding: 10px;
+            font-size: 16px;
+            margin: 8px auto;
+            border: 2px solid #1E3A5F;
+            border-radius: 5px;
+            background: #FAF8E3;
+            display: block;
+        }
+
+        textarea {
+            height: 100px;
+        }
+
+        .btn {
+            width: 90%;
+            padding: 12px;
+            margin: 15px auto;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            color: white;
+            background-color: #1E3A5F;
+            box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.4);
+            display: block;
+        }
+
+        .btn:hover {
+            background-color: #0F2A45;
+        }
+
+        a {
+            color: #1E3A5F;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .footer {
+            font-size: 16px;
+            font-weight: normal;
+            padding: 20px;
+            background-color: #0F2A45;
+            width: 100%;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+            text-align: center;
+        }
+
+        .bottom-padding {
+            height: 80px;
+        }
+        
+        .form-title {
+            color: #1E3A5F;
+            text-align: center;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="index.html">
+        <img src="https://i.ibb.co/BYPxNBB/Screenshot-20250529-141452-CSL-Calculations.jpg" alt="Top Image" class="top-img">
+    </a>
+
+    <div class="sub-title">Contact Us</div>
+
+    <div class="container">
+        <div class="contact-info">
+            <h2>Get in Touch</h2>
+            <p>Vishnu T | Vishnu puthoor</p>
+            <p>Email: <a href="mailto:vtsoft@yahoo.com">vtsoft@yahoo.com</a></p>
+            <p>WhatsApp No: 9037383927</p>
+        </div>
+        
+        <!-- Feedback Form -->
+        <form action="https://formsubmit.co/vtsoft@yahoo.com" method="POST">
+            <h2 class="form-title">Feedback</h2>
+            
+            <label for="name">Your Name:</label>
+            <input type="text" name="name" id="name" required placeholder="Enter your name">
+            
+            <label for="feedback">Your Feedback:</label>
+            <textarea name="feedback" id="feedback" required placeholder="Enter your feedback"></textarea>
+            
+            <!-- Hidden Inputs -->
+            <input type="hidden" name="_captcha" value="false">
+            <input type="hidden" name="_next" value="https://vishnuputhur.github.io/cslcalculations/thank-you.html">
+            <input type="hidden" name="_subject" value="New Feedback Received!">
+            
+            <button type="submit" class="btn">Submit Feedback</button>
+        </form>
+    </div>
+
+    <!-- ====== കമന്റ് സെക്ഷൻ ====== -->
+    <div class="container" style="margin: 5px auto; max-width: 600px;"> <!-- Reduced margin from 20px to 5px -->
+      <h3 style="color: #1E3A5F; text-align: center;">Public Comments</h3>
+
+      <!-- കമന്റ് ഫോം -->
+      <div style="background: #FAF8E3; padding: 20px; border-radius: 8px; margin-bottom: 10px;"> <!-- Reduced margin-bottom -->
+        <input type="text" id="comment-name" placeholder="Your Name (Optional)" 
+               style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #1E3A5F;">
+        
+        <textarea id="comment-text" placeholder="Your Comment" 
+                  style="width: 100%; padding: 10px; height: 100px; border: 1px solid #1E3A5F;"></textarea>
+        
+        <div style="margin: 10px 0;">
+          <label>സ്പാം തടയാൻ: 2 + 3 = ?</label>
+          <input type="text" id="captcha" required 
+                 style="width: 50px; padding: 5px;">
+        </div>
+        
+        <button onclick="postComment()" class="btn" 
+                style="background-color: #1E3A5F; color: white; padding: 10px 20px; border: none; border-radius: 5px;">
+          Post Comment
+        </button>
+      </div>
+
+      <!-- കമന്റുകൾ കാണിക്കുന്ന ഭാഗം -->
+      <div id="comments-container" style="background: #FAF8E3; padding: 15px; border-radius: 8px;"></div>
+    </div>
+
+    <div class="bottom-padding"></div>
+
+    <div class="footer">Powered by VT@Soft © 2025 | Version 2.2.0</div>
+
+<script>
+// ====== കോൺഫിഗറേഷൻ ======
+const CONFIG = {
+  repoOwner: "vishnuputhur",
+  repoName: "cslcalculations",
+  issueId: 1, // നിങ്ങൾ സൃഷ്ടിച്ച issue നമ്പർ
+  token: "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" // ഇത് പകരം സുരക്ഷിതമായ രീതി ഉപയോഗിക്കുക
+};
+
+// ====== കമന്റുകൾ ലോഡ് ചെയ്യാനുള്ള ഫംഗ്ഷൻ ======
+async function loadComments() {
+  try {
+    const response = await fetch(
+      `https://api.github.com/repos/${CONFIG.repoOwner}/${CONFIG.repoName}/issues/${CONFIG.issueId}/comments`,
+      {
+        headers: {
+          'Authorization': `token ${CONFIG.token}`,
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      }
+    );
+    
+    if (!response.ok) throw new Error("Failed to load comments");
+    
+    const comments = await response.json();
+    displayComments(comments);
+    
+  } catch (error) {
+    console.error("Error:", error);
+    document.getElementById("comments-container").innerHTML = `
+      <p style="color: #8B1E3F;">Comments cannot be loaded at the moment. Please refresh the page.</p>
+    `;
+  }
+}
+
+// ====== കമന്റുകൾ ഡിസ്പ്ലേ ചെയ്യാനുള്ള ഫംഗ്ഷൻ ======
+function displayComments(comments) {
+  let html = "";
+  
+  if (comments.length === 0) {
+    html = `<p style="text-align: center; color: #1E3A5F;">No comments yet. Be the first to comment!</p>`;
+  } else {
+    comments.reverse().forEach(comment => {
+      const [namePart, ...commentParts] = comment.body.split('\n\n');
+      const name = namePart.replace('**Name:**', '').trim();
+      const commentText = commentParts.join('\n\n');
+      
+      html += `
+        <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed #1E3A5F;">
+          <div style="font-weight: bold; color: #1E3A5F;">${name || 'Anonymous'}</div>
+          <div style="margin: 5px 0;">${commentText}</div>
+          <div style="font-size: 0.8em; color: #666;">
+            ${new Date(comment.created_at).toLocaleString()}
+          </div>
+        </div>
+      `;
+    });
+  }
+  
+  document.getElementById("comments-container").innerHTML = html;
+}
+
+// ====== കമന്റ് സബ്മിറ്റ് ചെയ്യാനുള്ള ഫംഗ്ഷൻ ======
+async function postComment() {
+  const name = document.getElementById("comment-name").value.trim();
+  const text = document.getElementById("comment-text").value.trim();
+  const captcha = document.getElementById("captcha").value.trim();
+
+  // വാലിഡേഷൻ
+  if (!text) return alert("Please enter a comment");
+  if (captcha !== "5") return alert("Please answer the anti-spam question correctly");
+
+  try {
+    const response = await fetch(
+      `https://api.github.com/repos/${CONFIG.repoOwner}/${CONFIG.repoName}/issues/${CONFIG.issueId}/comments`,
+      {
+        method: "POST",
+        headers: {
+          'Authorization': `token ${CONFIG.token}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          body: `**Name:** ${name || 'Anonymous'}\n\n${text}`
+        })
+      }
+    );
+    
+    if (!response.ok) throw new Error("Failed to post comment");
+    
+    document.getElementById("comment-text").value = "";
+    document.getElementById("captcha").value = "";
+    loadComments();
+    
+  } catch (error) {
+    console.error("Error:", error);
+    alert("Failed to post comment. Please try again later.");
+  }
+}
+
+// പേജ് ലോഡ് ആകുമ്പോൾ കമന്റുകൾ ലോഡ് ചെയ്യുക
+window.addEventListener('DOMContentLoaded', loadComments);
+</script>
+</body>
+</html>

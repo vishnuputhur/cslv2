@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSL Calendar 2025</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-21G1BS7S3S"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-21G1BS7S3S');
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: #007bff;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            z-index: 1000;
+        }
+        .calendar-container {
+            margin-top: 60px;
+            padding-bottom: 60px;
+        }
+        .month {
+            margin: 20px 0 5px 0;
+            padding: 10px;
+            background: #007bff;
+            color: white;
+            border-radius: 5px;
+            position: sticky;
+            top: 50px;
+            z-index: 900;
+        }
+        .week-header {
+            display: flex;
+            background: #e0e0e0;
+            padding: 5px;
+            font-weight: bold;
+            position: sticky;
+            top: 100px;
+            z-index: 800;
+        }
+        .week-header div, .day {
+            width: 14%;
+            text-align: center;
+        }
+        .week {
+            display: flex;
+        }
+        .day {
+            padding: 10px;
+            border: 1px solid #ddd;
+            margin: 2px;
+            background: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .day.green-week {
+            background: #b9f542;
+        }
+        .holiday {
+            color: red;
+        }
+        .today {
+            background: yellow !important;
+            font-weight: bold;
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            z-index: 2000;
+        }
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: #007bff;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            z-index: 700;
+        }
+    </style>
+</head>
+<body onload="scrollToToday()">
+    <div class="header">CSL Calendar 2025</div>
+    <div class="calendar-container" id="calendar-container"></div>
+    <div class="popup" id="holiday-popup"></div>
+    <div class="footer">VT@Soft | Version 1.0 | 2025</div>
+
+    <script>
+        const holidays = {
+            "2025-03-31": "Id-ul-Fitr (Ramzan)",
+            "2025-04-14": "Vishu / Dr. BR Ambedkar Jayanthi",
+            "2025-04-18": "Good Friday",
+            "2025-05-01": "May Day",
+            "2025-06-06": "Bakrid",
+            "2025-08-15": "Independence Day",
+            "2025-09-04": "First Onam",
+            "2025-09-05": "Thiruvonam",
+            "2025-09-06": "Third Onam",
+            "2025-10-02": "Gandhi Jayanthi / Vijayadasami",
+            "2025-10-20": "Deepavali",
+            "2025-12-25": "Christmas"
+        };
+
+        const weekends = ["2025-01-11", "2025-01-25", "2025-02-08", "2025-02-22", "2025-03-08", "2025-03-22", "2025-04-12", "2025-04-26", "2025-05-10", "2025-05-24", "2025-06-14", "2025-06-28", "2025-07-12", "2025-07-26", "2025-08-09", "2025-08-23", "2025-09-13", "2025-09-27", "2025-10-11", "2025-10-25", "2025-11-08", "2025-11-22", "2025-12-13", "2025-12-27"];
+
+        const today = new Date();
+
+        function getISOWeek(date) {
+            const d = new Date(date);
+            d.setHours(0, 0, 0, 0);
+            d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7);
+            const week1 = new Date(d.getFullYear(), 0, 4);
+            return 1 + Math.round(((d - week1) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+        }
+
+        function generateCalendar() {
+            let calendarHTML = '';
+
+            for (let month = 0; month < 12; month++) {
+                const firstDay = new Date(2025, month, 1).getDay();
+                const daysInMonth = new Date(2025, month + 1, 0).getDate();
+                const monthName = new Date(2025, month).toLocaleString('default', { month: 'long' });
+
+                calendarHTML += `
+                    <div class="month" id="month-${month}">${monthName} 2025</div>
+                    <div class="week-header">
+                        <div>Sun</div><div>Mon</div><div>Tue</div>
+                        <div>Wed</div><div>Thu</div><div>Fri</div>
+                        <div>Sat</div>
+                    </div>
+                `;
+
+                let date = 1;
+
+                for (let i = 0; i < 6; i++) {
+                    if (date > daysInMonth) break;
+
+                    calendarHTML += `<div class="week">`;
+
+                    for (let j = 0; j < 7; j++) {
+                        if ((i === 0 && j < firstDay) || date > daysInMonth) {
+                            calendarHTML += '<div class="day"></div>';
+                        } else {
+                            const currentDate = new Date(2025, month, date);
+                            const dateStr = `2025-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
+                            const isoWeek = getISOWeek(currentDate);
+                            const isGreenWeek = isoWeek % 2 === 0 && j !== 0; // no green for Sunday
+
+                            let classes = 'day';
+                            if (isGreenWeek) classes += ' green-week';
+                            if (j === 0 || holidays[dateStr] || weekends.includes(dateStr)) {
+                                classes += ' holiday';
+                            }
+                            if (today.getFullYear() === 2025 && today.getMonth() === month && today.getDate() === date) {
+                                classes += ' today';
+                            }
+
+                            calendarHTML += `<div class="${classes}" onclick="showHoliday('${dateStr}')">${date}</div>`;
+                            date++;
+                        }
+                    }
+
+                    calendarHTML += '</div>';
+                }
+            }
+
+            document.getElementById('calendar-container').innerHTML = calendarHTML;
+        }
+
+        function showHoliday(dateStr) {
+            if (holidays[dateStr]) {
+                document.getElementById('holiday-popup').innerHTML = `
+                    <h3>${holidays[dateStr]}</h3>
+                    <button onclick="document.getElementById('holiday-popup').style.display='none'">Close</button>
+                `;
+                document.getElementById('holiday-popup').style.display = 'block';
+            }
+        }
+
+        function scrollToToday() {
+            generateCalendar();
+            const currentMonth = today.getMonth();
+            const monthElement = document.getElementById(`month-${currentMonth}`);
+            if (monthElement) {
+                window.scrollTo({
+                    top: monthElement.offsetTop - 120,
+                    behavior: 'smooth'
+                });
+            }
+        }
+
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('.popup') && !e.target.classList.contains('day')) {
+                document.getElementById('holiday-popup').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
