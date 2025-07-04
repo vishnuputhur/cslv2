@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>Ship Theory Dictionary</title>
 
   <!-- Google Tag -->
@@ -22,6 +22,8 @@
       text-align: center;
       margin: 0;
       padding: 0;
+      overscroll-behavior-y: none;
+  touch-action: pan-y;
     }
     .top-img {
       width: 100%;
@@ -38,8 +40,8 @@
     .container {
       background-color: #F5E6C4;
       color: #1E3A5F;
-      width: 85%;
-      max-width: 400px;
+      width: 80%;
+      max-width: 450px;
       padding: 15px;
       margin: 20px auto;
       border-radius: 10px;
@@ -55,16 +57,21 @@
       background-color: #FAF8E3;
       text-align: center;
     }
-    .word-list {
-      max-height: 300px;
-      overflow-y: auto;
-      background-color: #FAF8E3;
-      padding: 10px;
-      border-radius: 8px;
-      text-align: left;
-      font-weight: bold;
-      font-size: 16px;
-    }
+   .word-list {
+  height: 390px;
+  overflow-y: auto; /* scroll-ന് പകരം auto */
+  overscroll-behavior-y: contain; /* overscroll-behavior-ന് പകരം */
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  background-color: #FAF8E3;
+  padding: 10px;
+  border-radius: 8px;
+  text-align: left;
+  font-weight: bold;
+  font-size: 16px;
+  -ms-overflow-style: auto; /* ചേർക്കുക */
+  scrollbar-width: auto; /* ചേർക്കുക */
+}
     .word-list div {
       padding: 8px 0;
       border-bottom: 1px solid #ccc;
@@ -77,7 +84,7 @@
       padding: 20px;
       border-radius: 10px;
       margin: 20px auto;
-      width: 85%;
+      width: 80%;
       max-width: 400px;
       box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);
     }
@@ -106,7 +113,10 @@
 </head>
 <body>
 
-  <img src="https://i.ibb.co/BYPxNBB/Screenshot-20250529-141452-CSL-Calculations.jpg" alt="Top Image" class="top-img" />
+  <img src="https://i.ibb.co/BYPxNBB/Screenshot-20250529-141452-CSL-Calculations.jpg" 
+     alt="Top Image" 
+     class="top-img" 
+     onclick="location.href='index.html'" />
   <div class="sub-title">Ship Theory Dictionary</div>
 
   <div class="container" id="mainBox">
@@ -157,7 +167,10 @@
       renderList();
     }
 
-    searchInput.addEventListener("input", () => renderList(searchInput.value));
+  searchInput.addEventListener("input", () => {
+  renderList(searchInput.value);
+  restoreScroll();
+});
     renderList();
   </script>
 
