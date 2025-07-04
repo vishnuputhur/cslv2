@@ -1000,6 +1000,16 @@
             const whatsappUrl = `whatsapp://send?phone=${phoneNumber}`;
             window.location.href = whatsappUrl; // Triggers the redirect
         }
-    </script>
+
+<!-- Keep the existing HTML structure as before -->
+    // ... (keep all existing script code) ...
+
+    function testPDF() {
+        alert("Attempting to generate PDF via print...");
+        window.location.href = 'print://trigger'; // Triggers WebView print
+    }
+
+    // ... (keep remaining functions like downloadPDF, openWhatsApp, etc.) ...
+</script>
 </body>
 </html>
