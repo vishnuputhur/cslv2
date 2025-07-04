@@ -523,8 +523,8 @@
             <div class="button-row">
                 <button onclick="downloadPDF()">Download PDF</button>
                 <button onclick="saveAndExit()">Save & Exit</button>
-                <button onclick="testPDF()">Test PDF Generation</button> <!-- New Test Button -->
-                <button onclick="openWhatsApp()">Contact Support</button> <!-- WhatsApp Button -->
+                <button onclick="testPDF()">Test PDF Generation</button>
+                <button onclick="openWhatsApp()">Contact Support</button>
             </div>
         </div>
     </div>
@@ -964,7 +964,13 @@
         }
 
         function testPDF() {
+            alert("Function started"); // Debug: Confirm function runs
             const { jsPDF } = window.jspdf;
+            if (!jsPDF) {
+                alert("jsPDF not loaded! Check internet or script URL.");
+                return;
+            }
+            alert("jsPDF loaded successfully"); // Debug: Confirm jsPDF is available
             const doc = new jsPDF();
 
             // Basic PDF content
@@ -981,9 +987,12 @@
             const dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' }).replace(/\//g, '');
             const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false }).replace(':', '');
             const fileName = `TestPDF_${dateStr}${timeStr}.pdf`;
-            doc.save(fileName);
-
-            alert("PDF generated and saved as " + fileName);
+            try {
+                doc.save(fileName);
+                alert("PDF generation attempted. Check Downloads for " + fileName); // Debug: Confirm save attempt
+            } catch (e) {
+                alert("PDF save failed: " + e.message); // Debug: Catch any errors
+            }
         }
 
         function openWhatsApp() {
