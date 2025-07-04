@@ -1,48 +1,171 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>PDFShift Test</title>
-  <style>
-    body { font-family: sans-serif; padding: 20px; }
-    button { padding: 10px 20px; margin-top: 20px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Level Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Times+New+Roman&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --dark-blue: #1e3a8a;
+            --medium-blue: #2563eb;
+            --white: #ffffff;
+            --light-gray: #f3f4f6;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: var(--dark-blue);
+            color: var(--white);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            padding: 20px;
+            width: 90%;
+            max-width: 600px;
+            margin: 20px auto;
+        }
+
+        h1 {
+            font-family: 'Times New Roman', serif;
+            font-size: 18px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            margin-right: 10px;
+        }
+
+        .input-group input, .input-group span {
+            padding: 5px;
+            font-size: 14px;
+            border-radius: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+            text-align: center;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background-color: var(--medium-blue);
+            color: var(--white);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #3b82f6;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .grid-cell {
+            background-color: var(--white);
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            color: var(--dark-blue);
+        }
+    </style>
 </head>
 <body>
-  <h2>PDFShift API Sample</h2>
-  <p>Click below to generate a PDF from this page using PdfShift API.</p>
+    <div class="container">
+        <h1>Water Level Calculator</h1>
+        <div class="input-group">
+            <label for="unitName">Unit Name:</label>
+            <input type="text" id="unitName" placeholder="Enter unit name">
+        </div>
+        <div class="input-group">
+            <label for="tolerance">Tolerance (mm):</label>
+            <input type="number" id="tolerance" value="2" step="0.1">
+        </div>
+        <div class="input-group" id="beforeBL">
+            <label>Base Line:</label>
+            <span id="baseLine">0.00 mm</span>
+        </div>
+        <div class="input-group" id="afterAvg" style="display: none;">
+            <label>Average:</label>
+            <span id="afterAvg">0.00 mm</span>
+        </div>
+        <div class="grid" id="grid">
+            <!-- Grid cells will be populated dynamically -->
+        </div>
+        <button onclick="openPDFPage()">Download PDF</button>
+    </div>
 
-  <button onclick="generatePDF()">Generate PDF</button>
+    <script>
+        let gridData = {};
+        let rows = 4;
+        let cols = 4;
 
-  <script>
-    async function generatePDF() {
-      const html = '<h1>Hello from PDFShift</h1><p>This is a sample PDF created using PdfShift API.</p>';
-      try {
-        const response = await fetch('https://api.pdfshift.io/v3/convert/pdf', {
-          method: 'POST',
-          headers: {
-            'X-API-Key': 'sk_32135444fbbd7f9ab281f731fb742b7299eefdf3',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            source: html,
-            landscape: false,
-            use_print: false
-          })
-        });
+        function renderGrid() {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+            grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    const defaultLabel = String.fromCharCode(65 + i) + (j + 1);
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell';
+                    cell.innerHTML = `<input type="number" step="0.1" id="cell-${defaultLabel}" placeholder="${defaultLabel}" oninput="updateValue('${defaultLabel}', this.value)">`;
+                    grid.appendChild(cell);
+                }
+            }
+        }
 
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "sample.pdf";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      } catch (error) {
-        alert("PDF creation failed: " + error);
-      }
-    }
-  </script>
+        function updateValue(label, value) {
+            gridData[label] = value ? parseFloat(value) : '';
+            updateCalculations();
+        }
+
+        function updateCalculations() {
+            const values = Object.values(gridData).filter(v => !isNaN(v) && v !== '');
+            const avg = values.length ? (values.reduce((a, b) => a + b, 0) / values.length).toFixed(2) : '0.00';
+            document.getElementById('baseLine').innerText = `${avg} mm`; // Default to average for before weld
+            if (document.getElementById('afterAvg')) {
+                document.getElementById('afterAvg').innerText = `${avg} mm`;
+                document.getElementById('afterAvg').style.display = 'block';
+            }
+        }
+
+        window.onload = () => {
+            renderGrid();
+            updateCalculations();
+        };
+
+        function openPDFPage() {
+            const unit = encodeURIComponent(document.getElementById("unitName").value);
+            const tab = document.getElementById("beforeBL") ? "beforeWeld" : "afterWeld";
+            const tolerance = encodeURIComponent(document.getElementById("tolerance").value);
+            const baseLine = encodeURIComponent(document.getElementById("baseLine")?.innerText || "N/A");
+            const avg = encodeURIComponent(document.getElementById("afterAvg")?.innerText || "N/A");
+
+            const url = `openchrome://vishnuputhur.github.io/cslv2/pdfversion.html?unit=${unit}&tab=${tab}&tol=${tolerance}&base=${baseLine}&avg=${avg}`;
+            window.location.href = url;
+        }
+    </script>
 </body>
 </html>
