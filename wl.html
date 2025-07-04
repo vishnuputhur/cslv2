@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ship Unit Leveling App - Water Level</title>
+    <title>Ship Unit Leveling App</title>
     <!-- Google Analytics Tag -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-21G1BS7S3S"></script>
     <script>
@@ -324,6 +324,74 @@
             background-color: rgba(0, 0, 0, 0.2);
         }
 
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            padding: 25px;
+            border-radius: 12px;
+            width: 85%;
+            max-width: 350px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-content h2 {
+            color: var(--dark-blue);
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .modal-content input[type="text"] {
+            width: 80%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .modal-content button {
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        .unit-list {
+            max-height: 250px;
+            overflow-y: auto;
+            margin-top: 10px;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+
+        .unit-item {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            color: var(--dark-blue);
+            font-size: 14px;
+        }
+
+        .unit-item:hover {
+            background-color: var(--light-gray);
+        }
+
+        .unit-item:last-child {
+            border-bottom: none;
+        }
+
         @media (max-width: 480px) {
             .reference-container {
                 display: flex;
@@ -398,38 +466,51 @@
             }
         }
 
+        /* Original print setup retained */
         @media print {
             header, footer, .ads { display: none !important; }
         }
     </style>
 </head>
 <body>
-    <div class="container" id="mainApp">
-        <h1 id="appTitle">Ship Unit Leveling App - Water Level</h1>
+    <div class="modal" id="unitModal">
+        <div class="modal-content">
+            <h2>Water Level Calculator</h2>
+            <input type="text" id="newUnitInput" placeholder="Enter new unit name">
+            <button onclick="createNewUnitFromInput()">Create Unit</button>
+            <div class="unit-list" id="unitList"></div>
+        </div>
+    </div>
+    <div class="container" id="mainApp" style="display: none;">
+        <h1 id="appTitle">Ship Unit Leveling App</h1>
         <div class="tabs">
             <button class="tab active" onclick="switchTab('beforeWeld')">Before Weld</button>
             <button class="tab" onclick="switchTab('afterWeld')">After Weld</button>
         </div>
         <div class="reference-container">
             <div class="reference-item left">
-                <label>Unit Name</label>
+                <label>Base Line</label>
                 <div class="reference-input">
-                    <input type="text" id="unitName" placeholder="Enter unit name">
+                    <input type="number" id="baseLine" step="0.1" oninput="updateBaseLine(this.value)">
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="useBaseLine">
+                        <span>Use</span>
+                    </div>
                 </div>
             </div>
             <div class="reference-item center">
                 <label>Tolerance</label>
                 <div class="reference-input">
-                    <input type="number" id="tolerance" value="2" step="0.1">
+                    <input type="number" id="tolerance" placeholder="Tolerance" value="2" step="0.1">
                 </div>
             </div>
             <div class="reference-item right">
-                <label>Base Line/Avg</label>
+                <label>Plain Average</label>
                 <div class="reference-input">
-                    <span id="baseLine">0.00 mm</span>
+                    <span id="averageValue">0.00 mm</span>
                     <div class="checkbox-container">
-                        <input type="checkbox" id="useBaseLine">
-                        <span>Use Base</span>
+                        <input type="checkbox" id="useAverage" checked>
+                        <span>Use</span>
                     </div>
                 </div>
             </div>
@@ -445,7 +526,8 @@
                 <button onclick="deleteColumn()">Delete Column</button>
             </div>
             <div class="button-row">
-                <button onclick="openPDFPage()">Download PDF</button>
+                <button onclick="downloadPDF()">Download PDF</button>
+                <button onclick="saveAndExit()">Save & Exit</button>
             </div>
         </div>
     </div>
@@ -466,27 +548,128 @@
         const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false }).replace(':', '');
 
         window.onload = () => {
+            showModal();
+            loadRecentUnits();
             setupCheckboxListeners();
-            renderGrid();
-            updateAverage();
         };
 
         function setupCheckboxListeners() {
             const baseLineCheckbox = document.getElementById('useBaseLine');
+            const averageCheckbox = document.getElementById('useAverage');
+
             baseLineCheckbox.addEventListener('change', () => {
-                useBaseLine[currentTab] = baseLineCheckbox.checked;
+                if (baseLineCheckbox.checked) {
+                    useBaseLine[currentTab] = true;
+                    averageCheckbox.checked = false;
+                } else {
+                    useBaseLine[currentTab] = false;
+                    averageCheckbox.checked = true;
+                }
+                if (currentTab === 'beforeWeld') computeBeforeWeldDifferences();
                 updateAverage();
             });
+
+            averageCheckbox.addEventListener('change', () => {
+                if (averageCheckbox.checked) {
+                    useBaseLine[currentTab] = false;
+                    baseLineCheckbox.checked = false;
+                } else {
+                    useBaseLine[currentTab] = true;
+                    baseLineCheckbox.checked = true;
+                }
+                if (currentTab === 'beforeWeld') computeBeforeWeldDifferences();
+                updateAverage();
+            });
+        }
+
+        function showModal() {
+            document.getElementById('unitModal').style.display = 'flex';
+            document.getElementById('mainApp').style.display = 'none';
+        }
+
+        function createNewUnitFromInput() {
+            const unitName = document.getElementById('newUnitInput').value.trim();
+            if (unitName) {
+                const upperUnitName = unitName.toUpperCase();
+                tolerance = { beforeWeld: 2, afterWeld: 2 };
+                baseLine = { beforeWeld: '', afterWeld: '' };
+                useBaseLine = { beforeWeld: false, afterWeld: false };
+                document.getElementById('tolerance').value = tolerance[currentTab];
+                document.getElementById('baseLine').value = baseLine[currentTab];
+                document.getElementById('useBaseLine').checked = false;
+                document.getElementById('useAverage').checked = true;
+                document.getElementById('appTitle').innerText = `${upperUnitName} ${currentTab === 'beforeWeld' ? 'Before Weld' : 'After Weld'} Water Level Details`;
+                document.title = `${upperUnitName} ${currentTab === 'beforeWeld' ? 'Before Weld' : 'After Weld'} Water Level Details`;
+                gridData = { beforeWeld: {}, afterWeld: {}, customLabels: {} };
+                beforeWeldDifferences = {};
+                rows = 4;
+                cols = 4;
+                renderGrid();
+                document.getElementById('unitModal').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                updateAverage();
+            } else {
+                alert('Please enter a unit name!');
+            }
+        }
+
+        function loadRecentUnits() {
+            const unitList = document.getElementById('unitList');
+            unitList.innerHTML = '';
+            let units = JSON.parse(localStorage.getItem('shipUnits') || '{}');
+            if (Object.keys(units).length === 0) {
+                units = { "TEST_UNIT": { tolerance: { beforeWeld: 2, afterWeld: 2 }, baseLine: { beforeWeld: '', afterWeld: '' }, useBaseLine: { beforeWeld: false, afterWeld: false }, grid: { beforeWeld: {}, afterWeld: {}, customLabels: {} }, rows: 4, cols: 4 } };
+                localStorage.setItem('shipUnits', JSON.stringify(units));
+            }
+            console.log('Units:', units);
+            for (let unit in units) {
+                const div = document.createElement('div');
+                div.className = 'unit-item';
+                div.innerText = unit;
+                div.onclick = () => loadUnit(unit);
+                unitList.appendChild(div);
+            }
+        }
+
+        function loadUnit(unit) {
+            const units = JSON.parse(localStorage.getItem('shipUnits') || '{}');
+            const data = units[unit] || { tolerance: { beforeWeld: 2, afterWeld: 2 }, baseLine: { beforeWeld: '', afterWeld: '' }, useBaseLine: { beforeWeld: false, afterWeld: false }, grid: { beforeWeld: {}, afterWeld: {}, customLabels: {} }, rows: 4, cols: 4 };
+            currentTab = 'beforeWeld';
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelector('.tab:first-child').classList.add('active');
+            document.body.style.backgroundColor = '#1e3a8a';
+            tolerance = data.tolerance || { beforeWeld: 2, afterWeld: 2 };
+            baseLine = data.baseLine || { beforeWeld: '', afterWeld: '' };
+            useBaseLine = data.useBaseLine || { beforeWeld: false, afterWeld: false };
+            document.getElementById('tolerance').value = tolerance[currentTab];
+            document.getElementById('baseLine').value = baseLine[currentTab];
+            document.getElementById('useBaseLine').checked = useBaseLine[currentTab];
+            document.getElementById('useAverage').checked = !useBaseLine[currentTab];
+            document.getElementById('appTitle').innerText = `${unit.toUpperCase()} ${currentTab === 'beforeWeld' ? 'Before Weld' : 'After Weld'} Water Level Details`;
+            document.title = `${unit.toUpperCase()} ${currentTab === 'beforeWeld' ? 'Before Weld' : 'After Weld'} Water Level Details`;
+            gridData = data.grid || { beforeWeld: {}, afterWeld: {}, customLabels: {} };
+            rows = data.rows || 4;
+            cols = data.cols || 4;
+            computeBeforeWeldDifferences();
+            renderGrid();
+            document.getElementById('unitModal').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            updateAverage();
         }
 
         function switchTab(tab) {
             currentTab = tab;
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelector(`.tab:nth-child(${tab === 'beforeWeld' ? 1 : 2})`).classList.add('active');
-            const unitName = document.getElementById('unitName').value || 'Unknown Unit';
+            const unitName = document.getElementById('appTitle').innerText.split(' ')[0];
             document.getElementById('appTitle').innerText = `${unitName} ${tab === 'beforeWeld' ? 'Before Weld' : 'After Weld'} Water Level Details`;
+            document.title = `${unitName} ${tab === 'beforeWeld' ? 'Before Weld' : 'After Weld'} Water Level Details`;
             document.getElementById('tolerance').value = tolerance[tab];
+            document.getElementById('baseLine').value = baseLine[tab];
             document.getElementById('useBaseLine').checked = useBaseLine[tab];
+            document.getElementById('useAverage').checked = !useBaseLine[tab];
+            document.body.style.backgroundColor = tab === 'beforeWeld' ? '#1e3a8a' : '#000000';
+            computeBeforeWeldDifferences();
             renderGrid();
             updateAverage();
         }
@@ -532,6 +715,7 @@
                 span.innerText = newLabel || defaultLabel;
                 span.style.display = 'block';
                 this.remove();
+                computeBeforeWeldDifferences();
                 renderGrid();
             };
 
@@ -546,6 +730,7 @@
                     span.innerText = newLabel || defaultLabel;
                     span.style.display = 'block';
                     this.remove();
+                    computeBeforeWeldDifferences();
                     renderGrid();
                 }
             };
@@ -591,10 +776,11 @@
 
         function updateAverage() {
             const values = Object.values(gridData[currentTab]).filter(v => !isNaN(v) && v !== '');
-            const avg = values.length ? (values.reduce((a, b) => a + b, 0) / values.length).toFixed(2) : '0.00';
+            const avg = values.length ? (values.reduce((a, b) => a + b, 0) / values.length).toFixed(2) : 0;
             const bl = parseFloat(baseLine[currentTab]);
             const reference = useBaseLine[currentTab] && !isNaN(bl) ? bl : avg;
-            document.getElementById('baseLine').innerText = `${reference} mm`;
+            document.getElementById('averageValue').innerText = `${avg} mm`;
+            document.getElementById('baseLine').value = baseLine[currentTab] || '';
             tolerance[currentTab] = parseFloat(document.getElementById('tolerance').value) || 2;
             for (let i = 0; i < rows; i++) {
                 for (let j = 0; j < cols; j++) {
@@ -653,14 +839,29 @@
             }
         }
 
-        function openPDFPage() {
-            const unit = encodeURIComponent(document.getElementById("unitName").value || 'Unknown Unit');
-            const tab = currentTab;
-            const tolerance = encodeURIComponent(document.getElementById("tolerance").value || '2');
-            const baseLine = encodeURIComponent(document.getElementById("baseLine").innerText || 'N/A');
-            const avg = encodeURIComponent((Object.values(gridData[currentTab]).filter(v => !isNaN(v) && v !== '').length ? (Object.values(gridData[currentTab]).reduce((a, b) => a + b, 0) / Object.values(gridData[currentTab]).filter(v => !isNaN(v) && v !== '').length).toFixed(2) : '0.00') + ' mm');
+        function saveAndExit() {
+            const unitName = document.getElementById('appTitle').innerText.split(' ')[0];
+            if (unitName) {
+                let units = JSON.parse(localStorage.getItem('shipUnits') || '{}');
+                units[unitName] = { tolerance, baseLine, useBaseLine, grid: gridData, rows, cols };
+                localStorage.setItem('shipUnits', JSON.stringify(units));
+                alert('Unit data saved!');
+                showModal();
+                loadRecentUnits();
+            } else {
+                alert('Unit name is required!');
+            }
+        }
 
-            const url = `openchrome://vishnuputhur.github.io/cslv2/pdfversion.html?unit=${unit}&tab=${tab}&tol=${tolerance}&base=${baseLine}&avg=${avg}&grid=${encodeURIComponent(JSON.stringify(gridData[currentTab]))}`;
+        function downloadPDF() {
+            const unit = encodeURIComponent(document.getElementById('appTitle').innerText.split(' ')[0] || 'Unknown Unit');
+            const tab = currentTab;
+            const tolerance = encodeURIComponent(document.getElementById('tolerance').value || '2');
+            const baseLine = encodeURIComponent(document.getElementById('baseLine').value || 'N/A');
+            const avg = encodeURIComponent(document.getElementById('averageValue').innerText || '0.00 mm');
+            const grid = encodeURIComponent(JSON.stringify(gridData[currentTab]));
+
+            const url = `openchrome://vishnuputhur.github.io/cslv2/pdfversion.html?unit=${unit}&tab=${tab}&tol=${tolerance}&base=${baseLine}&avg=${avg}&grid=${grid}`;
             window.location.href = url;
         }
     </script>
