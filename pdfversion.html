@@ -103,7 +103,7 @@
             for (let label in gridData.afterWeld) {
                 const value = gridData.afterWeld[label] || 'N/A';
                 const diff = !isNaN(value) && value !== 'N/A' ? (value - afterReference).toFixed(2) : '0.00';
-                const beforeDiff = gridData.beforeWeld[label] !== undefined && !isNaN(gridData.beforeWeld[label]) ? beforeWeldDifferences[label] || 'N/A' : 'N/A';
+                const beforeDiff = gridData.beforeWeld[label] !== undefined && !isNaN(gridData.beforeWeld[label]) ? (beforeWeldDifferences && beforeWeldDifferences[label] ? beforeWeldDifferences[label] : 'N/A') : 'N/A';
                 const combinedDiff = !isNaN(value) && value !== 'N/A' ? `${diff > 0 ? '+' : ''}${diff} mm (Before Weld: ${beforeDiff})` : '0.00 mm';
                 const color = !isNaN(value) && value !== 'N/A' && Math.abs(diff) <= afterTol ? [22, 163, 74] : [220, 38, 38];
                 afterTableData.push([label, value, { content: combinedDiff, styles: { textColor: color } }]);
