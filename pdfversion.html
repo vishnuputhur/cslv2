@@ -83,14 +83,18 @@
         for (let label in gridData) {
             const value = gridData[label] || 'N/A';
             const diff = !isNaN(value) && value !== 'N/A' ? (value - reference).toFixed(2) : '0.00';
-            const combinedDiff = tab === 'afterWeld' ? `${diff > 0 ? '+' : ''}${diff} mm (Before Weld: ${beforeWeldDiffs[label] || 'N/A'})` : `${diff > 0 ? '+' : ''}${diff} mm`;
             const color = !isNaN(value) && value !== 'N/A' && Math.abs(diff) <= tol ? [22, 163, 74] : [220, 38, 38];
-            tableData.push([label, value, { content: combinedDiff, styles: { textColor: color } }]);
+            if (tab === 'beforeWeld') {
+                tableData.push([label, value, { content: `${diff > 0 ? '+' : ''}${diff} mm`, styles: { textColor: color } }]);
+            } else { // afterWeld
+                tableData.push([label, value, { content: `${diff > 0 ? '+' : ''}${diff} mm`, styles: { textColor: color } }, beforeWeldDiffs[label] || 'N/A']);
+            }
         }
 
+        const tableHeaders = tab === 'beforeWeld' ? [['Cell', 'Value (mm)', 'Difference (mm)']] : [['Cell', 'Value (mm)', 'Difference (mm)', 'Before Weld Difference (mm)']];
         doc.autoTable({
             startY: startY,
-            head: [['Cell', 'Value (mm)', 'Difference (mm)']],
+            head: tableHeaders,
             body: tableData,
             theme: 'grid',
             styles: { halign: 'center', cellPadding: 2, lineHeight: 1.5 },
@@ -99,8 +103,10 @@
 
         let footerY = doc.lastAutoTable.finalY + 10;
         doc.setFontSize(10);
-        doc.text(`${tab === 'beforeWeld' ? 'Before Weld' : 'After Weld'} - Tolerance: ${tol} mm`, margin + 10, footerY);
-        doc.text(!isNaN(bl) ? `Base Line: ${bl.toFixed(2)} mm` : `Plain Average: ${avgValue} mm`, margin + 10, footerY + 5);
+        doc.setFont(undefined, 'bold'); // Bold for Plain Average/Baseline
+        doc.text(!isNaN(bl) ? `Base Line: ${bl.toFixed(2)} mm` : `Plain Average: ${avgValue} mm`, margin + 10, footerY);
+        doc.setFont(undefined, 'normal'); // Reset to normal
+        doc.text(`Tolerance: ${tol} mm`, margin + 10, footerY + 5);
         const userName = localStorage.getItem('userName') || 'Unknown User';
         doc.text(`Prepared by: ${userName}`, margin + 10, footerY + 10);
         doc.text('VT Soft © 2025', margin + contentWidth / 2, pageHeight - margin - 5, { align: 'center' });
