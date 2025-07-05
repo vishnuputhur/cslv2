@@ -169,10 +169,11 @@
             <h2>Get in Touch</h2>
             <p>Vishnu T | Vishnu puthoor</p>
             <p>Email: <a href="mailto:vtsoft@yahoo.com">vtsoft@yahoo.com</a></p>
+    <p>WhatsApp No: 9037383927</p>
+       
             <p><a href="https://wa.me/919037383927?text=CSL%20calculation%20V2" class="btn whatsapp-btn" onclick="openWhatsApp()">Chat with Us</a></p>
-            <p>WhatsApp No: 9037383927</p>
         </div>
-        
+      
         <!-- Feedback Form -->
         <form action="https://formsubmit.co/vtsoft@yahoo.com" method="POST">
             <h2 class="form-title">Feedback</h2>
@@ -198,19 +199,12 @@
 
     <script>
         function openWhatsApp() {
-            // Attempt to open WhatsApp
+            // Open WhatsApp
             window.location.href = 'https://wa.me/919037383927?text=CSL%20calculation%20V2';
             // Redirect to index.html after a short delay
             setTimeout(function() {
-                window.location.href = 'index.html';
+                window.location.href = 'file:///android_asset/index.html';
             }, 500);
-            // Fallback alert if WhatsApp fails (e.g., not installed)
-            setTimeout(function() {
-                if (window.location.href.includes('wa.me')) {
-                    alert('WhatsApp is not installed or could not be opened. Please try again or use another method to contact us.');
-                    window.location.href = 'index.html';
-                }
-            }, 1000);
         }
     </script>
 </body>
