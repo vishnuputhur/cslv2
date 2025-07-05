@@ -48,7 +48,7 @@
             doc.text(`Date: ${now.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}`, pageWidth - margin - 10, margin + 20, { align: 'right' });
         }
 
-        // Single page based on tab
+        // First page: Data table
         addPageHeaderAndBorder(`${tab === 'beforeWeld' ? 'Before Weld' : 'After Weld'} Water Level Details`);
         let startY = margin + 30;
         doc.setFontSize(12);
@@ -108,9 +108,14 @@
         doc.text(!isNaN(bl) ? `Base Line: ${bl.toFixed(2)} mm` : `Plain Average: ${avgValue} mm`, margin + 10, footerY);
         doc.setFont(undefined, 'normal'); // Reset to normal
         doc.text(`Tolerance: ${tol} mm`, margin + 10, footerY + 5);
-        const userName = localStorage.getItem('userName') || 'Unknown User'; // Ensure userName is retrieved
-        doc.text(`Prepared by: ${userName}`, pageWidth - margin - 20, footerY + 10, { align: 'right' }); // Right-aligned user name
         doc.text('VT Soft © 2025', margin + contentWidth / 2, pageHeight - margin - 5, { align: 'center' });
+
+        // Add second page for additional details
+        doc.addPage();
+        addPageHeaderAndBorder('Additional Details');
+        startY = margin + 30;
+        doc.setFontSize(8); // Smaller font for simplicity
+        doc.text('Prepared by: VT Soft User', margin + 10, pageHeight - margin - 10); // Small, simple, no box, last line of second page
 
         // Save PDF
         doc.save(fileName);
