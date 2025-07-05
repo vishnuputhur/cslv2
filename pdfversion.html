@@ -22,8 +22,8 @@
         const tolerance = decodeURIComponent(urlParams.get('tol') || '2');
         const baseLine = decodeURIComponent(urlParams.get('base') || 'N/A');
         const avg = decodeURIComponent(urlParams.get('avg') || '0.00 mm');
-        const gridDataStr = decodeURIComponent(urlParams.get('grid') || '{}');
-        const gridData = JSON.parse(gridDataStr); // Current tab's data
+        const fullGridStr = decodeURIComponent(urlParams.get('grid') || '{}');
+        const fullGrid = JSON.parse(fullGridStr); // Full gridData including beforeWeld
 
         // Generate PDF
         const { jsPDF } = window.jspdf;
@@ -55,7 +55,7 @@
         doc.text(`${tab === 'beforeWeld' ? 'Before Weld' : 'After Weld'} Data`, margin + 10, startY);
         startY += 5;
 
-        const values = Object.values(gridData).filter(v => !isNaN(v) && v !== '');
+        const values = Object.values(fullGrid[tab]).filter(v => !isNaN(v) && v !== '');
         const avgValue = values.length ? (values.reduce((a, b) => a + b, 0) / values.length).toFixed(2) : 0;
         const bl = parseFloat(baseLine);
         const reference = !isNaN(bl) ? bl : avgValue;
@@ -64,13 +64,13 @@
         const tableData = [];
         let beforeWeldDiffs = {};
         if (tab === 'afterWeld') {
-            // Approximate beforeWeldDifferences from current gridData (limited by current setup)
-            const beforeWeldValues = Object.values(gridData).filter(v => !isNaN(v) && v !== '');
+            // Correctly compute beforeWeldDifferences using fullGrid.beforeWeld
+            const beforeWeldValues = Object.values(fullGrid.beforeWeld).filter(v => !isNaN(v) && v !== '');
             const beforeAvg = beforeWeldValues.length ? (beforeWeldValues.reduce((a, b) => a + b, 0) / beforeWeldValues.length).toFixed(2) : 0;
             const beforeBL = parseFloat(baseLine);
             const beforeReference = !isNaN(beforeBL) ? beforeBL : beforeAvg;
-            for (let label in gridData) {
-                const value = parseFloat(gridData[label]);
+            for (let label in fullGrid.beforeWeld) {
+                const value = parseFloat(fullGrid.beforeWeld[label]);
                 if (!isNaN(value) && value !== '') {
                     const diff = (value - beforeReference).toFixed(2);
                     beforeWeldDiffs[label] = `${diff > 0 ? '+' : ''}${diff} mm`;
@@ -80,14 +80,15 @@
             }
         }
 
-        for (let label in gridData) {
-            const value = gridData[label] || 'N/A';
+        for (let label in fullGrid[tab]) {
+            const value = fullGrid[tab][label] || 'N/A';
             const diff = !isNaN(value) && value !== 'N/A' ? (value - reference).toFixed(2) : '0.00';
             const color = !isNaN(value) && value !== 'N/A' && Math.abs(diff) <= tol ? [22, 163, 74] : [220, 38, 38];
             if (tab === 'beforeWeld') {
                 tableData.push([label, value, { content: `${diff > 0 ? '+' : ''}${diff} mm`, styles: { textColor: color } }]);
             } else { // afterWeld
-                tableData.push([label, value, { content: `${diff > 0 ? '+' : ''}${diff} mm`, styles: { textColor: color } }, beforeWeldDiffs[label] || 'N/A']);
+                const beforeWeldDiff = beforeWeldDiffs[label] || 'N/A';
+                tableData.push([label, value, { content: `${diff > 0 ? '+' : ''}${diff} mm`, styles: { textColor: color } }, beforeWeldDiff]);
             }
         }
 
@@ -108,7 +109,7 @@
         doc.setFont(undefined, 'normal'); // Reset to normal
         doc.text(`Tolerance: ${tol} mm`, margin + 10, footerY + 5);
         const userName = localStorage.getItem('userName') || 'Unknown User';
-        doc.text(`Prepared by: ${userName}`, margin + 10, footerY + 10);
+        doc.text(`Prepared by: ${userName}`, pageWidth - margin - 20, footerY + 10, { align: 'right' }); // Right-aligned user name
         doc.text('VT Soft © 2025', margin + contentWidth / 2, pageHeight - margin - 5, { align: 'center' });
 
         // Save PDF
