@@ -21,7 +21,7 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background: linear-gradient(to bottom, #001a2b, #004d80); /* Updated shinier dark blue gradient */
+            background: linear-gradient(to bottom, #071A2F, #154A5C); /* Darker color */
             color: white;
             display: flex;
             flex-direction: column;
@@ -35,7 +35,7 @@
             justify-content: center;
             align-items: center;
             padding: 5px;
-            background: #001a2b; /* Updated to match the shinier dark blue theme */
+            background: #071A2F; /* Darker color */
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
             position: fixed;
             top: 0;
@@ -77,7 +77,7 @@
 
         .header-subtitle {
             font-size: 0.6rem;
-            color: #87CEEB;
+            color: #87CEEB; /* Darker light teal */
             font-weight: bold;
             text-align: center;
             margin: 0;
@@ -89,9 +89,9 @@
             left: -220px;
             width: 220px;
             height: calc(100% - 40px);
-            background: linear-gradient(to bottom, #002540, #004d80); /* Updated to match shinier theme */
+            background: linear-gradient(to bottom, #071A2F, #205F6F); /* Darker color */
             box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
-            border-right: 2px solid #ffffff;
+            border-right: 2px solid #87CEEB; /* Darker light teal */
             display: flex;
             flex-direction: column;
             padding-top: 20px;
@@ -108,7 +108,7 @@
             padding: 8px;
             text-decoration: none;
             color: white;
-            background: linear-gradient(to right, #004d80, #0066a3); /* Updated to match shinier theme */
+            background: linear-gradient(to right, #154A5C, #307A8A); /* Darker color */
             border-radius: 5px;
             text-align: center;
             font-weight: 600;
@@ -151,15 +151,19 @@
         }
 
         .content-box {
-            background-color: #faf8e3;
+            background-color: #F0F1F2; /* Darker off-white */
             border-radius: 12px;
             padding: 15px;
             box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
             margin: 15px auto;
             width: 85%;
             max-width: 750px;
-            color: #00264d;
+            color: #071A2F; /* Darker color */
             font-size: 0.85rem;
+        }
+
+        .content-box a {
+            color: #307A8A; /* Darker teal to match menu links */
         }
 
         .blink {
@@ -176,7 +180,7 @@
         footer {
             text-align: center;
             padding: 8px;
-            background: linear-gradient(to top, #002540, #004d80); /* Updated to match shinier theme */
+            background: linear-gradient(to top, #071A2F, #205F6F); /* Darker color */
             color: #fff;
             position: fixed;
             width: 100%;
@@ -198,23 +202,19 @@
             border-radius: 10px;
             padding: 12px;
             margin: 15px auto;
-            width: 90%;
-            max-width: 600px;
-            height: 180px;
+            width: 85%; /* Updated to match content boxes */
+            max-width: 750px; /* Updated to match content boxes */
+            height: 80px; /* Unchanged */
             overflow: hidden;
             position: relative;
-            border: 1px solid #004d80; /* Updated to match shinier theme */
+            border: 1px solid #205F6F; /* Darker color */
         }
 
         .whats-new-header {
-            color: #ffcc00;
+            color: #DAA520; /* Darker gold */
             text-align: center;
             margin-top: 0;
-            position: sticky;
-            top: 0;
-            background: #001a2b; /* Updated to match shinier theme */
             padding: 4px 0;
-            z-index: 10;
             font-size: 0.9rem;
         }
 
@@ -268,24 +268,24 @@
         <div class="whats-new">
             <div class="whats-new-content">
                 <ul>
-                    <li>Added CSL Calendar</li>
+                    <li>Watsapp Chat added in contact us</li>
                     <li>Weight Calculator Added</li>
-                    <li><span class="blink">New</span> Water Level Calculator for FS</li>
-                    <li>Trigonometric Calculator added</li>
+                    <li>Water Level Calculator with PDF output</li>
+                    <li>New Version APK Released (V2)</li>
                     <li>Improved UI/UX design</li>
                     <li>2025-26 income tax calculator added soon</li>
                     <li><span class="blink">New</span> Ship Theory Dictionary Added</li>
-                    <li>DA added 49%</li>
-                    <li>CSL Calender improvements</li>
+                    <li>DA added 0.3% (49%)</li>
+                    <li>CSL Calender Note Added</li>
                     <li>Salary calculation updates</li>
                 </ul>
             </div>
         </div>
 
         <div style="margin-bottom: 5px; text-align: center;">
-            <div class="whats-new" style="margin-top: 0; height: auto; padding: 5px; display: inline-block; cursor: pointer;" 
+            <div class="whats-new" style="margin-top: 0; height: auto; padding: 5px; width: 80%; max-width: 750px; cursor: pointer;" 
                  onclick="window.location.href='calender.html'">
-                <div style="color: #ffcc00; font-weight: bold; font-size: 0.9rem; text-align: center; margin-bottom: 8px;">Upcoming CSL Holidays</div>
+                <div style="color: #DAA520; font-weight: normal; font-size: 0.9rem; text-align: center; margin-bottom: 8px;">Upcoming CSL Holidays</div>
                 <div style="padding: 3px 8px;">
                     <div id="upcomingHolidays" 
                          style="color: white; 
@@ -388,8 +388,8 @@
         <div class="content-box">
             <h2>Ship Theory Dictionary</h2>
             <p>
-                "Explore 300+ essential ship theory definitions — clear, Simple, and easy to find when you need them."<br>
-                <a href="dic.html">Click to Open</a>
+                Explore 300+ essential ship theory definitions  clear, Simple, and easy to find when you need them.<br>
+                <a href="di.html">Click to Open</a>
             </p>
         </div>
         <div class="content-box">
@@ -440,7 +440,7 @@
         function startSnowfall() {
             if (window.snowfallActive) return;
             window.snowfallActive = true;
-            window.snowfallInterval = setInterval(createSnowflake, 200);
+            window.snowfallInterval = setInterval(createSnowflake, 500); /* Unchanged */
         }
 
         function stopSnowfall() {
