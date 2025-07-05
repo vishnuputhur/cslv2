@@ -167,11 +167,14 @@
     <div class="container">
         <div class="contact-info">
             <h2>Get in Touch</h2>
-            <p>Vishnu T | Vishnu puthoor</p>
+            <p>Vishnu T | Vishnu Puthoor</p>
             <p>Email: <a href="mailto:vtsoft@yahoo.com">vtsoft@yahoo.com</a></p>
-    <p>WhatsApp No: 9037383927</p>
-       
-            <p><a href="https://wa.me/919037383927?text=CSL%20calculation%20V2" class="btn whatsapp-btn" onclick="openWhatsApp()">Chat with Us</a></p>
+            <p>WhatsApp No: 9037383927</p>
+
+            <!-- ✅ Updated Button Instead of Anchor -->
+            <p>
+                <button class="btn whatsapp-btn" onclick="openWhatsApp()">Chat with Us</button>
+            </p>
         </div>
       
         <!-- Feedback Form -->
@@ -199,12 +202,13 @@
 
     <script>
         function openWhatsApp() {
-            // Open WhatsApp
-            window.location.href = 'https://wa.me/919037383927?text=CSL%20calculation%20V2';
-            // Redirect to index.html after a short delay
-            setTimeout(function() {
-                window.location.href = 'file:///android_asset/index.html';
-            }, 500);
+            // Open WhatsApp App directly using intent URL
+            window.location.href = 'intent://send?phone=919037383927&text=CSL%20calculation%20V2#Intent;scheme=https;package=com.whatsapp;action=android.intent.action.VIEW;end';
+
+            // Redirect back to index.html (home) inside the WebView
+            setTimeout(function () {
+                window.location.href = 'index.html';
+            }, 1000); // Wait 1 second before redirecting
         }
     </script>
 </body>
