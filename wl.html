@@ -407,12 +407,12 @@
             background-color: var(--red);
             color: var(--white);
             border: none;
-            padding: 0px 4px; /* Smaller padding */
+            padding: 0px 2px; /* Even smaller padding */
             border-radius: 50%; /* Circular shape */
             cursor: pointer;
-            font-size: 10px; /* Smaller font */
-            width: 16px; /* Fixed small width */
-            height: 16px; /* Fixed small height */
+            font-size: 8px; /* Further reduced font size */
+            width: 14px; /* Slightly smaller width */
+            height: 14px; /* Slightly smaller height */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -659,25 +659,32 @@
                 units = { "TEST_UNIT": { tolerance: { beforeWeld: 2, afterWeld: 2 }, baseLine: { beforeWeld: '', afterWeld: '' }, useBaseLine: { beforeWeld: false, afterWeld: false }, grid: { beforeWeld: {}, afterWeld: {}, customLabels: {} }, rows: 4, cols: 4 } };
                 localStorage.setItem('shipUnits', JSON.stringify(units));
             }
+            // Sort units by creation time (most recent first) - using timestamp as a proxy
+            const sortedUnits = Object.keys(units).sort((a, b) => {
+                const aTime = units[a].timestamp || 0;
+                const bTime = units[b].timestamp || 0;
+                return bTime - aTime;
+            });
             console.log('Units:', units);
-            for (let unit in units) {
+            for (let unit of sortedUnits) {
                 const div = document.createElement('div');
                 div.className = 'unit-item';
                 div.innerHTML = `
                     <span onclick="loadUnit('${unit}')">${unit}</span>
-                    <button class="delete-btn" onclick="deleteUnit('${unit}', event)">X</button>
+                    <button class="delete-btn" onclick="markForDeletion('${unit}', event)">X</button>
                 `;
                 unitList.appendChild(div);
             }
         }
 
-        function deleteUnit(unit, event) {
+        function markForDeletion(unit, event) {
             event.stopPropagation(); // Prevent loadUnit from triggering
-            if (confirm(`Are you sure you want to delete ${unit}?`)) {
+            if (confirm(`Are you sure you want to mark ${unit} for deletion? (Note: Deletion requires admin approval)`)) {
                 let units = JSON.parse(localStorage.getItem('shipUnits') || '{}');
-                delete units[unit];
+                units[unit].markedForDeletion = true; // Mark for deletion instead of deleting
                 localStorage.setItem('shipUnits', JSON.stringify(units));
-                loadRecentUnits(); // Refresh the list
+                loadRecentUnits(); // Refresh the list to reflect the change
+                alert(`${unit} marked for deletion. Please contact an admin to finalize.`);
             }
         }
 
@@ -705,6 +712,9 @@
             document.getElementById('unitModal').style.display = 'none';
             document.getElementById('mainApp').style.display = 'block';
             updateAverage();
+            // Add timestamp when loading to track recency
+            units[unit].timestamp = Date.now();
+            localStorage.setItem('shipUnits', JSON.stringify(units));
         }
 
         function switchTab(tab) {
@@ -895,6 +905,8 @@
             if (unitName) {
                 let units = JSON.parse(localStorage.getItem('shipUnits') || '{}');
                 units[unitName] = { tolerance, baseLine, useBaseLine, grid: gridData, rows, cols };
+                // Add timestamp for sorting
+                units[unitName].timestamp = Date.now();
                 localStorage.setItem('shipUnits', JSON.stringify(units));
                 alert('Unit data saved!');
                 showModal();
