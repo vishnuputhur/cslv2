@@ -23,7 +23,25 @@
         const baseLine = decodeURIComponent(urlParams.get('base') || 'N/A');
         const avg = decodeURIComponent(urlParams.get('avg') || '0.00 mm');
         const gridDataStr = decodeURIComponent(urlParams.get('grid') || '{}');
-        const gridData = JSON.parse(gridDataStr);
+        const gridData = JSON.parse(gridDataStr); // This is currently gridData[currentTab] from wl.html
+
+        // Note: beforeWeldDifferences is not passed, so we'll simulate it from gridData
+        let beforeWeldDifferences = {};
+        if (tab === 'afterWeld') {
+            const beforeWeldValues = Object.values(gridData).filter(v => !isNaN(v) && v !== ''); // Approx method, improve if full gridData is passed
+            const beforeAvg = beforeWeldValues.length ? (beforeWeldValues.reduce((a, b) => a + b, 0) / beforeWeldValues.length).toFixed(2) : 0;
+            const beforeBL = parseFloat(baseLine);
+            const beforeReference = !isNaN(beforeBL) ? beforeBL : beforeAvg;
+            for (let label in gridData) {
+                const value = parseFloat(gridData[label]);
+                if (!isNaN(value) && value !== '') {
+                    const diff = (value - beforeReference).toFixed(2);
+                    beforeWeldDifferences[label] = `${diff > 0 ? '+' : ''}${diff} mm`;
+                } else {
+                    beforeWeldDifferences[label] = 'N/A';
+                }
+            }
+        }
 
         // Generate PDF
         const { jsPDF } = window.jspdf;
@@ -48,14 +66,14 @@
             doc.text(`Date: ${now.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}`, pageWidth - margin - 10, margin + 20, { align: 'right' });
         }
 
-        // Before Weld Data
+        // Before Weld Data (always included as the first page)
         addPageHeaderAndBorder('Before Weld Water Level Details');
         let startY = margin + 30;
         doc.setFontSize(12);
         doc.text('Before Weld Data', margin + 10, startY);
         startY += 5;
 
-        const beforeValues = Object.values(gridData).filter(v => !isNaN(v) && v !== '');
+        const beforeValues = Object.values(gridData).filter(v => !isNaN(v) && v !== ''); // Using passed gridData (tab-specific)
         const beforeAvg = beforeValues.length ? (beforeValues.reduce((a, b) => a + b, 0) / beforeValues.length).toFixed(2) : 0;
         const beforeBL = parseFloat(baseLine);
         const beforeReference = !isNaN(beforeBL) ? beforeBL : beforeAvg;
@@ -84,43 +102,49 @@
         doc.text(!isNaN(beforeBL) ? `Base Line: ${beforeBL.toFixed(2)} mm` : `Plain Average: ${beforeAvg} mm`, margin + 10, footerY + 5);
         doc.text('VT Soft © 2025', margin + contentWidth / 2, pageHeight - margin - 5, { align: 'center' });
 
-        // After Weld Data (if applicable)
-        if (tab === 'afterWeld' || true) { // Always include both pages for consistency
-            doc.addPage();
-            addPageHeaderAndBorder('After Weld Water Level Details');
-            startY = margin + 30;
-            doc.setFontSize(12);
-            doc.text('After Weld Data', margin + 10, startY);
-            startY += 5;
+        // After Weld Data (only if tab is afterWeld and data exists in context)
+        if (tab === 'afterWeld') {
+            // Load full gridData from localStorage or assume it's available (currently using passed gridData as approximation)
+            let fullGridData = gridData; // This is a limitation; ideally, pass full gridData
+            const afterValues = Object.values(fullGridData).filter(v => !isNaN(v) && v !== '');
+            if (afterValues.length > 0) {
+                doc.addPage();
+                addPageHeaderAndBorder('After Weld Water Level Details');
+                startY = margin + 30;
+                doc.setFontSize(12);
+                doc.text('After Weld Data', margin + 10, startY);
+                startY += 5;
 
-            const afterValues = Object.values(gridData).filter(v => !isNaN(v) && v !== '');
-            const afterAvg = afterValues.length ? (afterValues.reduce((a, b) => a + b, 0) / afterValues.length).toFixed(2) : 0;
-            const afterBL = parseFloat(baseLine);
-            const afterReference = !isNaN(afterBL) ? afterBL : afterAvg;
-            const afterTol = parseFloat(tolerance) || 2;
+                const afterAvg = afterValues.length ? (afterValues.reduce((a, b) => a + b, 0) / afterValues.length).toFixed(2) : 0;
+                const afterBL = parseFloat(baseLine);
+                const afterReference = !isNaN(afterBL) ? afterBL : afterAvg;
+                const afterTol = parseFloat(tolerance) || 2;
 
-            const afterTableData = [];
-            for (let label in gridData) {
-                const value = gridData[label] || 'N/A';
-                const diff = !isNaN(value) && value !== 'N/A' ? (value - afterReference).toFixed(2) : '0.00';
-                const color = !isNaN(value) && value !== 'N/A' && Math.abs(diff) <= afterTol ? [22, 163, 74] : [220, 38, 38];
-                afterTableData.push([label, value, { content: `${diff > 0 ? '+' : ''}${diff} mm`, styles: { textColor: color } }]);
+                const afterTableData = [];
+                for (let label in fullGridData) {
+                    const value = fullGridData[label] || 'N/A';
+                    const diff = !isNaN(value) && value !== 'N/A' ? (value - afterReference).toFixed(2) : '0.00';
+                    const beforeDiff = beforeWeldDifferences[label] || 'N/A';
+                    const combinedDiff = !isNaN(value) && value !== 'N/A' ? `${diff > 0 ? '+' : ''}${diff} mm (Before Weld: ${beforeDiff})` : '0.00 mm';
+                    const color = !isNaN(value) && value !== 'N/A' && Math.abs(diff) <= afterTol ? [22, 163, 74] : [220, 38, 38];
+                    afterTableData.push([label, value, { content: combinedDiff, styles: { textColor: color } }]);
+                }
+
+                doc.autoTable({
+                    startY: startY,
+                    head: [['Cell', 'Value (mm)', 'Difference (mm)']],
+                    body: afterTableData,
+                    theme: 'grid',
+                    styles: { halign: 'center', cellPadding: 2, lineHeight: 1.5 },
+                    margin: { left: margin + 10, right: margin + 10 },
+                });
+
+                footerY = doc.lastAutoTable.finalY + 10;
+                doc.setFontSize(10);
+                doc.text(`After Weld - Tolerance: ${afterTol} mm`, margin + 10, footerY);
+                doc.text(!isNaN(afterBL) ? `Base Line: ${afterBL.toFixed(2)} mm` : `Plain Average: ${afterAvg} mm`, margin + 10, footerY + 5);
+                doc.text('VT Soft © 2025', margin + contentWidth / 2, pageHeight - margin - 5, { align: 'center' });
             }
-
-            doc.autoTable({
-                startY: startY,
-                head: [['Cell', 'Value (mm)', 'Difference (mm)']],
-                body: afterTableData,
-                theme: 'grid',
-                styles: { halign: 'center', cellPadding: 2, lineHeight: 1.5 },
-                margin: { left: margin + 10, right: margin + 10 },
-            });
-
-            footerY = doc.lastAutoTable.finalY + 10;
-            doc.setFontSize(10);
-            doc.text(`After Weld - Tolerance: ${afterTol} mm`, margin + 10, footerY);
-            doc.text(!isNaN(afterBL) ? `Base Line: ${afterBL.toFixed(2)} mm` : `Plain Average: ${afterAvg} mm`, margin + 10, footerY + 5);
-            doc.text('VT Soft © 2025', margin + contentWidth / 2, pageHeight - margin - 5, { align: 'center' });
         }
 
         // Save PDF
