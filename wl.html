@@ -466,7 +466,6 @@
             }
         }
 
-        /* Original print setup retained */
         @media print {
             header, footer, .ads { display: none !important; }
         }
@@ -543,7 +542,7 @@
         let baseLine = { beforeWeld: '', afterWeld: '' };
         let currentTab = 'beforeWeld';
         let beforeWeldDifferences = {};
-        let isVertical = false; // Tracks unit orientation for +/- toggle
+        let isVertical = false;
 
         const now = new Date();
         const dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' }).replace(/\//g, '');
@@ -791,7 +790,7 @@
                     const diffEl = document.getElementById(`diff-${defaultLabel}`);
                     if (!isNaN(value) && value !== '') {
                         let diff = (value - reference).toFixed(2);
-                        if (isVertical) diff = (-diff).toFixed(2); // Invert difference for vertical units
+                        if (isVertical) diff = (-diff).toFixed(2);
                         diffEl.innerText = `${diff > 0 ? '+' : ''}${diff} mm`;
                         diffEl.className = `difference ${Math.abs(diff) <= tolerance[currentTab] ? 'green' : 'red'}`;
                     } else {
@@ -856,15 +855,26 @@
             }
         }
 
+        function calculateAverage(tab) {
+            const values = Object.values(gridData[tab]).filter(v => !isNaN(v) && v !== '');
+            return values.length ? (values.reduce((a, b) => a + b, 0) / values.length).toFixed(2) : '0.00';
+        }
+
         function downloadPDF() {
             const unit = encodeURIComponent(document.getElementById('appTitle').innerText.split(' ')[0] || 'Unknown Unit');
-            const tab = currentTab;
-            const tolerance = encodeURIComponent(document.getElementById('tolerance').value || '2');
-            const baseLine = encodeURIComponent(document.getElementById('baseLine').value || 'N/A');
-            const avg = encodeURIComponent(document.getElementById('averageValue').innerText || '0.00 mm');
-            const grid = encodeURIComponent(JSON.stringify(gridData[currentTab]));
+            const toleranceBefore = encodeURIComponent(tolerance.beforeWeld || '2');
+            const toleranceAfter = encodeURIComponent(tolerance.afterWeld || '2');
+            const baseLineBefore = encodeURIComponent(baseLine.beforeWeld || 'N/A');
+            const baseLineAfter = encodeURIComponent(baseLine.afterWeld || 'N/A');
+            const avgBefore = encodeURIComponent(calculateAverage('beforeWeld') || '0.00 mm');
+            const avgAfter = encodeURIComponent(calculateAverage('afterWeld') || '0.00 mm');
+            const gridBefore = encodeURIComponent(JSON.stringify(gridData.beforeWeld));
+            const gridAfter = encodeURIComponent(JSON.stringify(gridData.afterWeld));
+            const customLabels = encodeURIComponent(JSON.stringify(gridData.customLabels));
+            const beforeWeldDiffs = encodeURIComponent(JSON.stringify(beforeWeldDifferences));
+            const hasAfterWeldData = Object.values(gridData.afterWeld).some(v => v !== '' && !isNaN(v));
 
-            const url = `openchrome://vishnuputhur.github.io/cslv2/pdfversion.html?unit=${unit}&tab=${tab}&tol=${tolerance}&base=${baseLine}&avg=${avg}&grid=${grid}`;
+            const url = `https://vishnuputhur.github.io/cslv2/pdfversion.html?unit=${unit}&tolBefore=${toleranceBefore}&tolAfter=${toleranceAfter}&baseBefore=${baseLineBefore}&baseAfter=${baseLineAfter}&avgBefore=${avgBefore}&avgAfter=${avgAfter}&gridBefore=${gridBefore}&gridAfter=${gridAfter}&customLabels=${customLabels}&beforeWeldDiffs=${beforeWeldDiffs}&hasAfterWeldData=${hasAfterWeldData}&rows=${rows}&cols=${cols}&isVertical=${isVertical}`;
             window.location.href = url;
         }
 
