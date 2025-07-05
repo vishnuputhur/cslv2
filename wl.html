@@ -407,11 +407,16 @@
             background-color: var(--red);
             color: var(--white);
             border: none;
-            padding: 2px 6px; /* Smaller button */
-            border-radius: 4px;
+            padding: 0px 4px; /* Smaller padding */
+            border-radius: 50%; /* Circular shape */
             cursor: pointer;
-            font-size: 12px;
-            align-self: flex-end; /* Align right */
+            font-size: 10px; /* Smaller font */
+            width: 16px; /* Fixed small width */
+            height: 16px; /* Fixed small height */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            align-self: flex-end; /* Align to right end */
         }
 
         .delete-btn:hover {
@@ -905,9 +910,9 @@
             const tolerance = encodeURIComponent(document.getElementById('tolerance').value || '2');
             const baseLine = encodeURIComponent(document.getElementById('baseLine').value || 'N/A');
             const avg = encodeURIComponent(document.getElementById('averageValue').innerText || '0.00 mm');
-            const grid = encodeURIComponent(JSON.stringify(gridData[currentTab]));
+            const fullGrid = encodeURIComponent(JSON.stringify(gridData)); // Pass full gridData
 
-            const url = `openchrome://vishnuputhur.github.io/cslv2/pdfversion.html?unit=${unit}&tab=${tab}&tol=${tolerance}&base=${baseLine}&avg=${avg}&grid=${grid}`;
+            const url = `openchrome://vishnuputhur.github.io/cslv2/pdfversion.html?unit=${unit}&tab=${tab}&tol=${tolerance}&base=${baseLine}&avg=${avg}&grid=${fullGrid}`;
             window.location.href = url;
         }
 
