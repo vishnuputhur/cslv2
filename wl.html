@@ -345,6 +345,8 @@
             max-width: 350px;
             text-align: center;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            margin-left: 5mm; /* 5mm gap on left for mobile */
+            margin-right: 5mm; /* 5mm gap on right for mobile */
         }
 
         .modal-content h2 {
@@ -373,9 +375,12 @@
             margin-top: 10px;
             border-top: 1px solid #eee;
             padding-top: 10px;
-            width: 95%; /* Reduced by 5% from 100% */
+            width: 95%; /* Reduced by 5% */
             margin-left: auto;
             margin-right: auto;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #fff;
         }
 
         .unit-item {
@@ -402,10 +407,11 @@
             background-color: var(--red);
             color: var(--white);
             border: none;
-            padding: 4px 8px;
+            padding: 2px 6px; /* Smaller button */
             border-radius: 4px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 10px;
+            align-self: flex-start; /* Align left */
         }
 
         .delete-btn:hover {
@@ -497,6 +503,7 @@
         <div class="modal-content">
             <h2>Water Level Calculator</h2>
             <input type="text" id="newUnitInput" placeholder="Enter new unit name">
+            <input type="text" id="userNameInput" placeholder="Enter your name">
             <button onclick="createNewUnitFromInput()">Create Unit</button>
             <div class="unit-list" id="unitList"></div>
         </div>
@@ -611,6 +618,7 @@
 
         function createNewUnitFromInput() {
             const unitName = document.getElementById('newUnitInput').value.trim();
+            const userName = document.getElementById('userNameInput').value.trim();
             if (unitName) {
                 const upperUnitName = unitName.toUpperCase();
                 tolerance = { beforeWeld: 2, afterWeld: 2 };
@@ -626,6 +634,9 @@
                 beforeWeldDifferences = {};
                 rows = 4;
                 cols = 4;
+                if (userName) {
+                    localStorage.setItem('userName', userName);
+                }
                 renderGrid();
                 document.getElementById('unitModal').style.display = 'none';
                 document.getElementById('mainApp').style.display = 'block';
