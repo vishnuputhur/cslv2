@@ -159,7 +159,7 @@
 <body>
 
     <a href="index.html">
-        <img src="https://i.ibb.co/BYPxNBB/Screenshot-20250529-141452-CSL-Calculations.jpg" alt="Top"], alt="Top Image" class="top-img">
+        <img src="https://i.ibb.co/BYPxNBB/Screenshot-20250529-141452-CSL-Calculations.jpg" alt="Top Image" class="top-img">
     </a>
 
     <div class="sub-title">Contact Us</div>
@@ -169,7 +169,7 @@
             <h2>Get in Touch</h2>
             <p>Vishnu T | Vishnu puthoor</p>
             <p>Email: <a href="mailto:vtsoft@yahoo.com">vtsoft@yahoo.com</a></p>
-            <p><a href="intent://send/+919037383927#Intent;scheme=smsto;package=com.whatsapp;action=android.intent.action.SENDTO;end" class="btn whatsapp-btn" onclick="setTimeout(function(){window.location.href='index.html';}, 500);">Chat with Us</a></p>
+            <p><a href="https://wa.me/919037383927?text=CSL%20calculation%20V2" class="btn whatsapp-btn" onclick="openWhatsApp()">Chat with Us</a></p>
             <p>WhatsApp No: 9037383927</p>
         </div>
         
@@ -197,18 +197,21 @@
     <div class="footer">Powered by VT@Soft © 2025 | Version 2.2.0</div>
 
     <script>
-        // Fallback for WhatsApp intent if it fails (e.g., WhatsApp not installed or iOS)
-        document.querySelector('.whatsapp-btn').addEventListener('click', function(event) {
-            // Try the intent URL first
-            setTimeout(function() {
-                // Fallback to wa.me if intent fails (e.g., after 1 second)
-                window.location.href = 'https://wa.me/919037383927?text=CSL%20calculation%20V2';
-            }, 1000);
-            // Redirect to index.html after 500ms
+        function openWhatsApp() {
+            // Attempt to open WhatsApp
+            window.location.href = 'https://wa.me/919037383927?text=CSL%20calculation%20V2';
+            // Redirect to index.html after a short delay
             setTimeout(function() {
                 window.location.href = 'index.html';
             }, 500);
-        });
+            // Fallback alert if WhatsApp fails (e.g., not installed)
+            setTimeout(function() {
+                if (window.location.href.includes('wa.me')) {
+                    alert('WhatsApp is not installed or could not be opened. Please try again or use another method to contact us.');
+                    window.location.href = 'index.html';
+                }
+            }, 1000);
+        }
     </script>
 </body>
 </html>
