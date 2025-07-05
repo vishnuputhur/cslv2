@@ -114,11 +114,11 @@
         }
 
         .whatsapp-btn {
-            background-color: #25D366; /* WhatsApp green */
+            background-color: #25D366;
         }
 
         .whatsapp-btn:hover {
-            background-color: #20B858; /* Darker green on hover */
+            background-color: #20B858;
         }
 
         a {
@@ -147,7 +147,7 @@
         .bottom-padding {
             height: 80px;
         }
-        
+
         .form-title {
             color: #1E3A5F;
             text-align: center;
@@ -158,58 +158,50 @@
 </head>
 <body>
 
-    <a href="index.html">
-        <img src="https://i.ibb.co/BYPxNBB/Screenshot-20250529-141452-CSL-Calculations.jpg" alt="Top Image" class="top-img">
-    </a>
+<a href="index.html">
+    <img src="https://i.ibb.co/BYPxNBB/Screenshot-20250529-141452-CSL-Calculations.jpg" alt="Top Image" class="top-img">
+</a>
 
-    <div class="sub-title">Contact Us</div>
+<div class="sub-title">Contact Us</div>
 
-    <div class="container">
-        <div class="contact-info">
-            <h2>Get in Touch</h2>
-            <p>Vishnu T | Vishnu Puthoor</p>
-            <p>Email: <a href="mailto:vtsoft@yahoo.com">vtsoft@yahoo.com</a></p>
-            <p>WhatsApp No: 9037383927</p>
-
-            <!-- ✅ Updated Button Instead of Anchor -->
-            <p>
-                <button class="btn whatsapp-btn" onclick="openWhatsApp()">Chat with Us</button>
-            </p>
-        </div>
-      
-        <!-- Feedback Form -->
-        <form action="https://formsubmit.co/vtsoft@yahoo.com" method="POST">
-            <h2 class="form-title">Feedback</h2>
-            
-            <label for="name">Your Name:</label>
-            <input type="text" name="name" id="name" required placeholder="Enter your name">
-            
-            <label for="feedback">Your Feedback:</label>
-            <textarea name="feedback" id="feedback" required placeholder="Enter your feedback"></textarea>
-            
-            <!-- Hidden Inputs -->
-            <input type="hidden" name="_captcha" value="false">
-            <input type="hidden" name="_next" value="https://vishnuputhur.github.io/cslv2/thank-you.html">
-            <input type="hidden" name="_subject" value="New Feedback Received!">
-            
-            <button type="submit" class="btn">Submit Feedback</button>
-        </form>
+<div class="container">
+    <div class="contact-info">
+        <h2>Get in Touch</h2>
+        <p>Vishnu T | Vishnu puthoor</p>
+        <p>Email: <a href="mailto:vtsoft@yahoo.com">vtsoft@yahoo.com</a></p>
+        <p>WhatsApp No: 9037383927</p>
+        <p><button class="btn whatsapp-btn" onclick="openWhatsApp()">Chat with Us</button></p>
     </div>
 
-    <div class="bottom-padding"></div>
+    <form action="https://formsubmit.co/vtsoft@yahoo.com" method="POST">
+        <h2 class="form-title">Feedback</h2>
 
-    <div class="footer">Powered by VT@Soft © 2025 | Version 2.2.0</div>
+        <label for="name">Your Name:</label>
+        <input type="text" name="name" id="name" required placeholder="Enter your name">
 
-    <script>
-        function openWhatsApp() {
-            // Open WhatsApp App directly using intent URL
-            window.location.href = 'intent://send?phone=919037383927&text=CSL%20calculation%20V2#Intent;scheme=https;package=com.whatsapp;action=android.intent.action.VIEW;end';
+        <label for="feedback">Your Feedback:</label>
+        <textarea name="feedback" id="feedback" required placeholder="Enter your feedback"></textarea>
 
-            // Redirect back to index.html (home) inside the WebView
-            setTimeout(function () {
-                window.location.href = 'index.html';
-            }, 1000); // Wait 1 second before redirecting
-        }
-    </script>
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_next" value="https://vishnuputhur.github.io/cslv2/thank-you.html">
+        <input type="hidden" name="_subject" value="New Feedback Received!">
+
+        <button type="submit" class="btn">Submit Feedback</button>
+    </form>
+</div>
+
+<div class="bottom-padding"></div>
+
+<div class="footer">Powered by VT@Soft © 2025 | Version 2.2.0</div>
+
+<script>
+    function openWhatsApp() {
+        window.location.href = "https://wa.me/919037383927?text=CSL%20calculation%20V2";
+        setTimeout(function () {
+            window.location.href = "index.html";
+        }, 1000);
+    }
+</script>
+
 </body>
 </html>
