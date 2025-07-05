@@ -403,27 +403,6 @@
             border-bottom: none;
         }
 
-        .delete-btn {
-            background-color: var(--red);
-            color: var(--white);
-            border: none;
-            padding: 0; /* Removed padding entirely */
-            border-radius: 50%; /* Circular shape */
-            cursor: pointer;
-            font-size: 6px; /* Even smaller font size */
-            width: 12px; /* Smallest width */
-            height: 12px; /* Smallest height */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            align-self: flex-end; /* Align to right end */
-            line-height: 12px; /* Ensure text fits */
-        }
-
-        .delete-btn:hover {
-            background-color: #ef4444;
-        }
-
         @media (max-width: 480px) {
             .reference-container {
                 display: flex;
@@ -563,6 +542,7 @@
                 <button onclick="downloadPDF()">Download PDF</button>
                 <button onclick="saveAndExit()">Save & Exit</button>
             </div>
+            <div id="userNameDisplay" style="font-size: 12px; font-weight: 600; color: var(--white); text-align: center; margin-top: 10px;"></div>
         </div>
     </div>
     <footer>VT Soft © 2025</footer>
@@ -586,6 +566,7 @@
             showModal();
             loadRecentUnits();
             setupCheckboxListeners();
+            updateUserNameDisplay();
         };
 
         function setupCheckboxListeners() {
@@ -646,6 +627,7 @@
                 renderGrid();
                 document.getElementById('unitModal').style.display = 'none';
                 document.getElementById('mainApp').style.display = 'block';
+                updateUserNameDisplay();
                 updateAverage();
             } else {
                 alert('Please enter a unit name!');
@@ -672,24 +654,8 @@
                 div.className = 'unit-item';
                 div.innerHTML = `
                     <span onclick="loadUnit('${unit}')">${unit}</span>
-                    <button class="delete-btn" onclick="markForDeletion('${unit}', event)">X</button>
                 `;
                 unitList.appendChild(div);
-            }
-        }
-
-        function markForDeletion(unit, event) {
-            event.stopPropagation(); // Prevent loadUnit from triggering
-            if (confirm(`Are you sure you want to mark ${unit} for deletion? (Note: Deletion requires admin approval)`)) {
-                let units = JSON.parse(localStorage.getItem('shipUnits') || '{}');
-                if (units[unit]) {
-                    units[unit].markedForDeletion = true; // Mark for deletion
-                    localStorage.setItem('shipUnits', JSON.stringify(units));
-                    loadRecentUnits(); // Refresh the list
-                    alert(`${unit} marked for deletion. Please contact an admin to finalize.`);
-                } else {
-                    alert(`Unit ${unit} not found.`);
-                }
             }
         }
 
@@ -717,6 +683,7 @@
             document.getElementById('unitModal').style.display = 'none';
             document.getElementById('mainApp').style.display = 'block';
             updateAverage();
+            updateUserNameDisplay();
             // Add timestamp when loading to track recency
             units[unit].timestamp = Date.now();
             localStorage.setItem('shipUnits', JSON.stringify(units));
@@ -928,8 +895,9 @@
             const baseLine = encodeURIComponent(document.getElementById('baseLine').value || 'N/A');
             const avg = encodeURIComponent(document.getElementById('averageValue').innerText || '0.00 mm');
             const fullGrid = encodeURIComponent(JSON.stringify(gridData)); // Pass full gridData
+            const userName = encodeURIComponent(localStorage.getItem('userName') || 'VT Soft User'); // Default to VT Soft User if not set
 
-            const url = `openchrome://vishnuputhur.github.io/cslv2/pdfversion.html?unit=${unit}&tab=${tab}&tol=${tolerance}&base=${baseLine}&avg=${avg}&grid=${fullGrid}`;
+            const url = `openchrome://vishnuputhur.github.io/cslv2/pdfversion.html?unit=${unit}&tab=${tab}&tol=${tolerance}&base=${baseLine}&avg=${avg}&grid=${fullGrid}&userName=${userName}`;
             window.location.href = url;
         }
 
@@ -937,6 +905,11 @@
             isVertical = !isVertical;
             updateAverage();
             alert(`Unit orientation toggled to ${isVertical ? 'vertical' : 'horizontal'}. Differences inverted.`);
+        }
+
+        function updateUserNameDisplay() {
+            const userName = localStorage.getItem('userName') || 'VT Soft User';
+            document.getElementById('userNameDisplay').innerText = `Prepared by: ${userName}`;
         }
     </script>
 </body>
