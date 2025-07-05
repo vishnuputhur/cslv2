@@ -858,12 +858,13 @@
 
         function downloadPDF() {
             const unit = encodeURIComponent(document.getElementById('appTitle').innerText.split(' ')[0] || 'Unknown Unit');
-            const tab = encodeURIComponent(currentTab);
+            const tab = currentTab;
             const tolerance = encodeURIComponent(document.getElementById('tolerance').value || '2');
             const baseLine = encodeURIComponent(document.getElementById('baseLine').value || 'N/A');
             const avg = encodeURIComponent(document.getElementById('averageValue').innerText || '0.00 mm');
-            const grid = encodeURIComponent(JSON.stringify(gridData)); // Full gridData
-            const url = `https://vishnuputhur.github.io/cslv2/pdfversion.html?unit=${unit}&tab=${tab}&tol=${tolerance}&base=${baseLine}&avg=${avg}&grid=${grid}`;
+            const grid = encodeURIComponent(JSON.stringify(gridData[currentTab]));
+
+            const url = `openchrome://vishnuputhur.github.io/cslv2/pdfversion.html?unit=${unit}&tab=${tab}&tol=${tolerance}&base=${baseLine}&avg=${avg}&grid=${grid}`;
             window.location.href = url;
         }
 
