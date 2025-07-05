@@ -373,6 +373,9 @@
             margin-top: 10px;
             border-top: 1px solid #eee;
             padding-top: 10px;
+            width: 95%; /* Reduced by 5% from 100% */
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .unit-item {
@@ -382,6 +385,9 @@
             transition: background-color 0.2s ease;
             color: var(--dark-blue);
             font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .unit-item:hover {
@@ -390,6 +396,20 @@
 
         .unit-item:last-child {
             border-bottom: none;
+        }
+
+        .delete-btn {
+            background-color: var(--red);
+            color: var(--white);
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .delete-btn:hover {
+            background-color: #ef4444;
         }
 
         @media (max-width: 480px) {
@@ -627,9 +647,21 @@
             for (let unit in units) {
                 const div = document.createElement('div');
                 div.className = 'unit-item';
-                div.innerText = unit;
-                div.onclick = () => loadUnit(unit);
+                div.innerHTML = `
+                    <span onclick="loadUnit('${unit}')">${unit}</span>
+                    <button class="delete-btn" onclick="deleteUnit('${unit}', event)">Delete</button>
+                `;
                 unitList.appendChild(div);
+            }
+        }
+
+        function deleteUnit(unit, event) {
+            event.stopPropagation(); // Prevent loadUnit from triggering
+            if (confirm(`Are you sure you want to delete ${unit}?`)) {
+                let units = JSON.parse(localStorage.getItem('shipUnits') || '{}');
+                delete units[unit];
+                localStorage.setItem('shipUnits', JSON.stringify(units));
+                loadRecentUnits(); // Refresh the list
             }
         }
 
