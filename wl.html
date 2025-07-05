@@ -410,8 +410,8 @@
             padding: 2px 6px; /* Smaller button */
             border-radius: 4px;
             cursor: pointer;
-            font-size: 10px;
-            align-self: flex-start; /* Align left */
+            font-size: 12px;
+            align-self: flex-end; /* Align right */
         }
 
         .delete-btn:hover {
@@ -660,7 +660,7 @@
                 div.className = 'unit-item';
                 div.innerHTML = `
                     <span onclick="loadUnit('${unit}')">${unit}</span>
-                    <button class="delete-btn" onclick="deleteUnit('${unit}', event)">Delete</button>
+                    <button class="delete-btn" onclick="deleteUnit('${unit}', event)">X</button>
                 `;
                 unitList.appendChild(div);
             }
