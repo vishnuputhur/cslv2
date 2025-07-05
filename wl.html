@@ -107,123 +107,6 @@
         }
 
         .tab.active {
-            background-color: rgba(255, 255, 255,  Ascendancy
-System: The response was cut off due to length constraints. Below is the complete, corrected main HTML code with the fixed `downloadPDF` function, followed by the updated `pdfversion.html` code. The changes ensure proper redirection, correct data for both "Before Weld" and "After Weld" tabs, display of "Before Weld" differences in parentheses on the "After Weld" page, and conditional inclusion of the "After Weld" page only if data exists.
-
----
-
-### പൂർണ്ണമായ മെയിൻ HTML കോഡ് (Continued)
-
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ship Unit Leveling App</title>
-    <!-- Google Analytics Tag -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-21G1BS7S3S"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-21G1BS7S3S');
-    </script>
-
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Times+New+Roman&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
-    <style>
-        :root {
-            --dark-blue: #1e3a8a;
-            --medium-blue: #2563eb;
-            --light-blue: #3b82f6;
-            --white: #ffffff;
-            --light-gray: #f3f4f6;
-            --green: #16a34a;
-            --red: #dc2626;
-            --black: #000000;
-        }
-
-        body {
-            margin: 0;
-            font-family: 'Poppins', sans-serif;
-            background: var(--dark-blue);
-            color: var(--white);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            transition: background-color 0.3s ease;
-        }
-
-        .container {
-            padding: 20px;
-            width: 90%;
-            max-width: 600px;
-            margin-top: 80px;
-            margin-bottom: 60px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        h1 {
-            font-family: 'Times New Roman', serif;
-            font-size: 18px;
-            color: var(--white);
-            text-align: center;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            width: 100%;
-            padding: 15px 10px;
-            margin: 0;
-            transform: translateX(-10px);
-            z-index: 1000;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.1), transparent);
-        }
-
-        .tabs {
-            position: fixed;
-            top: 40px;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            z-index: 999;
-            background-color: transparent;
-        }
-
-        .tab {
-            padding: 12px 30px;
-            color: var(--white);
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            position: relative;
-            border: none;
-            background: none;
-            transition: all 0.3s ease;
-            margin: 0 5px;
-            border-radius: 8px 8px 0 0;
-        }
-
-        .tab::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background-color: transparent;
-            transition: all 0.3s ease;
-        }
-
-        .tab.active {
             background-color: rgba(255, 255, 255, 0.15);
         }
 
@@ -583,6 +466,7 @@ System: The response was cut off due to length constraints. Below is the complet
             }
         }
 
+        /* Original print setup retained */
         @media print {
             header, footer, .ads { display: none !important; }
         }
@@ -659,7 +543,7 @@ System: The response was cut off due to length constraints. Below is the complet
         let baseLine = { beforeWeld: '', afterWeld: '' };
         let currentTab = 'beforeWeld';
         let beforeWeldDifferences = {};
-        let isVertical = false;
+        let isVertical = false; // Tracks unit orientation for +/- toggle
 
         const now = new Date();
         const dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' }).replace(/\//g, '');
@@ -907,7 +791,7 @@ System: The response was cut off due to length constraints. Below is the complet
                     const diffEl = document.getElementById(`diff-${defaultLabel}`);
                     if (!isNaN(value) && value !== '') {
                         let diff = (value - reference).toFixed(2);
-                        if (isVertical) diff = (-diff).toFixed(2);
+                        if (isVertical) diff = (-diff).toFixed(2); // Invert difference for vertical units
                         diffEl.innerText = `${diff > 0 ? '+' : ''}${diff} mm`;
                         diffEl.className = `difference ${Math.abs(diff) <= tolerance[currentTab] ? 'green' : 'red'}`;
                     } else {
@@ -972,26 +856,15 @@ System: The response was cut off due to length constraints. Below is the complet
             }
         }
 
-        function calculateAverage(tab) {
-            const values = Object.values(gridData[tab]).filter(v => !isNaN(v) && v !== '');
-            return values.length ? (values.reduce((a, b) => a + b, 0) / values.length).toFixed(2) : '0.00';
-        }
-
         function downloadPDF() {
             const unit = encodeURIComponent(document.getElementById('appTitle').innerText.split(' ')[0] || 'Unknown Unit');
-            const toleranceBefore = encodeURIComponent(tolerance.beforeWeld || '2');
-            const toleranceAfter = encodeURIComponent(tolerance.afterWeld || '2');
-            const baseLineBefore = encodeURIComponent(baseLine.beforeWeld || 'N/A');
-            const baseLineAfter = encodeURIComponent(baseLine.afterWeld || 'N/A');
-            const avgBefore = encodeURIComponent(calculateAverage('beforeWeld') || '0.00 mm');
-            const avgAfter = encodeURIComponent(calculateAverage('afterWeld') || '0.00 mm');
-            const gridBefore = encodeURIComponent(JSON.stringify(gridData.beforeWeld));
-            const gridAfter = encodeURIComponent(JSON.stringify(gridData.afterWeld));
-            const customLabels = encodeURIComponent(JSON.stringify(gridData.customLabels));
-            const beforeWeldDiffs = encodeURIComponent(JSON.stringify(beforeWeldDifferences));
-            const hasAfterWeldData = Object.values(gridData.afterWeld).some(v => v !== '' && !isNaN(v));
+            const tab = currentTab;
+            const tolerance = encodeURIComponent(document.getElementById('tolerance').value || '2');
+            const baseLine = encodeURIComponent(document.getElementById('baseLine').value || 'N/A');
+            const avg = encodeURIComponent(document.getElementById('averageValue').innerText || '0.00 mm');
+            const grid = encodeURIComponent(JSON.stringify(gridData)); // Include full gridData
 
-            const url = `https://vishnuputhur.github.io/cslv2/pdfversion.html?unit=${unit}&tolBefore=${toleranceBefore}&tolAfter=${toleranceAfter}&baseBefore=${baseLineBefore}&baseAfter=${baseLineAfter}&avgBefore=${avgBefore}&avgAfter=${avgAfter}&gridBefore=${gridBefore}&gridAfter=${gridAfter}&customLabels=${customLabels}&beforeWeldDiffs=${beforeWeldDiffs}&hasAfterWeldData=${hasAfterWeldData}&rows=${rows}&cols=${cols}&isVertical=${isVertical}`;
+            const url = `openchrome://vishnuputhur.github.io/cslv2/pdfversion.html?unit=${unit}&tab=${tab}&tol=${tolerance}&base=${baseLine}&avg=${avg}&grid=${grid}`;
             window.location.href = url;
         }
 
