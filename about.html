@@ -22,6 +22,7 @@
       position: sticky;
       top: 0;
       z-index: 100;
+      cursor: pointer; /* Shows it's clickable */
     }
 
     h1 {
@@ -52,8 +53,9 @@
       margin-bottom: 12px;
       text-align: justify;
       text-justify: inter-word;
-      hyphens: auto;
+      hyphens: manual; /* Disabled automatic hyphenation */
       padding: 0 5px;
+      word-break: keep-all; /* Prevents word breaking */
     }
     
     .box p:first-child {
@@ -81,11 +83,18 @@
     .bottom-space {
       height: 100px;
     }
+    
+    .header-link {
+      display: block;
+      text-decoration: none;
+    }
   </style>
 </head>
 <body>
 
-  <img src="https://i.ibb.co/BYPxNBB/Screenshot-20250529-141452-CSL-Calculations.jpg" alt="CSL Calculations Header" class="top-img">
+  <a href="index.html" class="header-link">
+    <img src="https://i.ibb.co/BYPxNBB/Screenshot-20250529-141452-CSL-Calculations.jpg" alt="CSL Calculations Header" class="top-img">
+  </a>
 
   <h1>About</h1>
 
