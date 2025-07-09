@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Expense Diary</title>
+    <style>
+        body {
+            background-color: #1E3A5F;
+            font-family: 'Poppins', sans-serif;
+            color: #F5E6C4;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            box-sizing: border-box;
+        }
+        .top-img {
+            width: 100%;
+            max-height: 80px;
+            object-fit: cover;
+            position: fixed;
+            top: 0;
+            z-index: 100;
+        }
+        .tabs {
+            display: flex;
+            background-color: #0F2A45;
+            position: fixed;
+            bottom: 30px; /* മാറ്റം: 45px ൽ നിന്ന് 35px ആയി */
+            width: 100%;
+            z-index: 99;
+            padding: 5px 0;
+            height: 40px;
+        }
+        .tab {
+            padding: 8px 15px;
+            white-space: nowrap;
+            cursor: pointer;
+            font-size: 14px;
+            flex: 1;
+            text-align: center;
+            transition: background-color 0.3s;
+            color: #F5E6C4;
+        }
+        .tab.active {
+            background-color: #F5E6C4;
+            color: #1E3A5F;
+            font-weight: 600;
+        }
+        .tab-content {
+            display: none;
+            padding: 10px;
+            margin-top: 65px; /* മാറ്റം: 90px ൽ നിന്ന് 80px ആയി */
+            margin-bottom: 100px;
+            min-height: calc(100vh - 190px);
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .box {
+            background-color: #F5E6C4;
+            color: #1E3A5F;
+            width: 90%;
+            max-width: 350px;
+            margin: 10px auto;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 4px 4px 12px rgba(0,0,0,0.3);
+            box-sizing: border-box;
+        }
+        .month-selector {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .month-selector button {
+            background-color: #0F2A45;
+            color: #F5E6C4;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .summary {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .summary-item {
+            background-color: #0F2A45;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .summary-label {
+            font-size: 12px;
+            margin-bottom: 5px;
+            color: white;
+        }
+        .summary-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+        }
+        input, select {
+            width: 80%;
+            padding: 10px;
+            margin: 5px auto 15px auto;
+            border: 1px solid #1E3A5F;
+            border-radius: 5px;
+            background-color: #F5E6C4;
+            color: #1E3A5F;
+            font-size: 14px;
+            display: block;
+        }
+        input[type="number"] {
+            appearance: textfield;
+        }
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        button.add-btn {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 5px;
+            width: 80%;
+            font-size: 16px;
+            margin: 10px auto;
+            display: block;
+            cursor: pointer;
+        }
+        button.delete-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        button.reset-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 5px;
+            width: 80%;
+            font-size: 16px;
+            margin: 10px auto;
+            display: block;
+            cursor: pointer;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        th {
+            background-color: #0F2A45;
+            padding: 8px;
+            text-align: left;
+        }
+        td {
+            padding: 8px;
+            border-bottom: 1px solid #1E3A5F;
+        }
+        .footer {
+            font-size: 13px;
+            padding: 5px;
+            background-color: #0F2A45;
+            width: 100%;
+            text-align: center;
+            color: #F5E6C4;
+            position: fixed;
+            bottom: 0;
+            z-index: 98;
+        }
+        .account-balance {
+            font-weight: bold;
+            margin-top: 5px;
+            font-size: 16px;
+        }
+        .positive {
+            color: #27ae60;
+        }
+        .negative {
+            color: #e74c3c;
+        }
+        .recurring-item {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #1E3A5F;
+        }
+        .recurring-item input,
+        .recurring-item select {
+            flex: 1 1 120px;
+            margin: 0;
+            width: auto;
+        }
+        @media (min-width: 768px) {
+            .box {
+                max-width: 500px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html">
+        <img src="https://i.ibb.co/BYPxNBB/Screenshot-20250529-141452-CSL-Calculations.jpg" alt="Expense Diary Header" class="top-img">
+    </a>
+    <div class="tabs">
+        <div class="tab active" data-tab="dashboard">Home</div>
+        <div class="tab" data-tab="add-expense">Add Expense</div>
+        <div class="tab" data-tab="add-income">Add Income</div>
+        <div class="tab" data-tab="settings">Settings</div>
+    </div>
+
+    <!-- Dashboard Tab -->
+    <div id="dashboard" class="tab-content active">
+        <div class="box">
+            <div class="month-selector">
+                <button onclick="prevMonth()">← Previous</button>
+                <h3 id="current-month">July 2023</h3>
+                <button onclick="nextMonth()">Next →</button>
+            </div>
+            <div class="summary">
+                <div class="summary-item">
+                    <div class="summary-label">Total Income</div>
+                    <div class="summary-value" id="total-income">₹0.00</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Total Expenses</div>
+                    <div class="summary-value" id="total-expenses">₹0.00</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Balance</div>
+                    <div class="summary-value" id="balance">₹0.00</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Budget</div>
+                    <div class="summary-value" id="budget">₹0.00</div>
+                </div>
+            </div>
+        </div>
+        <div class="box">
+            <h3>Account Balances</h3>
+            <div id="account-balances">
+                <p>No accounts available</p>
+            </div>
+        </div>
+        <div class="box">
+            <h3>Recent Expenses</h3>
+            <table id="expenses-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Category</th>
+                        <th>Amount</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="expenses-list">
+                    <tr><td colspan="4">No expenses found</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add Expense Tab -->
+    <div id="add-expense" class="tab-content">
+        <div class="box">
+            <h3>Add New Expense</h3>
+            <div>
+                <label for="expense-date">Date:</label>
+                <input type="date" id="expense-date">
+            </div>
+            <div>
+                <label for="expense-account">Account:</label>
+                <select id="expense-account"></select>
+            </div>
+            <div>
+                <label for="expense-category">Category:</label>
+                <select id="expense-category"></select>
+            </div>
+            <div>
+                <label for="expense-amount">Amount:</label>
+                <input type="number" id="expense-amount" placeholder="Enter amount" min="0" step="0.01">
+            </div>
+            <div>
+                <label for="expense-description">Description:</label>
+                <input type="text" id="expense-description" placeholder="Optional">
+            </div>
+            <button class="add-btn" onclick="addExpense()">Add Expense</button>
+        </div>
+    </div>
+
+    <!-- Add Income Tab -->
+    <div id="add-income" class="tab-content">
+        <div class="box">
+            <h3>Add Income</h3>
+            <div>
+                <label for="income-date">Date:</label>
+                <input type="date" id="income-date">
+            </div>
+            <div>
+                <label for="income-account">Account:</label>
+                <select id="income-account"></select>
+            </div>
+            <div>
+                <label for="income-source">Source:</label>
+                <select id="income-source"></select>
+            </div>
+            <div>
+                <label for="income-amount">Amount:</label>
+                <input type="number" id="income-amount" placeholder="Enter amount" min="0" step="0.01">
+            </div>
+            <div>
+                <label for="income-description">Description:</label>
+                <input type="text" id="income-description" placeholder="Optional">
+            </div>
+            <button class="add-btn" onclick="addIncome()">Add Income</button>
+        </div>
+    </div>
+
+    <!-- Settings Tab -->
+    <div id="settings" class="tab-content">
+        <div class="box">
+            <h3>Budget</h3>
+            <div>
+                <label for="monthly-budget">Monthly Budget:</label>
+                <input type="number" id="monthly-budget" placeholder="Enter budget" min="0" step="0.01">
+                <button class="add-btn" onclick="saveBudget()">Save Budget</button>
+            </div>
+        </div>
+        <div class="box">
+            <h3>Accounts</h3>
+            <div id="accounts-container"></div>
+            <button class="add-btn" onclick="addAccount()">Add Account</button>
+        </div>
+        <div class="box">
+            <h3>Categories</h3>
+            <div id="categories-container"></div>
+            <button class="add-btn" onclick="addCategory()">Add Category</button>
+        </div>
+        <div class="box">
+            <h3>Recurring Expenses</h3>
+            <div id="recurring-expenses-container"></div>
+            <button class="add-btn" onclick="addRecurringExpense()">Add Recurring Expense</button>
+        </div>
+        <div class="box">
+            <h3>Reset Data</h3>
+            <button class="reset-btn" onclick="resetData()">Reset All Data</button>
+        </div>
+    </div>
+
+    <div class="footer">Powered by VTSoft © 2025</div>
+
+    <script>
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+        let budget = 0;
+        let accounts = {
+            'cash': { name: 'Cash', balance: 0 },
+            'credit_card1': { name: 'Credit Card 1', balance: 0 },
+            'society_credit': { name: 'Society Credit', balance: 0 },
+            'upi1': { name: 'UPI 1', balance: 0 },
+            'bank1': { name: 'Bank Account 1', balance: 0 }
+        };
+        let categories = ['Food', 'Transport', 'Shopping', 'Entertainment', 'Bills', 'Other'];
+        let incomeSources = ['Salary', 'Freelance', 'Investment', 'Other'];
+        let expenses = {};
+        let income = {};
+        let recurringExpenses = [];
+
+        function loadData() {
+            try {
+                const savedData = localStorage.getItem('expenseTrackerData');
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+                    budget = data.budget || 0;
+                    accounts = data.accounts || accounts;
+                    categories = data.categories || categories;
+                    incomeSources = data.incomeSources || incomeSources;
+                    expenses = data.expenses || {};
+                    income = data.income || {};
+                    currentMonth = data.currentMonth || currentMonth;
+                    currentYear = data.currentYear || currentYear;
+                    recurringExpenses = data.recurringExpenses || [];
+                    console.log('Data loaded:', data);
+                }
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Initializing app...');
+            loadData();
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('expense-date').value = today;
+            document.getElementById('income-date').value = today;
+            document.getElementById('monthly-budget').value = budget.toFixed(2);
+            updateMonthDisplay();
+            updateAccountBalances();
+            updateExpensesList();
+            updateSummary();
+            updateAccountDropdowns();
+            updateCategoryDropdown();
+            updateIncomeSourceDropdown();
+            updateAccountsContainer();
+            updateCategoriesContainer();
+            updateRecurringExpensesContainer();
+            processRecurringExpenses();
+
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    console.log(`Switching to tab: ${tab.getAttribute('data-tab')}`);
+                    switchTab(tab.getAttribute('data-tab'));
+                });
+            });
+        });
+
+        function switchTab(tabId) {
+            try {
+                document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                const tabElement = document.querySelector(`.tab[data-tab="${tabId}"]`);
+                const contentElement = document.getElementById(tabId);
+                if (tabElement && contentElement) {
+                    tabElement.classList.add('active');
+                    contentElement.classList.add('active');
+                    console.log(`Tab ${tabId} activated`);
+                } else {
+                    console.error(`Tab or content not found: ${tabId}`);
+                }
+            } catch (error) {
+                console.error('Error switching tab:', error);
+            }
+        }
+
+        function prevMonth() {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            updateMonthDisplay();
+            updateExpensesList();
+            updateSummary();
+        }
+
+        function nextMonth() {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            updateMonthDisplay();
+            updateExpensesList();
+            updateSummary();
+        }
+
+        function updateMonthDisplay() {
+            const monthNames = ["January", "February", "March", "April", "May", "June",
+                               "July", "August", "September", "October", "November", "December"];
+            document.getElementById('current-month').textContent = `${monthNames[currentMonth]} ${currentYear}`;
+        }
+
+        function addExpense() {
+            const date = document.getElementById('expense-date').value;
+            const account = document.getElementById('expense-account').value;
+            const category = document.getElementById('expense-category').value;
+            const amount = parseFloat(document.getElementById('expense-amount').value) || 0;
+            const description = document.getElementById('expense-description').value;
+
+            if (!date || !account || !category || amount <= 0) {
+                alert('Please fill all required fields with valid values');
+                return;
+            }
+
+            const expense = { date, account, category, amount, description };
+            const monthYear = `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}`;
+            if (!expenses[monthYear]) expenses[monthYear] = [];
+            expenses[monthYear].push(expense);
+            accounts[account].balance -= amount;
+
+            saveData();
+            updateExpensesList();
+            updateAccountBalances();
+            updateSummary();
+            document.getElementById('expense-amount').value = '';
+            document.getElementById('expense-description').value = '';
+            switchTab('dashboard');
+        }
+
+        function addIncome() {
+            const date = document.getElementById('income-date').value;
+            const account = document.getElementById('income-account').value;
+            const source = document.getElementById('income-source').value;
+            const amount = parseFloat(document.getElementById('income-amount').value) || 0;
+            const description = document.getElementById('income-description').value;
+
+            if (!date || !account || !source || amount <= 0) {
+                alert('Please fill all required fields with valid values');
+                return;
+            }
+
+            const incomeEntry = { date, account, source, amount, description };
+            const monthYear = `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}`;
+            if (!income[monthYear]) income[monthYear] = [];
+            income[monthYear].push(incomeEntry);
+            accounts[account].balance += amount;
+
+            saveData();
+            updateAccountBalances();
+            updateSummary();
+            document.getElementById('income-amount').value = '';
+            document.getElementById('income-description').value = '';
+            switchTab('dashboard');
+        }
+
+        function deleteExpense(index) {
+            try {
+                const monthYear = `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}`;
+                if (expenses[monthYear] && expenses[monthYear][index]) {
+                    const expense = expenses[monthYear][index];
+                    accounts[expense.account].balance += expense.amount;
+                    expenses[monthYear].splice(index, 1);
+                    if (expenses[monthYear].length === 0) delete expenses[monthYear];
+                    console.log('Expense deleted:', expense);
+                    saveData();
+                    updateExpensesList();
+                    updateAccountBalances();
+                    updateSummary();
+                } else {
+                    console.error('Invalid expense index or month:', { index, monthYear });
+                }
+            } catch (error) {
+                console.error('Error deleting expense:', error);
+            }
+        }
+
+        function updateExpensesList() {
+            const monthYear = `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}`;
+            const expensesList = expenses[monthYear] || [];
+            const tbody = document.getElementById('expenses-list');
+            tbody.innerHTML = '';
+
+            if (expensesList.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4">No expenses found</td></tr>';
+            } else {
+                expensesList.forEach((expense, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${expense.date}</td>
+                        <td>${expense.category}</td>
+                        <td>₹${expense.amount.toFixed(2)}</td>
+                        <td><button class="delete-btn" onclick="deleteExpense(${index})">Delete</button></td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+        }
+
+        function updateAccountBalances() {
+            const container = document.getElementById('account-balances');
+            container.innerHTML = '';
+            if (Object.keys(accounts).length === 0) {
+                container.innerHTML = '<p>No accounts available</p>';
+            } else {
+                for (const [id, account] of Object.entries(accounts)) {
+                    const accountDiv = document.createElement('div');
+                    accountDiv.innerHTML = `
+                        <div>${account.name}</div>
+                        <div class="account-balance ${account.balance >= 0 ? 'positive' : 'negative'}">
+                            ₹${account.balance.toFixed(2)}
+                        </div>
+                    `;
+                    container.appendChild(accountDiv);
+                }
+            }
+        }
+
+        function updateSummary() {
+            const monthYear = `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}`;
+            let totalExpenses = expenses[monthYear] ? expenses[monthYear].reduce((sum, expense) => sum + expense.amount, 0) : 0;
+            let totalIncome = income[monthYear] ? income[monthYear].reduce((sum, incomeEntry) => sum + incomeEntry.amount, 0) : 0;
+            const balance = totalIncome - totalExpenses;
+
+            document.getElementById('total-income').textContent = `₹${totalIncome.toFixed(2)}`;
+            document.getElementById('total-expenses').textContent = `₹${totalExpenses.toFixed(2)}`;
+            document.getElementById('balance').textContent = `₹${balance.toFixed(2)}`;
+            document.getElementById('budget').textContent = `₹${budget.toFixed(2)}`;
+        }
+
+        function saveBudget() {
+            budget = parseFloat(document.getElementById('monthly-budget').value) || 0;
+            saveData();
+            updateSummary();
+        }
+
+        function addAccount() {
+            const container = document.getElementById('accounts-container');
+            const newAccount = document.createElement('div');
+            newAccount.className = 'recurring-item';
+            const accountId = `account_${Date.now()}`;
+            newAccount.innerHTML = `
+                <input type="text" placeholder="Account Name" value="New Account">
+                <input type="number" placeholder="Initial Balance" value="0" step="0.01">
+                <button class="delete-btn" onclick="removeAccount(this, '${accountId}')">Delete</button>
+            `;
+            container.appendChild(newAccount);
+            accounts[accountId] = { name: 'New Account', balance: 0 };
+            updateAccountDropdowns();
+            saveData();
+        }
+
+        function removeAccount(button, accountId) {
+            if (Object.keys(accounts).length > 1) {
+                button.parentElement.remove();
+                delete accounts[accountId];
+                updateAccountDropdowns();
+                saveData();
+            } else {
+                alert('You must have at least one account');
+            }
+        }
+
+        function addCategory() {
+            const container = document.getElementById('categories-container');
+            const newCategory = document.createElement('div');
+            newCategory.className = 'recurring-item';
+            newCategory.innerHTML = `
+                <input type="text" placeholder="Category Name" value="New Category">
+                <button class="delete-btn" onclick="removeCategory(this)">Delete</button>
+            `;
+            container.appendChild(newCategory);
+            categories.push('New Category');
+            updateCategoryDropdown();
+            saveData();
+        }
+
+        function removeCategory(button) {
+            if (categories.length > 1) {
+                const index = Array.from(document.querySelectorAll('#categories-container .recurring-item')).indexOf(button.parentElement);
+                button.parentElement.remove();
+                categories.splice(index, 1);
+                updateCategoryDropdown();
+                saveData();
+            } else {
+                alert('You must have at least one category');
+            }
+        }
+
+        function addRecurringExpense() {
+            const container = document.getElementById('recurring-expenses-container');
+            const newExpense = document.createElement('div');
+            newExpense.className = 'recurring-item';
+            newExpense.innerHTML = `
+                <input type="text" placeholder="Expense Name" value="Recurring Expense">
+                <select>
+                    ${Array.from({length: 31}, (_, i) => `<option value="${i+1}">${i+1}${getOrdinalSuffix(i+1)}</option>`).join('')}
+                </select>
+                <select class="recurring-account">
+                    ${Object.entries(accounts).map(([id, account]) => `<option value="${id}">${account.name}</option>`).join('')}
+                </select>
+                <input type="number" placeholder="Amount" value="0" min="0" step="0.01">
+                <input type="text" placeholder="Description" value="">
+                <button class="delete-btn" onclick="removeRecurring(this)">Delete</button>
+            `;
+            container.appendChild(newExpense);
+            recurringExpenses.push({
+                name: 'Recurring Expense',
+                day: 1,
+                account: Object.keys(accounts)[0],
+                amount: 0,
+                description: ''
+            });
+            saveData();
+        }
+
+        function removeRecurring(button) {
+            const index = Array.from(document.querySelectorAll('#recurring-expenses-container .recurring-item')).indexOf(button.parentElement);
+            button.parentElement.remove();
+            recurringExpenses.splice(index, 1);
+            saveData();
+        }
+
+        function getOrdinalSuffix(day) {
+            if (day > 3 && day < 21) return 'th';
+            switch (day % 10) {
+                case 1: return 'st';
+                case 2: return 'nd';
+                case 3: return 'rd';
+                default: return 'th';
+            }
+        }
+
+        function updateAccountDropdowns() {
+            const expenseAccountSelect = document.getElementById('expense-account');
+            const incomeAccountSelect = document.getElementById('income-account');
+            const options = Object.entries(accounts).map(([id, account]) => 
+                `<option value="${id}">${account.name}</option>`).join('');
+            expenseAccountSelect.innerHTML = options || '<option value="">No accounts</option>';
+            incomeAccountSelect.innerHTML = options || '<option value="">No accounts</option>';
+        }
+
+        function updateCategoryDropdown() {
+            const expenseCategorySelect = document.getElementById('expense-category');
+            expenseCategorySelect.innerHTML = categories.map(category => 
+                `<option value="${category}">${category}</option>`).join('') || '<option value="">No categories</option>';
+        }
+
+        function updateIncomeSourceDropdown() {
+            const incomeSourceSelect = document.getElementById('income-source');
+            incomeSourceSelect.innerHTML = incomeSources.map(source => 
+                `<option value="${source}">${source}</option>`).join('') || '<option value="">No sources</option>';
+        }
+
+        function updateAccountsContainer() {
+            const container = document.getElementById('accounts-container');
+            container.innerHTML = '';
+            for (const [id, account] of Object.entries(accounts)) {
+                const accountDiv = document.createElement('div');
+                accountDiv.className = 'recurring-item';
+                accountDiv.innerHTML = `
+                    <input type="text" value="${account.name}" onchange="updateAccountName('${id}', this.value)">
+                    <input type="number" value="${account.balance.toFixed(2)}" step="0.01" onchange="updateAccountBalance('${id}', this.value)">
+                    <button class="delete-btn" onclick="removeAccount(this, '${id}')">Delete</button>
+                `;
+                container.appendChild(accountDiv);
+            }
+        }
+
+        function updateAccountName(id, name) {
+            if (name) {
+                accounts[id].name = name;
+                updateAccountDropdowns();
+                saveData();
+            }
+        }
+
+        function updateAccountBalance(id, balance) {
+            accounts[id].balance = parseFloat(balance) || 0;
+            updateAccountBalances();
+            saveData();
+        }
+
+        function updateCategoriesContainer() {
+            const container = document.getElementById('categories-container');
+            container.innerHTML = '';
+            categories.forEach((category, index) => {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'recurring-item';
+                categoryDiv.innerHTML = `
+                    <input type="text" value="${category}" onchange="updateCategory(${index}, this.value)">
+                    <button class="delete-btn" onclick="removeCategory(this)">Delete</button>
+                `;
+                container.appendChild(categoryDiv);
+            });
+        }
+
+        function updateCategory(index, name) {
+            if (name) {
+                categories[index] = name;
+                updateCategoryDropdown();
+                saveData();
+            }
+        }
+
+        function updateRecurringExpensesContainer() {
+            const container = document.getElementById('recurring-expenses-container');
+            container.innerHTML = '';
+            recurringExpenses.forEach((expense, index) => {
+                const expenseDiv = document.createElement('div');
+                expenseDiv.className = 'recurring-item';
+                expenseDiv.innerHTML = `
+                    <input type="text" value="${expense.name}" onchange="updateRecurringExpense(${index}, 'name', this.value)">
+                    <select onchange="updateRecurringExpense(${index}, 'day', this.value)">
+                        ${Array.from({length: 31}, (_, i) => `<option value="${i+1}" ${expense.day === i+1 ? 'selected' : ''}>${i+1}${getOrdinalSuffix(i+1)}</option>`).join('')}
+                    </select>
+                    <select class="recurring-account" onchange="updateRecurringExpense(${index}, 'account', this.value)">
+                        ${Object.entries(accounts).map(([id, account]) => `<option value="${id}" ${expense.account === id ? 'selected' : ''}>${account.name}</option>`).join('')}
+                    </select>
+                    <input type="number" value="${expense.amount.toFixed(2)}" min="0" step="0.01" onchange="updateRecurringExpense(${index}, 'amount', this.value)">
+                    <input type="text" value="${expense.description}" onchange="updateRecurringExpense(${index}, 'description', this.value)">
+                    <button class="delete-btn" onclick="removeRecurring(this)">Delete</button>
+                `;
+                container.appendChild(expenseDiv);
+            });
+        }
+
+        function updateRecurringExpense(index, field, value) {
+            recurringExpenses[index][field] = field === 'day' || field === 'amount' ? parseFloat(value) || 0 : value;
+            saveData();
+        }
+
+        function processRecurringExpenses() {
+            const today = new Date();
+            const monthYear = `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}`;
+            if (!expenses[monthYear]) expenses[monthYear] = [];
+
+            recurringExpenses.forEach(expense => {
+                if (today.getDate() === expense.day && expense.amount > 0) {
+                    const expenseExists = expenses[monthYear].some(e => 
+                        e.date === today.toISOString().split('T')[0] &&
+                        e.description === expense.description &&
+                        e.amount === expense.amount
+                    );
+                    if (!expenseExists) {
+                        const newExpense = {
+                            date: today.toISOString().split('T')[0],
+                            account: expense.account,
+                            category: categories[0] || 'Other',
+                            amount: expense.amount,
+                            description: expense.description
+                        };
+                        expenses[monthYear].push(newExpense);
+                        accounts[expense.account].balance -= expense.amount;
+                    }
+                }
+            });
+
+            saveData();
+            updateExpensesList();
+            updateAccountBalances();
+            updateSummary();
+        }
+
+        function resetData() {
+            if (confirm('Are you sure you want to reset all data? This cannot be undone.')) {
+                localStorage.removeItem('expenseTrackerData');
+                currentMonth = new Date().getMonth();
+                currentYear = new Date().getFullYear();
+                budget = 0;
+                accounts = {
+                    'cash': { name: 'Cash', balance: 0 },
+                    'credit_card1': { name: 'Credit Card 1', balance: 0 },
+                    'society_credit': { name: 'Society Credit', balance: 0 },
+                    'upi1': { name: 'UPI 1', balance: 0 },
+                    'bank1': { name: 'Bank Account 1', balance: 0 }
+                };
+                categories = ['Food', 'Transport', 'Shopping', 'Entertainment', 'Bills', 'Other'];
+                incomeSources = ['Salary', 'Freelance', 'Investment', 'Other'];
+                expenses = {};
+                income = {};
+                recurringExpenses = [];
+                
+                document.getElementById('expense-date').value = new Date().toISOString().split('T')[0];
+                document.getElementById('income-date').value = new Date().toISOString().split('T')[0];
+                document.getElementById('monthly-budget').value = budget.toFixed(2);
+                updateMonthDisplay();
+                updateAccountBalances();
+                updateExpensesList();
+                updateSummary();
+                updateAccountDropdowns();
+                updateCategoryDropdown();
+                updateIncomeSourceDropdown();
+                updateAccountsContainer();
+                updateCategoriesContainer();
+                updateRecurringExpensesContainer();
+                console.log('All data reset');
+            }
+        }
+
+        function saveData() {
+            try {
+                const data = {
+                    budget,
+                    accounts,
+                    categories,
+                    incomeSources,
+                    expenses,
+                    income,
+                    recurringExpenses,
+                    currentMonth,
+                    currentYear
+                };
+                localStorage.setItem('expenseTrackerData', JSON.stringify(data));
+                console.log('Data saved:', data);
+            } catch (error) {
+                console.error('Error saving data:', error);
+            }
+        }
+    </script>
+</body>
+</html>
