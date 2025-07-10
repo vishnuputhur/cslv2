@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Expense Diary</title>
-    <!-- Google tag (gtag.js) -->
+<!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-21G1BS7S3S"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -34,7 +34,7 @@
             display: flex;
             background-color: #0F2A45;
             position: fixed;
-            bottom: 30px; /* മാറ്റം: 45px ൽ നിന്ന് 35px ആയി */
+            bottom: 35px;
             width: 100%;
             z-index: 99;
             padding: 5px 0;
@@ -58,7 +58,7 @@
         .tab-content {
             display: none;
             padding: 10px;
-            margin-top: 65px; /* മാറ്റം: 90px ൽ നിന്ന് 80px ആയി */
+            margin-top: 80px;
             margin-bottom: 100px;
             min-height: calc(100vh - 190px);
         }
@@ -273,7 +273,7 @@
                 <thead>
                     <tr>
                         <th>Date</th>
-                        <th>Category</th>
+                        <th>Description</th> <!-- Changed from Category -->
                         <th>Amount</th>
                         <th>Action</th>
                     </tr>
@@ -298,16 +298,12 @@
                 <select id="expense-account"></select>
             </div>
             <div>
-                <label for="expense-category">Category:</label>
-                <select id="expense-category"></select>
+                <label for="expense-description">Description:</label>
+                <input type="text" id="expense-description" placeholder="Enter description">
             </div>
             <div>
                 <label for="expense-amount">Amount:</label>
                 <input type="number" id="expense-amount" placeholder="Enter amount" min="0" step="0.01">
-            </div>
-            <div>
-                <label for="expense-description">Description:</label>
-                <input type="text" id="expense-description" placeholder="Optional">
             </div>
             <button class="add-btn" onclick="addExpense()">Add Expense</button>
         </div>
@@ -339,6 +335,22 @@
             </div>
             <button class="add-btn" onclick="addIncome()">Add Income</button>
         </div>
+        <div class="box">
+            <h3>Recent Income</h3>
+            <table id="income-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Source</th>
+                        <th>Amount</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="income-list">
+                    <tr><td colspan="4">No income found</td></tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <!-- Settings Tab -->
@@ -355,11 +367,6 @@
             <h3>Accounts</h3>
             <div id="accounts-container"></div>
             <button class="add-btn" onclick="addAccount()">Add Account</button>
-        </div>
-        <div class="box">
-            <h3>Categories</h3>
-            <div id="categories-container"></div>
-            <button class="add-btn" onclick="addCategory()">Add Category</button>
         </div>
         <div class="box">
             <h3>Recurring Expenses</h3>
@@ -385,7 +392,6 @@
             'upi1': { name: 'UPI 1', balance: 0 },
             'bank1': { name: 'Bank Account 1', balance: 0 }
         };
-        let categories = ['Food', 'Transport', 'Shopping', 'Entertainment', 'Bills', 'Other'];
         let incomeSources = ['Salary', 'Freelance', 'Investment', 'Other'];
         let expenses = {};
         let income = {};
@@ -398,7 +404,6 @@
                     const data = JSON.parse(savedData);
                     budget = data.budget || 0;
                     accounts = data.accounts || accounts;
-                    categories = data.categories || categories;
                     incomeSources = data.incomeSources || incomeSources;
                     expenses = data.expenses || {};
                     income = data.income || {};
@@ -422,12 +427,11 @@
             updateMonthDisplay();
             updateAccountBalances();
             updateExpensesList();
+            updateIncomeList();
             updateSummary();
             updateAccountDropdowns();
-            updateCategoryDropdown();
             updateIncomeSourceDropdown();
             updateAccountsContainer();
-            updateCategoriesContainer();
             updateRecurringExpensesContainer();
             processRecurringExpenses();
 
@@ -465,6 +469,7 @@
             }
             updateMonthDisplay();
             updateExpensesList();
+            updateIncomeList();
             updateSummary();
         }
 
@@ -476,6 +481,7 @@
             }
             updateMonthDisplay();
             updateExpensesList();
+            updateIncomeList();
             updateSummary();
         }
 
@@ -488,16 +494,15 @@
         function addExpense() {
             const date = document.getElementById('expense-date').value;
             const account = document.getElementById('expense-account').value;
-            const category = document.getElementById('expense-category').value;
-            const amount = parseFloat(document.getElementById('expense-amount').value) || 0;
             const description = document.getElementById('expense-description').value;
+            const amount = parseFloat(document.getElementById('expense-amount').value) || 0;
 
-            if (!date || !account || !category || amount <= 0) {
+            if (!date || !account || amount <= 0) {
                 alert('Please fill all required fields with valid values');
                 return;
             }
 
-            const expense = { date, account, category, amount, description };
+            const expense = { date, account, description, amount };
             const monthYear = `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}`;
             if (!expenses[monthYear]) expenses[monthYear] = [];
             expenses[monthYear].push(expense);
@@ -532,10 +537,11 @@
 
             saveData();
             updateAccountBalances();
+            updateIncomeList();
             updateSummary();
             document.getElementById('income-amount').value = '';
             document.getElementById('income-description').value = '';
-            switchTab('dashboard');
+            switchTab('add-income');
         }
 
         function deleteExpense(index) {
@@ -559,6 +565,27 @@
             }
         }
 
+        function deleteIncome(index) {
+            try {
+                const monthYear = `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}`;
+                if (income[monthYear] && income[monthYear][index]) {
+                    const incomeEntry = income[monthYear][index];
+                    accounts[incomeEntry.account].balance -= incomeEntry.amount;
+                    income[monthYear].splice(index, 1);
+                    if (income[monthYear].length === 0) delete income[monthYear];
+                    console.log('Income deleted:', incomeEntry);
+                    saveData();
+                    updateIncomeList();
+                    updateAccountBalances();
+                    updateSummary();
+                } else {
+                    console.error('Invalid income index or month:', { index, monthYear });
+                }
+            } catch (error) {
+                console.error('Error deleting income:', error);
+            }
+        }
+
         function updateExpensesList() {
             const monthYear = `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}`;
             const expensesList = expenses[monthYear] || [];
@@ -572,9 +599,31 @@
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>${expense.date}</td>
-                        <td>${expense.category}</td>
+                        <td>${expense.description || 'No description'}</td>
                         <td>₹${expense.amount.toFixed(2)}</td>
                         <td><button class="delete-btn" onclick="deleteExpense(${index})">Delete</button></td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+        }
+
+        function updateIncomeList() {
+            const monthYear = `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}`;
+            const incomeList = income[monthYear] || [];
+            const tbody = document.getElementById('income-list');
+            tbody.innerHTML = '';
+
+            if (incomeList.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4">No income found</td></tr>';
+            } else {
+                incomeList.forEach((incomeEntry, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${incomeEntry.date}</td>
+                        <td>${incomeEntry.source}</td>
+                        <td>₹${incomeEntry.amount.toFixed(2)}</td>
+                        <td><button class="delete-btn" onclick="deleteIncome(${index})">Delete</button></td>
                     `;
                     tbody.appendChild(row);
                 });
@@ -624,12 +673,15 @@
             newAccount.className = 'recurring-item';
             const accountId = `account_${Date.now()}`;
             newAccount.innerHTML = `
-                <input type="text" placeholder="Account Name" value="New Account">
+                <input type="text" placeholder="Account Name" value="New Account" onchange="updateAccountName('${accountId}', this.value)">
                 <input type="number" placeholder="Initial Balance" value="0" step="0.01">
                 <button class="delete-btn" onclick="removeAccount(this, '${accountId}')">Delete</button>
             `;
             container.appendChild(newAccount);
-            accounts[accountId] = { name: 'New Account', balance: 0 };
+            accounts[accountId] = { 
+                name: newAccount.querySelector('input[type="text"]').value, 
+                balance: 0 
+            };
             updateAccountDropdowns();
             saveData();
         }
@@ -642,32 +694,6 @@
                 saveData();
             } else {
                 alert('You must have at least one account');
-            }
-        }
-
-        function addCategory() {
-            const container = document.getElementById('categories-container');
-            const newCategory = document.createElement('div');
-            newCategory.className = 'recurring-item';
-            newCategory.innerHTML = `
-                <input type="text" placeholder="Category Name" value="New Category">
-                <button class="delete-btn" onclick="removeCategory(this)">Delete</button>
-            `;
-            container.appendChild(newCategory);
-            categories.push('New Category');
-            updateCategoryDropdown();
-            saveData();
-        }
-
-        function removeCategory(button) {
-            if (categories.length > 1) {
-                const index = Array.from(document.querySelectorAll('#categories-container .recurring-item')).indexOf(button.parentElement);
-                button.parentElement.remove();
-                categories.splice(index, 1);
-                updateCategoryDropdown();
-                saveData();
-            } else {
-                alert('You must have at least one category');
             }
         }
 
@@ -724,12 +750,6 @@
             incomeAccountSelect.innerHTML = options || '<option value="">No accounts</option>';
         }
 
-        function updateCategoryDropdown() {
-            const expenseCategorySelect = document.getElementById('expense-category');
-            expenseCategorySelect.innerHTML = categories.map(category => 
-                `<option value="${category}">${category}</option>`).join('') || '<option value="">No categories</option>';
-        }
-
         function updateIncomeSourceDropdown() {
             const incomeSourceSelect = document.getElementById('income-source');
             incomeSourceSelect.innerHTML = incomeSources.map(source => 
@@ -763,28 +783,6 @@
             accounts[id].balance = parseFloat(balance) || 0;
             updateAccountBalances();
             saveData();
-        }
-
-        function updateCategoriesContainer() {
-            const container = document.getElementById('categories-container');
-            container.innerHTML = '';
-            categories.forEach((category, index) => {
-                const categoryDiv = document.createElement('div');
-                categoryDiv.className = 'recurring-item';
-                categoryDiv.innerHTML = `
-                    <input type="text" value="${category}" onchange="updateCategory(${index}, this.value)">
-                    <button class="delete-btn" onclick="removeCategory(this)">Delete</button>
-                `;
-                container.appendChild(categoryDiv);
-            });
-        }
-
-        function updateCategory(index, name) {
-            if (name) {
-                categories[index] = name;
-                updateCategoryDropdown();
-                saveData();
-            }
         }
 
         function updateRecurringExpensesContainer() {
@@ -830,9 +828,8 @@
                         const newExpense = {
                             date: today.toISOString().split('T')[0],
                             account: expense.account,
-                            category: categories[0] || 'Other',
-                            amount: expense.amount,
-                            description: expense.description
+                            description: expense.description,
+                            amount: expense.amount
                         };
                         expenses[monthYear].push(newExpense);
                         accounts[expense.account].balance -= expense.amount;
@@ -859,7 +856,6 @@
                     'upi1': { name: 'UPI 1', balance: 0 },
                     'bank1': { name: 'Bank Account 1', balance: 0 }
                 };
-                categories = ['Food', 'Transport', 'Shopping', 'Entertainment', 'Bills', 'Other'];
                 incomeSources = ['Salary', 'Freelance', 'Investment', 'Other'];
                 expenses = {};
                 income = {};
@@ -871,12 +867,11 @@
                 updateMonthDisplay();
                 updateAccountBalances();
                 updateExpensesList();
+                updateIncomeList();
                 updateSummary();
                 updateAccountDropdowns();
-                updateCategoryDropdown();
                 updateIncomeSourceDropdown();
                 updateAccountsContainer();
-                updateCategoriesContainer();
                 updateRecurringExpensesContainer();
                 console.log('All data reset');
             }
@@ -887,7 +882,6 @@
                 const data = {
                     budget,
                     accounts,
-                    categories,
                     incomeSources,
                     expenses,
                     income,
