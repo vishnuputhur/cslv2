@@ -210,6 +210,58 @@
             padding: 4px 0;
             font-size: 0.8rem;
         }
+.quick-links {
+    margin: 15px auto;
+    width: 85%;
+    max-width: 750px;
+    text-align: center;
+}
+
+.quick-links-header {
+    color: #DAA520;
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 8px 0;
+}
+
+.quick-links-container {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.quick-link-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(to bottom, #1a6b7b, #307A8A);
+    border-radius: 12px;
+    text-decoration: none;
+    color: white;
+    box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.5), inset 0 0 5px rgba(255, 255, 255, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.quick-link-button:hover {
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 5px 5px 12px rgba(0, 0, 0, 0.7), inset 0 0 5px rgba(255, 255, 255, 0.3);
+}
+
+.quick-link-icon {
+    font-size: 2rem;
+    margin-bottom: 5px;
+}
+
+.quick-link-label {
+    font-size: 0.6rem;
+    font-weight: 500;
+    text-align: center;
+    line-height: 1.2;
+}
     </style>
 </head>
 <body>
@@ -258,6 +310,23 @@
                 </ul>
             </div>
         </div>
+<div class="quick-links">
+    <h3 class="quick-links-header">Quick Links</h3>
+    <div class="quick-links-container">
+        <a href="calender.html" class="quick-link-button">
+            <span class="quick-link-icon">📆</span>
+            <span class="quick-link-label">CSL Calendar</span>
+        </a>
+        <a href="csl.html" class="quick-link-button">
+            <span class="quick-link-icon">💵</span>
+            <span class="quick-link-label">Salary Calculator</span>
+        </a>
+        <a href="pf.html" class="quick-link-button">
+            <span class="quick-link-icon">🏦</span>
+            <span class="quick-link-label">PF Calculator</span>
+        </a>
+    </div>
+</div>
         <div class="content-box">
             <h2>Ship Theory Dictionary</h2>
             <p>
