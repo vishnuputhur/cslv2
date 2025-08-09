@@ -364,60 +364,87 @@
             Loading holidays...
         </div>
 <div style="
-  background: linear-gradient(135deg, #ff7e5f, #feb47b);
+  background: linear-gradient(135deg, #004aad, #007bff);
   color: white;
-  padding: 15px;
+  padding: 10px;
   text-align: center;
   font-family: 'Poppins', sans-serif;
-  border-radius: 15px;
+  border-radius: 10px;
   margin: 10px;
-  box-shadow: 0 6px 12px rgba(0,0,0,0.3);
-  line-height: 1.6;
-  animation: popUp 1s ease-out;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  line-height: 1.4;
+  animation: popUp 0.8s ease-out;
 ">
   <h2 style="
-    font-size: 26px;
+    font-size: 22px;
     font-weight: 700;
     color: #ffe259;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-    margin-bottom: 10px;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+    margin-bottom: 6px;
   ">📱 VTsoft – Mobile App Development</h2>
 
   <p style="
-    font-size: 16px;
+    font-size: 14px;
     background: linear-gradient(90deg, #ffecd2, #fcb69f);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     font-weight: 500;
+    margin: 4px 0;
   ">
     For Funds, small financial institutions & societies
   </p>
 
   <p style="
-    font-size: 16px;
+    font-size: 14px;
     color: #fff;
     font-weight: bold;
+    margin: 4px 0;
   ">
     Custom mobile apps at very low cost – tailored to your needs
   </p>
 
-  <a href="https://wa.me/919037383927" style="
+  <p style="
+    font-size: 12px;
+    color: #f1f1f1;
+    margin-top: 5px;
+  ">
+    നിങ്ങളുടെ ആവശ്യത്തിനു അനുസരിച്ചു mobile അപ്പുകൾ കുറഞ്ഞ ചിലവിൽ നിർമ്മിക്കാൻ സമീപിക്കുക
+  </p>
+
+  <a href="https://wa.me/919037383927" onclick="goToWhatsApp(event)" style="
     display: inline-block;
-    margin-top: 10px;
+    margin-top: 6px;
     background: linear-gradient(90deg, #25D366, #128C7E);
     color: white;
-    padding: 8px 15px;
+    padding: 5px 12px;
     border-radius: 8px;
     text-decoration: none;
     font-weight: bold;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+    font-size: 14px;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-  " onmouseover="this.style.transform='scale(1.05)';this.style.boxShadow='0 6px 12px rgba(0,0,0,0.4)'" 
-  onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 4px 8px rgba(0,0,0,0.3)'">
+  " onmouseover="this.style.transform='scale(1.05)';this.style.boxShadow='0 5px 10px rgba(0,0,0,0.4)'" 
+  onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 3px 6px rgba(0,0,0,0.3)'">
     💬 Chat on WhatsApp
   </a>
 </div>
 
+<style>
+@keyframes popUp {
+  0% { transform: scale(0.9); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+</style>
+
+<script>
+function goToWhatsApp(e) {
+  e.preventDefault();
+  window.open("https://wa.me/919037383927", "_blank");
+  setTimeout(function() {
+    window.location.href = "index.html"; // Replace with your home page URL
+  }, 2000);
+}
+</script>
 <style>
 @keyframes popUp {
   0% { transform: scale(0.8); opacity: 0; }
