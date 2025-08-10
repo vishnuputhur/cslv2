@@ -38,7 +38,7 @@
 
         .sub-title {
             font-size: 18px;
-            margin-top: 170px;
+            margin-top: 90px;
             font-weight: bold;
             font-family: 'Times New Roman', serif;
             color: #ffffff;
@@ -47,10 +47,10 @@
         .container {
             background-color: #F5E6C4;
             color: #1E3A5F;
-            width: 88%;
+            width: 87%;
             max-width: 350px;
             padding: 15px;
-            margin: 10px auto;
+            margin: 5px auto;
             border-radius: 8px;
             box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.3);
             flex-grow: 1;
@@ -148,8 +148,9 @@
         }
 
         .day.today {
-            background: #FFFF99 !important;
-            color: black;
+            border: 2px solid blue;
+            border-radius: 50%;
+            box-sizing: border-box;
         }
 
         .day.present-in {
@@ -170,6 +171,10 @@
         .day.half-day {
             background: linear-gradient(to right, #90EE90 50%, #FFB6C1 50%) !important;
             color: white;
+        }
+
+        .day.present-in.holiday, .day.present-full.holiday {
+            color: red;
         }
 
         .popup {
@@ -357,9 +362,9 @@
         ];
 
         const shiftTimes = {
-            "A2": { start: "07:00", end: "15:20", grace: 5 },
-            "B2": { start: "13:40", end: "22:00", grace: 5 },
-            "C2": { start: "08:00", end: "16:15", grace: 5 }
+            "A2": { start: "07:00", end: "15:20", grace: "07:05" },
+            "B2": { start: "13:40", end: "22:00", grace: "13:45" },
+            "C2": { start: "08:00", end: "16:15", grace: "08:05" }
         };
 
         const today = new Date();
@@ -444,37 +449,68 @@
         function calculateLateMinutes(inPunch, shift) {
             if (!inPunch || !shift) return 0;
             const [inHours, inMinutes] = inPunch.split(':').map(Number);
-            const [startHours, startMinutes] = shiftTimes[shift].start.split(':').map(Number);
+            const [graceHours, graceMinutes] = shiftTimes[shift].grace.split(':').map(Number);
             const inTime = inHours * 60 + inMinutes;
-            const startTime = startHours * 60 + startMinutes + shiftTimes[shift].grace;
-            return inTime > startTime ? inTime - startTime : 0;
+            const graceTime = graceHours * 60 + graceMinutes;
+            return inTime > graceTime ? inTime - graceTime : 0;
         }
 
         function updateSummaryBox() {
-            let totalOT = 0, totalLate = 0, leaves = [];
+            let totalOT = 0, totalLate = 0, leaves = [], clTaken = 0, elTaken = 0, hplTaken = 0, specialTaken = 0, presentDays = 0;
             const prevMonth = (currentMonth === 0 ? 11 : currentMonth - 1);
             const prevYear = currentMonth === 0 ? 2024 : 2025;
-            const startDate = new Date(prevYear, prevMonth, 20);
-            const endDate = new Date(2025, currentMonth, 19);
+            const otStartDate = new Date(prevYear, prevMonth, 20);
+            const otEndDate = new Date(2025, currentMonth, 19);
+            const monthStart = new Date(2025, currentMonth, 1);
+            const monthEnd = new Date(2025, currentMonth + 1, 0);
             for (let dateStr in attendanceData) {
                 const date = new Date(dateStr);
-                if (date >= startDate && date <= endDate) {
-                    if (attendanceData[dateStr].ot) totalOT += parseFloat(attendanceData[dateStr].ot);
-                    if (attendanceData[dateStr].leave) leaves.push(`${dateStr}: ${attendanceData[dateStr].leave}${attendanceData[dateStr].halfDay === 'Yes' ? ' (Half)' : ''}`);
+                if (date >= monthStart && date <= monthEnd) {
+                    if (attendanceData[dateStr].leave) {
+                        const deduction = attendanceData[dateStr].halfDay === 'Yes' ? 0.5 : 1;
+                        if (attendanceData[dateStr].leave === 'CL') clTaken += deduction;
+                        if (attendanceData[dateStr].leave === 'EL') elTaken += deduction;
+                        if (attendanceData[dateStr].leave === 'HPL') hplTaken += deduction * 2;
+                        if (attendanceData[dateStr].leave === 'Special') specialTaken += deduction;
+                        leaves.push(`${dateStr}: ${attendanceData[dateStr].leave}${attendanceData[dateStr].halfDay === 'Yes' ? ' (Half)' : ''}`);
+                    } else if (attendanceData[dateStr].inPunch && attendanceData[dateStr].outPunch) {
+                        presentDays += 1;
+                    }
                     if (attendanceData[dateStr].inPunch && attendanceData[dateStr].shift) {
                         totalLate += calculateLateMinutes(attendanceData[dateStr].inPunch, attendanceData[dateStr].shift);
                     }
+                }
+                if (date >= otStartDate && date <= otEndDate) {
+                    if (attendanceData[dateStr].ot) totalOT += parseFloat(attendanceData[dateStr].ot);
                 }
             }
             document.getElementById('summary-box').innerHTML = `
                 <p>Total OT: ${totalOT.toFixed(2)} hrs</p>
                 <p>Late: ${totalLate} min</p>
                 <p>Leaves: ${leaves.length ? leaves.join(', ') : 'None'}</p>
-                <p>CL: ${employeeData.cl.toFixed(1)}</p>
-                <p>EL: ${employeeData.el.toFixed(1)}</p>
-                <p>HPL: ${employeeData.hpl.toFixed(1)}</p>
-                <p>Special: ${employeeData.special}</p>
+                <p>CL: ${employeeData.cl.toFixed(1)} (${clTaken})</p>
+                <p>EL: ${employeeData.el.toFixed(1)} (${elTaken})</p>
+                <p>HPL: ${employeeData.hpl.toFixed(1)} (${hplTaken})</p>
+                <p>Special: ${employeeData.special} (${specialTaken})</p>
+                <p>Total Present Days: ${presentDays}</p>
             `;
+        }
+
+        function applyHolidayLeaveRule() {
+            const daysInMonth = new Date(2025, currentMonth + 1, 0).getDate();
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dateStr = `2025-${String(currentMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                const prevDateStr = `2025-${String(currentMonth + 1).padStart(2, '0')}-${String(d - 1).padStart(2, '0')}`;
+                const nextDateStr = `2025-${String(currentMonth + 1).padStart(2, '0')}-${String(d + 1).padStart(2, '0')}`;
+                if (isHoliday(dateStr) && attendanceData[prevDateStr] && attendanceData[nextDateStr]) {
+                    const prevData = attendanceData[prevDateStr];
+                    const nextData = attendanceData[nextDateStr];
+                    if (prevData.leave === nextData.leave && (prevData.leave === 'EL' || prevData.leave === 'HPL') && prevData.halfDay !== 'Yes' && nextData.halfDay !== 'Yes') {
+                        attendanceData[dateStr] = { ...attendanceData[dateStr], leave: prevData.leave, halfDay: 'No' };
+                    }
+                }
+            }
+            localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
         }
 
         function showAttendancePopup(dateStr) {
@@ -505,7 +541,7 @@
                 </div>
                 <div class="settings-row">
                     <label for="leave">Leave:</label>
-                    <select id="leave">
+                    <select id="leave" onchange="updateHalfDayOptions()">
                         <option value="" ${!data.leave ? 'selected' : ''}>None</option>
                         <option value="CL" ${data.leave === 'CL' ? 'selected' : ''} ${employeeData.cl <= 0 ? 'disabled' : ''}>CL</option>
                         <option value="EL" ${data.leave === 'EL' ? 'selected' : ''} ${employeeData.el <= 0 ? 'disabled' : ''}>EL</option>
@@ -517,7 +553,7 @@
                     <label for="halfDay">Half Day:</label>
                     <select id="halfDay">
                         <option value="No" ${data.halfDay !== 'Yes' ? 'selected' : ''}>No</option>
-                        <option value="Yes" ${data.halfDay === 'Yes' ? 'selected' : ''} ${employeeData[data.leave] < 0.5 ? 'disabled' : ''}>Yes</option>
+                        <option value="Yes" ${data.halfDay === 'Yes' ? 'selected' : ''}>Yes</option>
                     </select>
                 </div>
                 <div>
@@ -526,6 +562,18 @@
                 </div>
             `;
             document.getElementById('attendance-popup').style.display = 'block';
+            updateHalfDayOptions();
+        }
+
+        function updateHalfDayOptions() {
+            const leave = document.getElementById('leave').value;
+            const halfDaySelect = document.getElementById('halfDay');
+            if (leave === 'EL' || leave === 'Special') {
+                halfDaySelect.value = 'No';
+                halfDaySelect.disabled = true;
+            } else {
+                halfDaySelect.disabled = false;
+            }
         }
 
         function setDefaultTimes() {
@@ -549,8 +597,9 @@
             const halfDay = document.getElementById('halfDay').value;
             const shift = document.getElementById('shift').value;
 
-            if (leave && attendanceData[dateStr]?.leave !== leave) {
-                const deduction = halfDay === 'Yes' ? 0.5 : 1;
+            if (leave && (attendanceData[dateStr]?.leave !== leave || attendanceData[dateStr]?.halfDay !== halfDay)) {
+                let deduction = halfDay === 'Yes' ? 0.5 : 1;
+                if (leave === 'HPL') deduction *= 2;
                 if (leave === 'CL' && employeeData.cl >= deduction) employeeData.cl -= deduction;
                 else if (leave === 'EL' && employeeData.el >= deduction) employeeData.el -= deduction;
                 else if (leave === 'HPL' && employeeData.hpl >= deduction) employeeData.hpl -= deduction;
@@ -561,6 +610,7 @@
             localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
             localStorage.setItem('employeeData', JSON.stringify(employeeData));
             document.getElementById('attendance-popup').style.display = 'none';
+            applyHolidayLeaveRule();
             showMonth(currentMonth);
         }
 
