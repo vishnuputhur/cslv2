@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-21G1BS7S3S"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-21G1BS7S3S');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Register</title>
+    <style>
+        body {
+            background-color: #1E3A5F;
+            font-family: 'Poppins', sans-serif;
+            color: #F5E6C4;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .top-img {
+            width: 100%;
+            max-height: 150px;
+            object-fit: cover;
+            cursor: pointer;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 99;
+        }
+
+        .sub-title {
+            font-size: 18px;
+            margin-top: 170px;
+            font-weight: bold;
+            font-family: 'Times New Roman', serif;
+            color: #ffffff;
+        }
+
+        .container {
+            background-color: #F5E6C4;
+            color: #1E3A5F;
+            width: 88%;
+            max-width: 350px;
+            padding: 15px;
+            margin: 10px auto;
+            border-radius: 8px;
+            box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.3);
+            flex-grow: 1;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 10px;
+        }
+
+        .tab-btn {
+            width: 45%;
+            padding: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            color: white;
+            background-color: #1E3A5F;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+        }
+
+        .tab-btn.active {
+            background-color: #8B1E3F;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .nav-btn {
+            padding: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            color: white;
+            background-color: #1E3A5F;
+            width: 30%;
+        }
+
+        .calendar-container {
+            margin-top: 10px;
+        }
+
+        .month {
+            margin: 10px 0;
+            padding: 8px;
+            background: #1E3A5F;
+            color: white;
+            border-radius: 5px;
+            position: sticky;
+            top: 170px;
+            z-index: 900;
+            font-size: 14px;
+        }
+
+        .week-header {
+            display: flex;
+            background: #e0e0e0;
+            padding: 5px;
+            font-weight: bold;
+            position: sticky;
+            top: 210px;
+            z-index: 800;
+            font-size: 12px;
+        }
+
+        .week-header div, .day {
+            width: 14%;
+            text-align: center;
+        }
+
+        .week {
+            display: flex;
+        }
+
+        .day {
+            padding: 8px;
+            border: 1px solid #ddd;
+            margin: 1px;
+            background: white;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .day.holiday {
+            color: red;
+        }
+
+        .day.today {
+            background: #FFFF99 !important;
+            color: black;
+        }
+
+        .day.present-in {
+            background: #FFFF99 !important;
+            color: black;
+        }
+
+        .day.present-full {
+            background: #90EE90 !important;
+            color: black;
+        }
+
+        .day.leave {
+            background: #FFB6C1 !important;
+            color: white;
+        }
+
+        .day.half-day {
+            background: linear-gradient(to right, #90EE90 50%, #FFB6C1 50%) !important;
+            color: white;
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #F5E6C4;
+            color: #1E3A5F;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.3);
+            z-index: 2000;
+            width: 90%;
+            max-width: 300px;
+            font-size: 12px;
+        }
+
+        .popup label {
+            display: inline;
+            margin-right: 5px;
+            font-weight: bold;
+            color: #1E3A5F;
+            width: 50px;
+            text-align: right;
+        }
+
+        .popup input, .popup select {
+            width: 120px;
+            padding: 5px;
+            font-size: 12px;
+            margin: 5px 0;
+            border: 1px solid #1E3A5F;
+            border-radius: 4px;
+            background: #FAF8E3;
+        }
+
+        .settings-row {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+
+        .settings-row label {
+            margin-right: 5px;
+            font-weight: bold;
+            color: #1E3A5F;
+            font-size: 12px;
+            width: 50px;
+            text-align: right;
+        }
+
+        .settings-row input, .settings-row select {
+            width: 120px;
+            padding: 5px;
+            font-size: 12px;
+            margin: 0;
+            border: 1px solid #1E3A5F;
+            border-radius: 4px;
+            background: #FAF8E3;
+        }
+
+        .btn {
+            padding: 8px;
+            margin: 5px;
+            font-size: 12px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            color: white;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+        }
+
+        .save-btn {
+            background-color: #1E3A5F;
+        }
+
+        .clear-btn {
+            background-color: #8B1E3F;
+        }
+
+        .result {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #1E3A5F;
+            background: #FAF8E3;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.15);
+        }
+
+        .footer {
+            font-size: 14px;
+            padding: 15px;
+            background-color: #0F2A44;
+            width: 100%;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+        }
+
+        .bottom-padding {
+            height: 60px;
+        }
+    </style>
+</head>
+<body onload="showMonth(today.getMonth())">
+    <a href="index.html">
+        <img src="https://i.ibb.co/BYPxNBB/Screenshot-20250529-141452-CSL-Calculations.jpg" alt="Top Image" class="top-img">
+    </a>
+
+    <div class="sub-title">Attendance Register</div>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('calendar')">Calendar</button>
+            <button class="tab-btn" onclick="showTab('settings')">Settings</button>
+        </div>
+
+        <div id="calendar-tab">
+            <div class="nav-buttons">
+                <button class="nav-btn" onclick="showMonth(currentMonth - 1)">Previous</button>
+                <button class="nav-btn" onclick="showMonth(currentMonth + 1)">Next</button>
+            </div>
+            <div class="calendar-container" id="calendar-container"></div>
+            <div class="result" id="summary-box"></div>
+        </div>
+
+        <div id="settings-tab" style="display: none;">
+            <form id="settingsForm">
+                <div class="settings-row">
+                    <label for="empName">Name:</label>
+                    <input type="text" id="empName" required>
+                </div>
+                <div class="settings-row">
+                    <label for="empCode">Code:</label>
+                    <input type="text" id="empCode" required>
+                </div>
+                <div class="settings-row">
+                    <label for="clBalance">CL:</label>
+                    <input type="number" id="clBalance" step="0.5" required>
+                </div>
+                <div class="settings-row">
+                    <label for="elBalance">EL:</label>
+                    <input type="number" id="elBalance" step="0.5" required>
+                </div>
+                <div class="settings-row">
+                    <label for="hplBalance">HPL:</label>
+                    <input type="number" id="hplBalance" step="0.5" required>
+                </div>
+                <div class="settings-row">
+                    <label for="specialLeave">Special:</label>
+                    <input type="number" id="specialLeave" max="3" required>
+                </div>
+                <div>
+                    <button type="button" class="btn save-btn" onclick="saveSettings()">Save</button>
+                    <button type="reset" class="btn clear-btn">Clear</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="popup" id="attendance-popup"></div>
+    <div class="bottom-padding"></div>
+    <div class="footer">Powered by VT@Soft © 2025 | Version 1.0</div>
+
+    <script>
+        const holidays = {
+            "2025-08-15": "Independence Day",
+            "2025-09-04": "First Onam",
+            "2025-09-05": "Thiruvonam",
+            "2025-09-06": "Third Onam",
+            "2025-10-02": "Gandhi Jayanthi / Vijayadasami",
+            "2025-12-25": "Christmas"
+        };
+
+        const weekends = [
+            "2025-01-11", "2025-01-25", "2025-02-08", "2025-02-22", "2025-03-08", "2025-03-22",
+            "2025-04-12", "2025-04-26", "2025-05-10", "2025-05-24", "2025-06-14", "2025-06-28",
+            "2025-07-12", "2025-07-26", "2025-08-09", "2025-08-23", "2025-09-13", "2025-09-27",
+            "2025-10-11", "2025-10-25", "2025-11-08", "2025-11-22", "2025-12-13", "2025-12-27"
+        ];
+
+        const shiftTimes = {
+            "A2": { start: "07:00", end: "15:20", grace: 5 },
+            "B2": { start: "13:40", end: "22:00", grace: 5 },
+            "C2": { start: "08:00", end: "16:15", grace: 5 }
+        };
+
+        const today = new Date();
+        let currentMonth = today.getMonth();
+        let attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || {};
+        let employeeData = JSON.parse(localStorage.getItem('employeeData')) || {
+            name: '', code: '', cl: 0, el: 0, hpl: 0, special: 3, elBaseMonth: today.getMonth()
+        };
+
+        function getISOWeek(date) {
+            const d = new Date(date);
+            d.setHours(0, 0, 0, 0);
+            d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7);
+            const week1 = new Date(d.getFullYear(), 0, 4);
+            return 1 + Math.round(((d - week1) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+        }
+
+        function isHoliday(dateStr, dayOfWeek, date) {
+            if (dayOfWeek === 0) return true; // Sunday
+            return holidays[dateStr] || weekends.includes(dateStr); // 2nd and 4th Saturdays
+        }
+
+        function showMonth(month) {
+            currentMonth = (month + 12) % 12;
+            // Update EL balance when month changes
+            const monthsElapsed = currentMonth - employeeData.elBaseMonth;
+            if (monthsElapsed > 0) {
+                employeeData.el = (employeeData.el || 0) + (monthsElapsed * 2.5);
+                employeeData.elBaseMonth = currentMonth;
+                localStorage.setItem('employeeData', JSON.stringify(employeeData));
+                loadSettings();
+            }
+            let calendarHTML = '';
+            const firstDay = new Date(2025, currentMonth, 1).getDay();
+            const daysInMonth = new Date(2025, currentMonth + 1, 0).getDate();
+            const monthName = new Date(2025, currentMonth).toLocaleString('default', { month: 'long' });
+
+            calendarHTML += `
+                <div class="month" id="month-${currentMonth}">${monthName} 2025</div>
+                <div class="week-header">
+                    <div>Sun</div><div>Mon</div><div>Tue</div>
+                    <div>Wed</div><div>Thu</div><div>Fri</div>
+                    <div>Sat</div>
+                </div>
+            `;
+
+            let date = 1;
+            for (let i = 0; i < 6; i++) {
+                if (date > daysInMonth) break;
+                calendarHTML += `<div class="week">`;
+                for (let j = 0; j < 7; j++) {
+                    if ((i === 0 && j < firstDay) || date > daysInMonth) {
+                        calendarHTML += '<div class="day"></div>';
+                    } else {
+                        const currentDate = new Date(2025, currentMonth, date);
+                        const dateStr = `2025-${String(currentMonth + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
+                        let classes = 'day';
+                        if (isHoliday(dateStr, j, currentDate)) classes += ' holiday';
+                        if (today.getFullYear() === 2025 && today.getMonth() === currentMonth && today.getDate() === date) {
+                            classes += ' today';
+                        }
+                        if (attendanceData[dateStr]) {
+                            if (attendanceData[dateStr].leave) {
+                                classes += attendanceData[dateStr].halfDay === 'Yes' ? ' half-day' : ' leave';
+                            } else if (attendanceData[dateStr].inPunch && attendanceData[dateStr].outPunch) {
+                                classes += ' present-full';
+                            } else if (attendanceData[dateStr].inPunch) {
+                                classes += ' present-in';
+                            }
+                        }
+                        calendarHTML += `<div class="${classes}" onclick="showAttendancePopup('${dateStr}')">${date}</div>`;
+                        date++;
+                    }
+                }
+                calendarHTML += '</div>';
+            }
+            document.getElementById('calendar-container').innerHTML = calendarHTML;
+            updateSummaryBox();
+            window.scrollTo({ top: document.getElementById('calendar-container').offsetTop - 170, behavior: 'smooth' });
+        }
+
+        function calculateLateMinutes(inPunch, shift) {
+            if (!inPunch || !shift) return 0;
+            const [inHours, inMinutes] = inPunch.split(':').map(Number);
+            const [startHours, startMinutes] = shiftTimes[shift].start.split(':').map(Number);
+            const inTime = inHours * 60 + inMinutes;
+            const startTime = startHours * 60 + startMinutes + shiftTimes[shift].grace;
+            return inTime > startTime ? inTime - startTime : 0;
+        }
+
+        function updateSummaryBox() {
+            let totalOT = 0, totalLate = 0, leaves = [];
+            const prevMonth = (currentMonth === 0 ? 11 : currentMonth - 1);
+            const prevYear = currentMonth === 0 ? 2024 : 2025;
+            const startDate = new Date(prevYear, prevMonth, 20);
+            const endDate = new Date(2025, currentMonth, 19);
+            for (let dateStr in attendanceData) {
+                const date = new Date(dateStr);
+                if (date >= startDate && date <= endDate) {
+                    if (attendanceData[dateStr].ot) totalOT += parseFloat(attendanceData[dateStr].ot);
+                    if (attendanceData[dateStr].leave) leaves.push(`${dateStr}: ${attendanceData[dateStr].leave}${attendanceData[dateStr].halfDay === 'Yes' ? ' (Half)' : ''}`);
+                    if (attendanceData[dateStr].inPunch && attendanceData[dateStr].shift) {
+                        totalLate += calculateLateMinutes(attendanceData[dateStr].inPunch, attendanceData[dateStr].shift);
+                    }
+                }
+            }
+            document.getElementById('summary-box').innerHTML = `
+                <p>Total OT: ${totalOT.toFixed(2)} hrs</p>
+                <p>Late: ${totalLate} min</p>
+                <p>Leaves: ${leaves.length ? leaves.join(', ') : 'None'}</p>
+                <p>CL: ${employeeData.cl.toFixed(1)}</p>
+                <p>EL: ${employeeData.el.toFixed(1)}</p>
+                <p>HPL: ${employeeData.hpl.toFixed(1)}</p>
+                <p>Special: ${employeeData.special}</p>
+            `;
+        }
+
+        function showAttendancePopup(dateStr) {
+            const data = attendanceData[dateStr] || {};
+            const defaultTimes = shiftTimes[data.shift] || { start: '', end: '' };
+            document.getElementById('attendance-popup').innerHTML = `
+                <h3 style="font-size: 14px; margin: 5px 0;">${dateStr}</h3>
+                <div class="settings-row">
+                    <label for="shift">Shift:</label>
+                    <select id="shift" onchange="setDefaultTimes()">
+                        <option value="" ${!data.shift ? 'selected' : ''}>None</option>
+                        <option value="A2" ${data.shift === 'A2' ? 'selected' : ''}>A2</option>
+                        <option value="B2" ${data.shift === 'B2' ? 'selected' : ''}>B2</option>
+                        <option value="C2" ${data.shift === 'C2' ? 'selected' : ''}>C2</option>
+                    </select>
+                </div>
+                <div class="settings-row">
+                    <label for="inPunch">In:</label>
+                    <input type="time" id="inPunch" value="${data.inPunch || defaultTimes.start}">
+                </div>
+                <div class="settings-row">
+                    <label for="outPunch">Out:</label>
+                    <input type="time" id="outPunch" value="${data.outPunch || defaultTimes.end}">
+                </div>
+                <div class="settings-row">
+                    <label for="ot">OT:</label>
+                    <input type="number" id="ot" step="0.5" value="${data.ot || 0}">
+                </div>
+                <div class="settings-row">
+                    <label for="leave">Leave:</label>
+                    <select id="leave">
+                        <option value="" ${!data.leave ? 'selected' : ''}>None</option>
+                        <option value="CL" ${data.leave === 'CL' ? 'selected' : ''} ${employeeData.cl <= 0 ? 'disabled' : ''}>CL</option>
+                        <option value="EL" ${data.leave === 'EL' ? 'selected' : ''} ${employeeData.el <= 0 ? 'disabled' : ''}>EL</option>
+                        <option value="HPL" ${data.leave === 'HPL' ? 'selected' : ''} ${employeeData.hpl <= 0 ? 'disabled' : ''}>HPL</option>
+                        <option value="Special" ${data.leave === 'Special' ? 'selected' : ''} ${employeeData.special <= 0 ? 'disabled' : ''}>Special</option>
+                    </select>
+                </div>
+                <div class="settings-row">
+                    <label for="halfDay">Half Day:</label>
+                    <select id="halfDay">
+                        <option value="No" ${data.halfDay !== 'Yes' ? 'selected' : ''}>No</option>
+                        <option value="Yes" ${data.halfDay === 'Yes' ? 'selected' : ''} ${employeeData[data.leave] < 0.5 ? 'disabled' : ''}>Yes</option>
+                    </select>
+                </div>
+                <div>
+                    <button class="btn save-btn" onclick="saveAttendance('${dateStr}')">Save</button>
+                    <button class="btn clear-btn" onclick="document.getElementById('attendance-popup').style.display='none'">Close</button>
+                </div>
+            `;
+            document.getElementById('attendance-popup').style.display = 'block';
+        }
+
+        function setDefaultTimes() {
+            const shift = document.getElementById('shift').value;
+            const inPunch = document.getElementById('inPunch');
+            const outPunch = document.getElementById('outPunch');
+            if (shift && shiftTimes[shift]) {
+                inPunch.value = inPunch.value || shiftTimes[shift].start;
+                outPunch.value = outPunch.value || shiftTimes[shift].end;
+            } else {
+                if (!inPunch.value) inPunch.value = '';
+                if (!outPunch.value) outPunch.value = '';
+            }
+        }
+
+        function saveAttendance(dateStr) {
+            const inPunch = document.getElementById('inPunch').value;
+            const outPunch = document.getElementById('outPunch').value;
+            const ot = document.getElementById('ot').value;
+            const leave = document.getElementById('leave').value;
+            const halfDay = document.getElementById('halfDay').value;
+            const shift = document.getElementById('shift').value;
+
+            if (leave && attendanceData[dateStr]?.leave !== leave) {
+                const deduction = halfDay === 'Yes' ? 0.5 : 1;
+                if (leave === 'CL' && employeeData.cl >= deduction) employeeData.cl -= deduction;
+                else if (leave === 'EL' && employeeData.el >= deduction) employeeData.el -= deduction;
+                else if (leave === 'HPL' && employeeData.hpl >= deduction) employeeData.hpl -= deduction;
+                else if (leave === 'Special' && employeeData.special >= deduction) employeeData.special -= deduction;
+            }
+
+            attendanceData[dateStr] = { inPunch, outPunch, ot, leave, halfDay, shift };
+            localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
+            localStorage.setItem('employeeData', JSON.stringify(employeeData));
+            document.getElementById('attendance-popup').style.display = 'none';
+            showMonth(currentMonth);
+        }
+
+        function showTab(tab) {
+            document.getElementById('calendar-tab').style.display = tab === 'calendar' ? 'block' : 'none';
+            document.getElementById('settings-tab').style.display = tab === 'settings' ? 'block' : 'none';
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.tab-btn[onclick="showTab('${tab}')"]`).classList.add('active');
+        }
+
+        function saveSettings() {
+            employeeData.name = document.getElementById('empName').value;
+            employeeData.code = document.getElementById('empCode').value;
+            employeeData.cl = parseFloat(document.getElementById('clBalance').value);
+            employeeData.el = parseFloat(document.getElementById('elBalance').value);
+            employeeData.hpl = parseFloat(document.getElementById('hplBalance').value);
+            employeeData.special = parseInt(document.getElementById('specialLeave').value);
+            employeeData.elBaseMonth = currentMonth;
+            localStorage.setItem('employeeData', JSON.stringify(employeeData));
+            alert('Settings saved!');
+            loadSettings();
+        }
+
+        function loadSettings() {
+            document.getElementById('empName').value = employeeData.name || '';
+            document.getElementById('empCode').value = employeeData.code || '';
+            document.getElementById('clBalance').value = employeeData.cl || 0;
+            document.getElementById('hplBalance').value = employeeData.hpl || 0;
+            document.getElementById('specialLeave').value = employeeData.special || 3;
+            document.getElementById('elBalance').value = employeeData.el.toFixed(1);
+        }
+
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('.popup') && !e.target.classList.contains('day')) {
+                document.getElementById('attendance-popup').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
