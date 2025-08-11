@@ -364,7 +364,8 @@
         const shiftTimes = {
             "A2": { start: "07:00", end: "15:20", grace: "07:05" },
             "B2": { start: "13:40", end: "22:00", grace: "13:45" },
-            "C2": { start: "08:00", end: "16:15", grace: "08:05" }
+            "C2": { start: "08:00", end: "16:15", grace: "08:05" },
+            "C1": { start: "06:00", end: "14:00", grace: "06:05" }
         };
 
         const today = new Date();
@@ -525,6 +526,7 @@
                         <option value="A2" ${data.shift === 'A2' ? 'selected' : ''}>A2</option>
                         <option value="B2" ${data.shift === 'B2' ? 'selected' : ''}>B2</option>
                         <option value="C2" ${data.shift === 'C2' ? 'selected' : ''}>C2</option>
+                        <option value="C1" ${data.shift === 'C1' ? 'selected' : ''}>C1</option>
                     </select>
                 </div>
                 <div class="settings-row">
