@@ -477,7 +477,8 @@
                     } else if (attendanceData[dateStr].inPunch && attendanceData[dateStr].outPunch) {
                         presentDays += 1;
                     }
-                    if (attendanceData[dateStr].inPunch && attendanceData[dateStr].shift) {
+                    // Late calculation only if not a leave day (including half day)
+                    if (!attendanceData[dateStr].leave && attendanceData[dateStr].inPunch && attendanceData[dateStr].shift) {
                         totalLate += calculateLateMinutes(attendanceData[dateStr].inPunch, attendanceData[dateStr].shift);
                     }
                 }
