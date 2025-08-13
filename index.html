@@ -369,6 +369,60 @@
                 <a href="emi.html">EMI Calculator</a>: Manage loans by calculating principal and interest percentages to optimize your EMI payments.
             </p>
         </div>
+<!-- Share Button (paste inside your page where you want the button) -->
+<button id="waShareBtn" type="button" class="wa-share-btn">📤 WhatsApp Share</button>
+
+<!-- (Optional) Pure link fallback you can use anywhere -->
+<!-- <a class="wa-share-link" href="https://wa.me/?text=CSL%20Calculations%20എന്ന%20mobile%20ആപ്പ്%20install%20ചെയ്യാനായി%20താഴെ%20ഉള്ള%20download%20link%20ൽ%20നിന്നും%20apk%20download%20ചെയ്തു%20insatll%20ചെയ്യുക%0ALink%20:%20https://cslcalculations.netlify.app/csl2.apk">📤 Share on WhatsApp</a> -->
+
+<style>
+  .wa-share-btn, .wa-share-link{
+    background:#25D366;
+    color:#fff;
+    border:0;
+    border-radius:10px;
+    padding:10px 16px;
+    font-size:16px;
+    font-weight:600;
+    cursor:pointer;
+    text-decoration:none;
+    display:inline-block;
+  }
+  .wa-share-btn:active { transform: scale(0.98); }
+</style>
+
+<script>
+  (function(){
+    // Your share message (exactly as you asked)
+    const shareMessage =
+`CSL Calculations എന്ന mobile ആപ്പ് install ചെയ്യാനായി താഴെ ഉള്ള download link ൽ നിന്നും apk download ചെയ്തു insatll ചെയ്യുക 
+Link : https://cslcalculations.netlify.app/csl2.apk`;
+
+    // Prefer native share if available (keeps user inside PWA/WebView when possible)
+    function tryNativeShare() {
+      if (navigator.share) {
+        navigator.share({ text: shareMessage }).catch(() => {
+          // ignore if user cancels
+        });
+        return true;
+      }
+      return false;
+    }
+
+    // WhatsApp URL fallback (opens WhatsApp or WhatsApp Web)
+    function openWhatsApp() {
+      const waUrl = "https://wa.me/?text=" + encodeURIComponent(shareMessage);
+      // In Android WebView, location.href is usually more reliable than window.open
+      try { location.href = waUrl; } catch(e) { window.open(waUrl, "_blank"); }
+    }
+
+    document.getElementById("waShareBtn").addEventListener("click", function(){
+      if (!tryNativeShare()) {
+        openWhatsApp();
+      }
+    });
+  })();
+</script>
         <h3 style="color: #DAA520; font-size: 1rem; margin: 8px 0;">📅 Upcoming CSL Holidays</h3>
         <div id="upcomingHolidays" style="color: white; font-size: 1rem; font-weight: 500; line-height: 1.5; margin: 8px 0;">
             Loading holidays...
