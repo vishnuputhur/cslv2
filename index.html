@@ -21,8 +21,8 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background: linear-gradient(to bottom, #094552, #1a6b7b); /* Updated darker top gradient */
-            color: white;
+            background: linear-gradient(to bottom, #FF9933, #FFFFFF, #138808); /* Saffron, White, Green */
+            color: #000080; /* Navy blue text */
             display: flex;
             flex-direction: column;
             min-height: 100vh;
@@ -34,7 +34,7 @@
             justify-content: center;
             align-items: center;
             padding: 5px;
-            background: #094552; /* Updated solid darker color */
+            background: #FF9933; /* Saffron header */
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
             position: fixed;
             top: 0;
@@ -55,7 +55,7 @@
         .menu-icon div {
             width: 100%;
             height: 3px;
-            background-color: white;
+            background-color: #000080; /* Navy blue menu lines */
             transition: 0.3s;
         }
         .menu-icon:hover {
@@ -71,7 +71,7 @@
         }
         .header-subtitle {
             font-size: 0.6rem;
-            color: #87CEEB;
+            color: #FFFFFF; /* White for contrast */
             font-weight: bold;
             text-align: center;
             margin: 0;
@@ -82,9 +82,9 @@
             left: -220px;
             width: 220px;
             height: calc(100% - 40px);
-            background: linear-gradient(to bottom, #094552, #1a6b7b); /* Updated darker top gradient */
+            background: linear-gradient(to bottom, #FF9933, #138808); /* Saffron to Green */
             box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
-            border-right: 2px solid #87CEEB;
+            border-right: 2px solid #000080; /* Navy blue border */
             display: flex;
             flex-direction: column;
             padding-top: 20px;
@@ -98,13 +98,13 @@
             margin: 8px 15px;
             padding: 8px;
             text-decoration: none;
-            color: white;
-            background: linear-gradient(to right, #1a6b7b, #307A8A);
+            color: #000080; /* Navy blue text */
+            background: linear-gradient(to right, #FFFFFF, #138808); /* White to Green */
             border-radius: 5px;
             text-align: center;
             font-weight: 600;
-            box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.5), inset 0 0 5px rgba(255, 255, 255, 0.2); /* Enhanced 3D shadow */
-            transform: translateX(-100%) perspective(500px) rotateY(0deg); /* Added perspective for 3D */
+            box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.5), inset 0 0 5px rgba(255, 255, 255, 0.2);
+            transform: translateX(-100%) perspective(500px) rotateY(0deg);
             opacity: 0;
             transition: transform 0.4s ease, opacity 0.4s ease, box-shadow 0.3s ease;
             --index: 0;
@@ -115,8 +115,8 @@
             opacity: 1;
         }
         .menu-drawer a:hover {
-            transform: translateY(-4px) perspective(500px) rotateY(5deg); /* 3D tilt on hover */
-            box-shadow: 5px 5px 12px rgba(0, 0, 0, 0.7), inset 0 0 5px rgba(255, 255, 255, 0.3); /* Enhanced 3D shadow on hover */
+            transform: translateY(-4px) perspective(500px) rotateY(5deg);
+            box-shadow: 5px 5px 12px rgba(0, 0, 0, 0.7), inset 0 0 5px rgba(255, 255, 255, 0.3);
         }
         section {
             flex: 1;
@@ -124,30 +124,30 @@
             text-align: center;
         }
         .welcome-note {
-            color: #ffffff;
+            color: #000080; /* Navy blue */
             font-weight: 600;
             font-size: 1.3em;
             margin: 8px 0;
         }
         .welcome-subtext {
-            color: #ffffff;
+            color: #000080; /* Navy blue */
             font-weight: 500;
             font-size: 0.9em;
             margin: 4px 0;
         }
         .content-box {
-            background-color: #F0F1F2;
+            background-color: #FFFFFF; /* White background */
             border-radius: 12px;
             padding: 15px;
             box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
             margin: 15px auto;
             width: 85%;
             max-width: 750px;
-            color: #0b5363;
+            color: #000080; /* Navy blue text */
             font-size: 0.85rem;
         }
         .content-box a {
-            color: #307A8A;
+            color: #138808; /* Green links */
         }
         .blink {
             color: red;
@@ -161,8 +161,8 @@
         footer {
             text-align: center;
             padding: 8px;
-            background: linear-gradient(to top, #094552, #1a6b7b); /* Updated darker top gradient */
-            color: #fff;
+            background: linear-gradient(to top, #FF9933, #138808); /* Saffron to Green */
+            color: #000080; /* Navy blue text */
             position: fixed;
             width: 100%;
             bottom: 0;
@@ -171,12 +171,8 @@
         .version {
             font-size: 0.6rem;
         }
-        html {
-            -webkit-text-size-adjust: 100%;
-            text-size-adjust: 100%;
-        }
         .whats-new {
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(255, 255, 255, 0.2);
             border-radius: 10px;
             padding: 12px;
             margin: 15px auto;
@@ -185,15 +181,15 @@
             height: 80px;
             overflow: hidden;
             position: relative;
-            border: 1px solid #1a6b7b;
+            border: 1px solid #000080; /* Navy blue border */
         }
         .whats-new-header {
-            color: #DAA520;
+            color: #FF9933; /* Saffron */
             text-align: center;
             margin-top: 0;
             padding: 4px 0;
             font-size: 0.9rem;
-            margin-bottom: 0.5mm; /* Updated to bring even closer to box */
+            margin-bottom: 0.5mm;
         }
         .whats-new-content {
             position: relative;
@@ -206,62 +202,71 @@
         }
         .whats-new li {
             margin-bottom: 10px;
-            color: #fff;
+            color: #000080; /* Navy blue */
             padding: 4px 0;
             font-size: 0.8rem;
         }
-.quick-links {
-    margin: 15px auto;
-    width: 85%;
-    max-width: 750px;
-    text-align: center;
-}
-
-.quick-links-header {
-    color: #DAA520;
-    font-size: 1rem;
-    font-weight: 600;
-    margin: 8px 0;
-}
-
-.quick-links-container {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    flex-wrap: wrap;
-}
-
-.quick-link-button {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 80px;
-    height: 80px;
-    background: linear-gradient(to bottom, #1a6b7b, #307A8A);
-    border-radius: 12px;
-    text-decoration: none;
-    color: white;
-    box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.5), inset 0 0 5px rgba(255, 255, 255, 0.2);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.quick-link-button:hover {
-    transform: translateY(-4px) scale(1.05);
-    box-shadow: 5px 5px 12px rgba(0, 0, 0, 0.7), inset 0 0 5px rgba(255, 255, 255, 0.3);
-}
-
-.quick-link-icon {
-    font-size: 2rem;
-    margin-bottom: 5px;
-}
-
-.quick-link-label {
-    font-size: 0.6rem;
-    font-weight: 500;
-    text-align: center;
-    line-height: 1.2;
-}
+        .quick-links {
+            margin: 15px auto;
+            width: 85%;
+            max-width: 750px;
+            text-align: center;
+        }
+        .quick-links-header {
+            color: #FF9933; /* Saffron */
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 8px 0;
+        }
+        .quick-links-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .quick-link-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(to bottom, #FFFFFF, #138808); /* White to Green */
+            border-radius: 12px;
+            text-decoration: none;
+            color: #000080; /* Navy blue text */
+            box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.5), inset 0 0 5px rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .quick-link-button:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 5px 5px 12px rgba(0, 0, 0, 0.7), inset 0 0 5px rgba(255, 255, 255, 0.3);
+        }
+        .quick-link-icon {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+        .quick-link-label {
+            font-size: 0.6rem;
+            font-weight: 500;
+            text-align: center;
+            line-height: 1.2;
+        }
+        .snowflake {
+            position: fixed;
+            top: -5%;
+            z-index: 9999;
+            color: #000080; /* Navy blue for flag emoji */
+            pointer-events: none;
+            animation-name: fall;
+            animation-timing-function: linear;
+            animation-iteration-count: 1;
+        }
+        @keyframes fall {
+            to {
+                transform: translateY(110vh) rotate(360deg);
+            }
+        }
     </style>
 </head>
 <body>
@@ -279,7 +284,7 @@
     <div class="menu-drawer" id="menu-drawer">
         <br>
         <a href="di.html">Ship Theory Dictionary</a>
-<a href="atn.html">Attendance Register</a>
+        <a href="atn.html">Attendance Register</a>
         <a href="calender.html">CSL Calendar</a>
         <a href="csl.html">Salary Calculator</a>
         <a href="kg.html">Weight Calculator</a>
@@ -289,11 +294,36 @@
         <a href="tri.html">Trigonometric Calculator</a>
         <a href="wl.html">Water Level Calculator</a>
         <a href="bmi.html">BMI & Age Calculator</a>
-  <a href="exp.html">Expense Diary</a>
+        <a href="exp.html">Expense Diary</a>
         <a href="contact.html">Contact Us</a>
-   <a href="about.html">About</a>
-  </div>
+        <a href="about.html">About</a>
+    </div>
     <section>
+        <div style="
+            background: linear-gradient(135deg, #FF9933, #FFFFFF, #138808);
+            color: #000080;
+            padding: 15px;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            border-radius: 12px;
+            margin: 10px auto;
+            width: 85%;
+            max-width: 750px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            animation: popUp 0.8s ease-out;
+        ">
+            <h2 style="
+                font-size: 1.5rem;
+                font-weight: 700;
+                margin-bottom: 8px;
+            ">🇮🇳 Happy Independence Day 2025! 🇮🇳</h2>
+            <p style="
+                font-size: 0.9rem;
+                font-weight: 500;
+            ">
+                Wishing you a joyous 79th Independence Day! Let's celebrate India's freedom and unity with pride.
+            </p>
+        </div>
         <div class="whats-new-header">New Updates</div>
         <div class="whats-new">
             <div class="whats-new-content">
@@ -311,29 +341,28 @@
                 </ul>
             </div>
         </div>
-<div class="quick-links">
-    <h3 class="quick-links-header">Quick Links</h3>
-    <div class="quick-links-container">
-        <a href="calender.html" class="quick-link-button">
-            <span class="quick-link-icon">📆</span>
-            <span class="quick-link-label">CSL Calendar</span>
-        </a>
-        <a href="csl.html" class="quick-link-button">
-            <span class="quick-link-icon">💵</span>
-            <span class="quick-link-label">Salary Calculator</span>
-        </a>
-        <a href="atn.html" class="quick-link-button">
-            <span class="quick-link-icon">📝</span>
-            <span class="quick-link-label">Attendance Register</span>
-        </a>
-    </div>
-</div>
-
-<div class="content-box">
+        <div class="quick-links">
+            <h3 class="quick-links-header">Quick Links</h3>
+            <div class="quick-links-container">
+                <a href="calender.html" class="quick-link-button">
+                    <span class="quick-link-icon">📆</span>
+                    <span class="quick-link-label">CSL Calendar</span>
+                </a>
+                <a href="csl.html" class="quick-link-button">
+                    <span class="quick-link-icon">💵</span>
+                    <span class="quick-link-label">Salary Calculator</span>
+                </a>
+                <a href="atn.html" class="quick-link-button">
+                    <span class="quick-link-icon">📝</span>
+                    <span class="quick-link-label">Attendance Register</span>
+                </a>
+            </div>
+        </div>
+        <div class="content-box">
             <h2>Attendance Register</h2>
             <p>
                 Effortlessly record leaves and save punching times with ease!"
-"Accurately calculate OT and manage Your Leave.<br>
+                Accurately calculate OT and manage Your Leave.<br>
                 <a href="atn.html">Click to Open</a>
             </p>
         </div>
@@ -347,16 +376,14 @@
         <div class="content-box">
             <h2>PF Calculator</h2>
             <p>
-                Calculate your PF withdrawal amount, balance after opting for a higher pension, or estimated pension amount.
-                <br>
+                Calculate your PF withdrawal amount, balance after opting for a higher pension, or estimated pension amount.<br>
                 <a href="pf.html">Click to Open</a>
             </p>
         </div>
         <div class="content-box">
             <h2>Weight Calculator</h2>
             <p>
-                Easily calculate the weight of materials like Mild Steel, Stainless Steel, Aluminium, Wood, Glass, and Water. Select shapes like Square, Circle, or Triangle for accurate results in kilograms. Perfect for fabricators, engineers, and designers.
-                <br><br>
+                Easily calculate the weight of materials like Mild Steel, Stainless Steel, Aluminium, Wood, Glass, and Water. Select shapes like Square, Circle, or Triangle for accurate results in kilograms. Perfect for fabricators, engineers, and designers.<br><br>
                 <a href="kg.html">Click to Open</a>
             </p>
         </div>
@@ -369,155 +396,128 @@
                 <a href="emi.html">EMI Calculator</a>: Manage loans by calculating principal and interest percentages to optimize your EMI payments.
             </p>
         </div>
-<br>
-<!-- Share Button (paste inside your page where you want the button) -->
-<button id="waShareBtn" type="button" class="wa-share-btn">📤 Share This App</button>
-
-<!-- (Optional) Pure link fallback you can use anywhere -->
-<!-- <a class="wa-share-link" href="https://wa.me/?text=CSL%20Calculations%20എന്ന%20mobile%20ആപ്പ്%20install%20ചെയ്യാനായി%20താഴെ%20ഉള്ള%20download%20link%20ൽ%20നിന്നും%20apk%20download%20ചെയ്തു%20insatll%20ചെയ്യുക%0ALink%20:%20https://cslcalculations.netlify.app/csl2.apk">📤 Share This App</a> -->
-
-<style>
-  .wa-share-btn, .wa-share-link{
-    background:#25D366;
-    color:#fff;
-    border:0;
-    border-radius:10px;
-    padding:10px 16px;
-    font-size:16px;
-    font-weight:600;
-    cursor:pointer;
-    text-decoration:none;
-    display:inline-block;
-  }
-  .wa-share-btn:active { transform: scale(0.98); }
-</style>
-
-<script>
-  (function(){
-    // Your share message (exactly as you asked)
-    const shareMessage =
+        <br>
+        <!-- Share Button -->
+        <button id="waShareBtn" type="button" class="wa-share-btn">📤 Share This App</button>
+        <style>
+            .wa-share-btn, .wa-share-link {
+                background: #25D366;
+                color: #fff;
+                border: 0;
+                border-radius: 10px;
+                padding: 10px 16px;
+                font-size: 16px;
+                font-weight: 600;
+                cursor: pointer;
+                text-decoration: none;
+                display: inline-block;
+            }
+            .wa-share-btn:active { transform: scale(0.98); }
+        </style>
+        <script>
+            (function(){
+                const shareMessage =
 `CSL Calculations എന്ന mobile ആപ്പ് install ചെയ്യാനായി താഴെ ഉള്ള download link ൽ നിന്നും apk download ചെയ്തു insatll ചെയ്യുക 
 Link : https://cslcalculations.netlify.app/csl2.apk`;
-
-    // Prefer native share if available (keeps user inside PWA/WebView when possible)
-    function tryNativeShare() {
-      if (navigator.share) {
-        navigator.share({ text: shareMessage }).catch(() => {
-          // ignore if user cancels
-        });
-        return true;
-      }
-      return false;
-    }
-
-    // WhatsApp URL fallback (opens WhatsApp or WhatsApp Web)
-    function openWhatsApp() {
-      const waUrl = "https://wa.me/?text=" + encodeURIComponent(shareMessage);
-      // In Android WebView, location.href is usually more reliable than window.open
-      try { location.href = waUrl; } catch(e) { window.open(waUrl, "_blank"); }
-    }
-
-    document.getElementById("waShareBtn").addEventListener("click", function(){
-      if (!tryNativeShare()) {
-        openWhatsApp();
-      }
-    });
-  })();
-</script>
-<br>
-<br>
-        <h3 style="color: #DAA520; font-size: 1rem; margin: 8px 0;">📅 Upcoming CSL Holidays</h3>
-        <div id="upcomingHolidays" style="color: white; font-size: 1rem; font-weight: 500; line-height: 1.5; margin: 8px 0;">
+                function tryNativeShare() {
+                    if (navigator.share) {
+                        navigator.share({ text: shareMessage }).catch(() => {});
+                        return true;
+                    }
+                    return false;
+                }
+                function openWhatsApp() {
+                    const waUrl = "https://wa.me/?text=" + encodeURIComponent(shareMessage);
+                    try { location.href = waUrl; } catch(e) { window.open(waUrl, "_blank"); }
+                }
+                document.getElementById("waShareBtn").addEventListener("click", function(){
+                    if (!tryNativeShare()) {
+                        openWhatsApp();
+                    }
+                });
+            })();
+        </script>
+        <br><br>
+        <h3 style="color: #FF9933; font-size: 1rem; margin: 8px 0;">📅 Upcoming CSL Holidays</h3>
+        <div id="upcomingHolidays" style="color: #000080; font-size: 1rem; font-weight: 500; line-height: 1.5; margin: 8px 0;">
             Loading holidays...
         </div>
-<div style="
-  background: linear-gradient(135deg, #004aad, #007bff);
-  color: white;
-  padding: 10px;
-  text-align: center;
-  font-family: 'Poppins', sans-serif;
-  border-radius: 10px;
-  margin: 10px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-  line-height: 1.4;
-  animation: popUp 0.8s ease-out;
-">
-  <h2 style="
-    font-size: 22px;
-    font-weight: 700;
-    color: #ffe259;
-    text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
-    margin-bottom: 6px;
-  ">📱 VTsoft – Mobile App Development</h2>
-
-  <p style="
-    font-size: 14px;
-    background: linear-gradient(90deg, #ffecd2, #fcb69f);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    font-weight: 500;
-    margin: 4px 0;
-  ">
-    For Funds, small financial institutions & societies
-  </p>
-
-  <p style="
-    font-size: 14px;
-    color: #fff;
-    font-weight: bold;
-    margin: 4px 0;
-  ">
-    Custom mobile apps at very low cost – tailored to your needs
-  </p>
-
-  <p style="
-    font-size: 12px;
-    color: #f1f1f1;
-    margin-top: 5px;
-  ">
-    നിങ്ങളുടെ ആവശ്യത്തിനു അനുസരിച്ചു mobile അപ്പുകൾ കുറഞ്ഞ ചിലവിൽ നിർമ്മിക്കാൻ സമീപിക്കുക
-  </p>
-
-  <a href="https://wa.me/919037383927" onclick="goToWhatsApp(event)" style="
-    display: inline-block;
-    margin-top: 6px;
-    background: linear-gradient(90deg, #25D366, #128C7E);
-    color: white;
-    padding: 5px 12px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: bold;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
-    font-size: 14px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  " onmouseover="this.style.transform='scale(1.05)';this.style.boxShadow='0 5px 10px rgba(0,0,0,0.4)'" 
-  onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 3px 6px rgba(0,0,0,0.3)'">
-    💬 Chat on WhatsApp
-  </a>
-</div>
-
-<style>
-@keyframes popUp {
-  0% { transform: scale(0.9); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
-}
-</style>
-
-<script>
-function goToWhatsApp(e) {
-  e.preventDefault();
-  window.open("https://wa.me/919037383927", "_blank");
-  setTimeout(function() {
-    window.location.href = "index.html"; // Replace with your home page URL
-  }, 2000);
-}
-</script>
-<style>
-@keyframes popUp {
-  0% { transform: scale(0.8); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
-}
-</style>
+        <div style="
+            background: linear-gradient(135deg, #004aad, #007bff);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-family: 'Poppins', sans-serif;
+            border-radius: 10px;
+            margin: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            line-height: 1.4;
+            animation: popUp 0.8s ease-out;
+        ">
+            <h2 style="
+                font-size: 22px;
+                font-weight: 700;
+                color: #ffe259;
+                text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+                margin-bottom: 6px;
+            ">📱 VTsoft – Mobile App Development</h2>
+            <p style="
+                font-size: 14px;
+                background: linear-gradient(90deg, #ffecd2, #fcb69f);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                font-weight: 500;
+                margin: 4px 0;
+            ">
+                For Funds, small financial institutions & societies
+            </p>
+            <p style="
+                font-size: 14px;
+                color: #fff;
+                font-weight: bold;
+                margin: 4px 0;
+            ">
+                Custom mobile apps at very low cost – tailored to your needs
+            </p>
+            <p style="
+                font-size: 12px;
+                color: #f1f1f1;
+                margin-top: 5px;
+            ">
+                നിങ്ങളുടെ ആവശ്യത്തിനു അനുസരിച്ചു mobile അപ്പുകൾ കുറഞ്ഞ ചിലവിൽ നിർമ്മിക്കാൻ സമീപിക്കുക
+            </p>
+            <a href="https://wa.me/919037383927" onclick="goToWhatsApp(event)" style="
+                display: inline-block;
+                margin-top: 6px;
+                background: linear-gradient(90deg, #25D366, #128C7E);
+                color: white;
+                padding: 5px 12px;
+                border-radius: 8px;
+                text-decoration: none;
+                font-weight: bold;
+                box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+                font-size: 14px;
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            " onmouseover="this.style.transform='scale(1.05)';this.style.boxShadow='0 5px 10px rgba(0,0,0,0.4)'" 
+            onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 3px 6px rgba(0,0,0,0.3)'">
+                💬 Chat on WhatsApp
+            </a>
+        </div>
+        <style>
+            @keyframes popUp {
+                0% { transform: scale(0.8); opacity: 0; }
+                100% { transform: scale(1); opacity: 1; }
+            }
+        </style>
+        <script>
+            function goToWhatsApp(e) {
+                e.preventDefault();
+                window.open("https://wa.me/919037383927", "_blank");
+                setTimeout(function() {
+                    window.location.href = "index.html";
+                }, 2000);
+            }
+        </script>
     </section>
     <div style="height: 60px;"></div>
     <footer>
@@ -574,20 +574,16 @@ function goToWhatsApp(e) {
             function animate() {
                 if (!animating) return;
                 scrollPos -= 0.2; // Adjust speed (smaller = slower)
-                // Reset when scrolled halfway (since we duplicated content)
                 if (scrollPos <= -list.scrollHeight/2) {
                     scrollPos = 0;
                 }
                 content.style.transform = `translateY(${scrollPos}px)`;
                 requestAnimationFrame(animate);
             }
-            // Start animation
             animate();
-            // Pause on hover
             container.addEventListener('mouseenter', () => {
                 animating = false;
             });
-            // Resume on mouse leave
             container.addEventListener('mouseleave', () => {
                 animating = true;
                 animate();
@@ -595,17 +591,17 @@ function goToWhatsApp(e) {
         });
     </script>
     <script>
-        // Snowflake creation
+        // Indian flag emoji creation
         function createSnowflake() {
-            const snowflake = document.createElement('div');
-            snowflake.classList.add('snowflake');
-            snowflake.style.left = Math.random() * 100 + 'vw';
-            snowflake.style.fontSize = (Math.random() * 10 + 8) + 'px';
-            snowflake.style.opacity = Math.random().toFixed(2);
-            snowflake.style.animationDuration = (Math.random() * 3 + 5) + 's';
-            snowflake.innerHTML = '❄️';
-            document.body.appendChild(snowflake);
-            setTimeout(() => snowflake.remove(), 10000);
+            const flag = document.createElement('div');
+            flag.classList.add('snowflake');
+            flag.style.left = Math.random() * 100 + 'vw';
+            flag.style.fontSize = (Math.random() * 10 + 8) + 'px';
+            flag.style.opacity = Math.random().toFixed(2);
+            flag.style.animationDuration = (Math.random() * 3 + 5) + 's';
+            flag.innerHTML = '🇮🇳';
+            document.body.appendChild(flag);
+            setTimeout(() => flag.remove(), 10000);
         }
         // Start and stop functions
         function startSnowfall() {
@@ -631,22 +627,5 @@ function goToWhatsApp(e) {
         );
         resetIdleTimer(); // Initialize
     </script>
-    <style>
-        .snowflake {
-            position: fixed;
-            top: -5%;
-            z-index: 9999;
-            color: white;
-            pointer-events: none;
-            animation-name: fall;
-            animation-timing-function: linear;
-            animation-iteration-count: 1;
-        }
-        @keyframes fall {
-            to {
-                transform: translateY(110vh) rotate(360deg);
-            }
-        }
-    </style>
 </body>
 </html>
