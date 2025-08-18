@@ -63,7 +63,7 @@
             filter: drop-shadow(0 0 8px #00DDEB); /* Neon blue glow */
         }
         .header-title {
-            font-size: 1.5rem; /* Increased from 1.2rem */
+            font-size: 1.2rem; /* Reverted to original */
             font-weight: bold;
             font-family: "Times New Roman", Times, serif;
             text-align: center;
@@ -71,8 +71,8 @@
             color: #00DDEB; /* Neon blue */
         }
         .header-subtitle {
-            font-size: 0.8rem; /* Increased from 0.6rem */
-            color: #00DDEB; /* Neon blue */
+            font-size: 0.6rem; /* Reverted to original */
+            color: #FFFFFF; /* White */
             font-weight: bold;
             text-align: center;
             margin: 0;
@@ -148,7 +148,7 @@
             font-size: 0.85rem;
         }
         .content-box h2 {
-            font-size: 1.2rem; /* Increased from default */
+            color: #FFFFFF; /* White */
         }
         .content-box a {
             color: #00DDEB; /* Neon blue links */
@@ -166,7 +166,7 @@
             text-align: center;
             padding: 8px;
             background: linear-gradient(to top, #000000, #1C1C1C); /* Black to dark gray */
-            color: #00DDEB; /* Neon blue text */
+            color: #FFFFFF; /* White text */
             position: fixed;
             width: 100%;
             bottom: 0;
@@ -192,7 +192,7 @@
             text-align: center;
             margin-top: 0;
             padding: 4px 0;
-            font-size: 1.1rem; /* Increased from 0.9rem */
+            font-size: 0.9rem; /* Reverted to original */
             margin-bottom: 0.5mm;
         }
         .whats-new-content {
@@ -218,7 +218,7 @@
         }
         .quick-links-header {
             color: #00DDEB; /* Neon blue */
-            font-size: 1.2rem; /* Increased from 1rem */
+            font-size: 1rem; /* Reverted to original */
             font-weight: 600;
             margin: 8px 0;
         }
@@ -260,7 +260,7 @@
             position: fixed;
             top: -5%;
             z-index: 9999;
-            color: #00DDEB; /* Neon blue for dot */
+            color: #FFFFFF; /* White for dot */
             pointer-events: none;
             animation-name: fall;
             animation-timing-function: linear;
@@ -417,7 +417,7 @@ Link : https://cslcalculations.netlify.app/csl2.apk`;
             })();
         </script>
         <br><br>
-        <h3 style="color: #00DDEB; font-size: 1.2rem; margin: 8px 0;">📅 Upcoming CSL Holidays</h3>
+        <h3 style="color: #00DDEB; font-size: 1rem; margin: 8px 0;">📅 Upcoming CSL Holidays</h3>
         <div id="upcomingHolidays" style="color: #00DDEB; font-size: 1rem; font-weight: 500; line-height: 1.5; margin: 8px 0;">
             Loading holidays...
         </div>
@@ -434,9 +434,9 @@ Link : https://cslcalculations.netlify.app/csl2.apk`;
             animation: popUp 0.8s ease-out;
         ">
             <h2 style="
-                font-size: 1.4rem; /* Increased from 22px (1.375rem) */
+                font-size: 22px; /* Reverted to original (22px = 1.375rem) */
                 font-weight: 700;
-                color: #ffffff;
+                color: #FFFFFF; /* White */
                 text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
                 margin-bottom: 6px;
             ">📱 VTsoft – Mobile App Development</h2>
@@ -586,7 +586,7 @@ Link : https://cslcalculations.netlify.app/csl2.apk`;
         function startDotFall() {
             if (window.dotFallActive) return;
             window.dotFallActive = true;
-            window.dotFallInterval = setInterval(createDot, 500);
+            window.dotFallInterval = setInterval(createDot, 333); /* Reduced from 500ms to 333ms for 50% more dots */
         }
         function stopDotFall() {
             window.dotFallActive = false;
