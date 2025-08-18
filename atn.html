@@ -79,29 +79,10 @@
             background-color: #8B1E3F;
         }
 
-        .nav-buttons {
+        .month-container {
             display: flex;
+            align-items: center;
             justify-content: space-between;
-            margin-bottom: 10px;
-        }
-
-        .nav-btn {
-            padding: 8px;
-            font-size: 14px;
-            font-weight: bold;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-            color: white;
-            background-color: #1E3A5F;
-            width: 30%;
-        }
-
-        .calendar-container {
-            margin-top: 10px;
-        }
-
-        .month {
             margin: 10px 0;
             padding: 8px;
             background: #1E3A5F;
@@ -111,6 +92,15 @@
             top: 170px;
             z-index: 900;
             font-size: 14px;
+        }
+
+        .month-nav-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 0 10px;
         }
 
         .week-header {
@@ -141,6 +131,7 @@
             cursor: pointer;
             font-weight: bold;
             font-size: 12px;
+            position: relative;
         }
 
         .day.holiday {
@@ -175,6 +166,15 @@
 
         .day.present-in.holiday, .day.present-full.holiday {
             color: red;
+        }
+
+        .ot-display {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            font-size: 8px;
+            color: #1E3A5F;
+            font-weight: normal;
         }
 
         .popup {
@@ -298,10 +298,6 @@
         </div>
 
         <div id="calendar-tab">
-            <div class="nav-buttons">
-                <button class="nav-btn" onclick="showMonth(currentMonth - 1)">Previous</button>
-                <button class="nav-btn" onclick="showMonth(currentMonth + 1)">Next</button>
-            </div>
             <div class="calendar-container" id="calendar-container"></div>
             <div class="result" id="summary-box"></div>
         </div>
@@ -335,6 +331,11 @@
                 <div>
                     <button type="button" class="btn save-btn" onclick="saveSettings()">Save</button>
                     <button type="reset" class="btn clear-btn">Clear</button>
+                    <button type="button" class="btn save-btn" onclick="backupData()">Backup</button>
+                    <div class="settings-row">
+                        <label for="restoreFile">Restore:</label>
+                        <input type="file" id="restoreFile" accept=".json" onchange="restoreData()">
+                    </div>
                 </div>
             </form>
         </div>
@@ -390,7 +391,6 @@
 
         function showMonth(month) {
             currentMonth = (month + 12) % 12;
-            // Update EL balance when month changes
             const monthsElapsed = currentMonth - employeeData.elBaseMonth;
             if (monthsElapsed > 0) {
                 employeeData.el = (employeeData.el || 0) + (monthsElapsed * 2.5);
@@ -404,7 +404,11 @@
             const monthName = new Date(2025, currentMonth).toLocaleString('default', { month: 'long' });
 
             calendarHTML += `
-                <div class="month" id="month-${currentMonth}">${monthName} 2025</div>
+                <div class="month-container" id="month-${currentMonth}">
+                    <button class="month-nav-btn" onclick="showMonth(currentMonth - 1)">&larr;</button>
+                    <span>${monthName} 2025</span>
+                    <button class="month-nav-btn" onclick="showMonth(currentMonth + 1)">&rarr;</button>
+                </div>
                 <div class="week-header">
                     <div>Sun</div><div>Mon</div><div>Tue</div>
                     <div>Wed</div><div>Thu</div><div>Fri</div>
@@ -436,7 +440,8 @@
                                 classes += ' present-in';
                             }
                         }
-                        calendarHTML += `<div class="${classes}" onclick="showAttendancePopup('${dateStr}')">${date}</div>`;
+                        const otDisplay = attendanceData[dateStr]?.ot > 0 ? `<span class="ot-display">${attendanceData[dateStr].ot}h</span>` : '';
+                        calendarHTML += `<div class="${classes}" onclick="showAttendancePopup('${dateStr}')">${date}${otDisplay}</div>`;
                         date++;
                     }
                 }
@@ -477,7 +482,6 @@
                     } else if (attendanceData[dateStr].inPunch && attendanceData[dateStr].outPunch) {
                         presentDays += 1;
                     }
-                    // Late calculation only if not a leave day (including half day)
                     if (!attendanceData[dateStr].leave && attendanceData[dateStr].inPunch && attendanceData[dateStr].shift) {
                         totalLate += calculateLateMinutes(attendanceData[dateStr].inPunch, attendanceData[dateStr].shift);
                     }
@@ -640,11 +644,61 @@
         function loadSettings() {
             document.getElementById('empName').value = employeeData.name || '';
             document.getElementById('empCode').value = employeeData.code || '';
-            document.getElementById('clBalance').value = employeeData.cl || 0;
-            document.getElementById('hplBalance').value = employeeData.hpl || 0;
+            document.getElementById('clBalance').value = (employeeData.cl || 0).toFixed(1);
+            document.getElementById('elBalance').value = (employeeData.el || 0).toFixed(1);
+            document.getElementById('hplBalance').value = (employeeData.hpl || 0).toFixed(1);
             document.getElementById('specialLeave').value = employeeData.special || 3;
-            document.getElementById('elBalance').value = employeeData.el.toFixed(1);
         }
+
+        function backupData() {
+            const backupData = {
+                employeeData: employeeData,
+                attendanceData: attendanceData
+            };
+            const currentDate = new Date().toISOString().slice(0, 10);
+            const fileName = `CSL_punching_backup_${currentDate}.json`;
+            const jsonStr = JSON.stringify(backupData, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        function restoreData() {
+            const fileInput = document.getElementById('restoreFile');
+            const file = fileInput.files[0];
+            if (!file || !file.name.endsWith('.json')) {
+                alert('Please select a valid JSON file');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.employeeData && data.attendanceData) {
+                        employeeData = data.employeeData;
+                        attendanceData = data.attendanceData;
+                        localStorage.setItem('employeeData', JSON.stringify(employeeData));
+                        localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
+                        loadSettings();
+                        showMonth(currentMonth);
+                        alert('Data restored successfully!');
+                    } else {
+                        alert('Invalid backup file format');
+                    }
+                } catch (error) {
+                    alert('Error restoring data: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        document.addEventListener('DOMContentLoaded', loadSettings);
 
         document.addEventListener('click', function (e) {
             if (!e.target.closest('.popup') && !e.target.classList.contains('day')) {
