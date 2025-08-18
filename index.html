@@ -21,8 +21,8 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background: linear-gradient(to bottom, #FF9933, #FFFFFF, #138808); /* Saffron, White, Green */
-            color: #000080; /* Navy blue text */
+            background: linear-gradient(to bottom, #000000, #1C1C1C); /* Black to dark gray */
+            color: #00DDEB; /* Neon blue text */
             display: flex;
             flex-direction: column;
             min-height: 100vh;
@@ -34,7 +34,7 @@
             justify-content: center;
             align-items: center;
             padding: 5px;
-            background: #FF9933; /* Saffron header */
+            background: #000000; /* Solid black header */
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
             position: fixed;
             top: 0;
@@ -55,23 +55,24 @@
         .menu-icon div {
             width: 100%;
             height: 3px;
-            background-color: #000080; /* Navy blue menu lines */
+            background-color: #00DDEB; /* Neon blue menu lines */
             transition: 0.3s;
         }
         .menu-icon:hover {
             transform: scale(1.1);
-            filter: drop-shadow(0 0 8px white);
+            filter: drop-shadow(0 0 8px #00DDEB); /* Neon blue glow */
         }
         .header-title {
-            font-size: 1.2rem;
+            font-size: 1.5rem; /* Increased from 1.2rem */
             font-weight: bold;
             font-family: "Times New Roman", Times, serif;
             text-align: center;
             margin: 0;
+            color: #00DDEB; /* Neon blue */
         }
         .header-subtitle {
-            font-size: 0.6rem;
-            color: #FFFFFF; /* White for contrast */
+            font-size: 0.8rem; /* Increased from 0.6rem */
+            color: #00DDEB; /* Neon blue */
             font-weight: bold;
             text-align: center;
             margin: 0;
@@ -82,9 +83,9 @@
             left: -220px;
             width: 220px;
             height: calc(100% - 40px);
-            background: linear-gradient(to bottom, #FF9933, #138808); /* Saffron to Green */
+            background: linear-gradient(to bottom, #000000, #1C1C1C); /* Black to dark gray */
             box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
-            border-right: 2px solid #000080; /* Navy blue border */
+            border-right: 2px solid #00DDEB; /* Neon blue border */
             display: flex;
             flex-direction: column;
             padding-top: 20px;
@@ -98,8 +99,8 @@
             margin: 8px 15px;
             padding: 8px;
             text-decoration: none;
-            color: #000080; /* Navy blue text */
-            background: linear-gradient(to right, #FFFFFF, #138808); /* White to Green */
+            color: #00DDEB; /* Neon blue text */
+            background: linear-gradient(to right, #1C1C1C, #00DDEB); /* Dark gray to neon blue */
             border-radius: 5px;
             text-align: center;
             font-weight: 600;
@@ -124,30 +125,33 @@
             text-align: center;
         }
         .welcome-note {
-            color: #000080; /* Navy blue */
+            color: #00DDEB; /* Neon blue */
             font-weight: 600;
             font-size: 1.3em;
             margin: 8px 0;
         }
         .welcome-subtext {
-            color: #000080; /* Navy blue */
+            color: #00DDEB; /* Neon blue */
             font-weight: 500;
             font-size: 0.9em;
             margin: 4px 0;
         }
         .content-box {
-            background-color: #FFFFFF; /* White background */
+            background-color: #1C1C1C; /* Dark gray */
             border-radius: 12px;
             padding: 15px;
             box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
             margin: 15px auto;
             width: 85%;
             max-width: 750px;
-            color: #000080; /* Navy blue text */
+            color: #00DDEB; /* Neon blue text */
             font-size: 0.85rem;
         }
+        .content-box h2 {
+            font-size: 1.2rem; /* Increased from default */
+        }
         .content-box a {
-            color: #138808; /* Green links */
+            color: #00DDEB; /* Neon blue links */
         }
         .blink {
             color: red;
@@ -161,8 +165,8 @@
         footer {
             text-align: center;
             padding: 8px;
-            background: linear-gradient(to top, #FF9933, #138808); /* Saffron to Green */
-            color: #000080; /* Navy blue text */
+            background: linear-gradient(to top, #000000, #1C1C1C); /* Black to dark gray */
+            color: #00DDEB; /* Neon blue text */
             position: fixed;
             width: 100%;
             bottom: 0;
@@ -172,7 +176,7 @@
             font-size: 0.6rem;
         }
         .whats-new {
-            background-color: rgba(255, 255, 255, 0.2);
+            background-color: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
             padding: 12px;
             margin: 15px auto;
@@ -181,14 +185,14 @@
             height: 80px;
             overflow: hidden;
             position: relative;
-            border: 1px solid #000080; /* Navy blue border */
+            border: 1px solid #00DDEB; /* Neon blue border */
         }
         .whats-new-header {
-            color: #FF9933; /* Saffron */
+            color: #00DDEB; /* Neon blue */
             text-align: center;
             margin-top: 0;
             padding: 4px 0;
-            font-size: 0.9rem;
+            font-size: 1.1rem; /* Increased from 0.9rem */
             margin-bottom: 0.5mm;
         }
         .whats-new-content {
@@ -202,7 +206,7 @@
         }
         .whats-new li {
             margin-bottom: 10px;
-            color: #000080; /* Navy blue */
+            color: #00DDEB; /* Neon blue */
             padding: 4px 0;
             font-size: 0.8rem;
         }
@@ -213,8 +217,8 @@
             text-align: center;
         }
         .quick-links-header {
-            color: #FF9933; /* Saffron */
-            font-size: 1rem;
+            color: #00DDEB; /* Neon blue */
+            font-size: 1.2rem; /* Increased from 1rem */
             font-weight: 600;
             margin: 8px 0;
         }
@@ -231,10 +235,10 @@
             justify-content: center;
             width: 80px;
             height: 80px;
-            background: linear-gradient(to bottom, #FFFFFF, #138808); /* White to Green */
+            background: linear-gradient(to bottom, #1C1C1C, #00DDEB); /* Dark gray to neon blue */
             border-radius: 12px;
             text-decoration: none;
-            color: #000080; /* Navy blue text */
+            color: #000000; /* Black text for contrast */
             box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.5), inset 0 0 5px rgba(255, 255, 255, 0.2);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
@@ -252,11 +256,11 @@
             text-align: center;
             line-height: 1.2;
         }
-        .snowflake {
+        .dot {
             position: fixed;
             top: -5%;
             z-index: 9999;
-            color: #000080; /* Navy blue for flag emoji */
+            color: #00DDEB; /* Neon blue for dot */
             pointer-events: none;
             animation-name: fall;
             animation-timing-function: linear;
@@ -299,31 +303,6 @@
         <a href="about.html">About</a>
     </div>
     <section>
-        <div style="
-            background: linear-gradient(135deg, #FF9933, #FFFFFF, #138808);
-            color: #000080;
-            padding: 15px;
-            text-align: center;
-            font-family: Arial, sans-serif;
-            border-radius: 12px;
-            margin: 10px auto;
-            width: 85%;
-            max-width: 750px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-            animation: popUp 0.8s ease-out;
-        ">
-            <h2 style="
-                font-size: 1.5rem;
-                font-weight: 700;
-                margin-bottom: 8px;
-            ">🇮🇳 Happy Independence Day 2025! 🇮🇳</h2>
-            <p style="
-                font-size: 0.9rem;
-                font-weight: 500;
-            ">
-                Wishing you a joyous 79th Independence Day! Let's celebrate India's freedom and unity with pride.
-            </p>
-        </div>
         <div class="whats-new-header">New Updates</div>
         <div class="whats-new">
             <div class="whats-new-content">
@@ -438,12 +417,12 @@ Link : https://cslcalculations.netlify.app/csl2.apk`;
             })();
         </script>
         <br><br>
-        <h3 style="color: #FF9933; font-size: 1rem; margin: 8px 0;">📅 Upcoming CSL Holidays</h3>
-        <div id="upcomingHolidays" style="color: #000080; font-size: 1rem; font-weight: 500; line-height: 1.5; margin: 8px 0;">
+        <h3 style="color: #00DDEB; font-size: 1.2rem; margin: 8px 0;">📅 Upcoming CSL Holidays</h3>
+        <div id="upcomingHolidays" style="color: #00DDEB; font-size: 1rem; font-weight: 500; line-height: 1.5; margin: 8px 0;">
             Loading holidays...
         </div>
         <div style="
-            background: linear-gradient(135deg, #004aad, #007bff);
+            background: linear-gradient(135deg, #1C1C1C, #00DDEB); /* Dark gray to neon blue */
             color: white;
             padding: 10px;
             text-align: center;
@@ -455,15 +434,15 @@ Link : https://cslcalculations.netlify.app/csl2.apk`;
             animation: popUp 0.8s ease-out;
         ">
             <h2 style="
-                font-size: 22px;
+                font-size: 1.4rem; /* Increased from 22px (1.375rem) */
                 font-weight: 700;
-                color: #ffe259;
+                color: #ffffff;
                 text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
                 margin-bottom: 6px;
             ">📱 VTsoft – Mobile App Development</h2>
             <p style="
                 font-size: 14px;
-                background: linear-gradient(90deg, #ffecd2, #fcb69f);
+                background: linear-gradient(90deg, #00DDEB, #1C1C1C); /* Neon blue to dark gray */
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
                 font-weight: 500;
@@ -591,35 +570,35 @@ Link : https://cslcalculations.netlify.app/csl2.apk`;
         });
     </script>
     <script>
-        // Indian flag emoji creation
-        function createSnowflake() {
-            const flag = document.createElement('div');
-            flag.classList.add('snowflake');
-            flag.style.left = Math.random() * 100 + 'vw';
-            flag.style.fontSize = (Math.random() * 10 + 8) + 'px';
-            flag.style.opacity = Math.random().toFixed(2);
-            flag.style.animationDuration = (Math.random() * 3 + 5) + 's';
-            flag.innerHTML = '🇮🇳';
-            document.body.appendChild(flag);
-            setTimeout(() => flag.remove(), 10000);
+        // Dot animation creation
+        function createDot() {
+            const dot = document.createElement('div');
+            dot.classList.add('dot');
+            dot.style.left = Math.random() * 100 + 'vw';
+            dot.style.fontSize = (Math.random() * 10 + 8) + 'px';
+            dot.style.opacity = Math.random().toFixed(2);
+            dot.style.animationDuration = (Math.random() * 3 + 5) + 's';
+            dot.innerHTML = '.';
+            document.body.appendChild(dot);
+            setTimeout(() => dot.remove(), 10000);
         }
         // Start and stop functions
-        function startSnowfall() {
-            if (window.snowfallActive) return;
-            window.snowfallActive = true;
-            window.snowfallInterval = setInterval(createSnowflake, 500);
+        function startDotFall() {
+            if (window.dotFallActive) return;
+            window.dotFallActive = true;
+            window.dotFallInterval = setInterval(createDot, 500);
         }
-        function stopSnowfall() {
-            window.snowfallActive = false;
-            clearInterval(window.snowfallInterval);
-            document.querySelectorAll('.snowflake').forEach(flake => flake.remove());
+        function stopDotFall() {
+            window.dotFallActive = false;
+            clearInterval(window.dotFallInterval);
+            document.querySelectorAll('.dot').forEach(dot => dot.remove());
         }
         // Idle detection - 5 seconds
         let idleTimer;
         function resetIdleTimer() {
             clearTimeout(idleTimer);
-            if (window.snowfallActive) stopSnowfall();
-            idleTimer = setTimeout(startSnowfall, 5000);
+            if (window.dotFallActive) stopDotFall();
+            idleTimer = setTimeout(startDotFall, 5000);
         }
         // Detect user activity
         ['mousemove', 'mousedown', 'touchstart', 'scroll', 'keydown'].forEach(event =>
