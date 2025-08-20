@@ -21,8 +21,8 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background: linear-gradient(to bottom, #000000, #1C1C1C); /* Black to dark gray */
-            color: #00DDEB; /* Neon blue text */
+            background: linear-gradient(to bottom, #000000, #000000);
+            color: #00DDEB;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
@@ -34,7 +34,7 @@
             justify-content: center;
             align-items: center;
             padding: 5px;
-            background: #000000; /* Solid black header */
+            background: #000000;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
             position: fixed;
             top: 0;
@@ -55,24 +55,24 @@
         .menu-icon div {
             width: 100%;
             height: 3px;
-            background-color: #00DDEB; /* Neon blue menu lines */
+            background-color: #00DDEB;
             transition: 0.3s;
         }
         .menu-icon:hover {
             transform: scale(1.1);
-            filter: drop-shadow(0 0 8px #00DDEB); /* Neon blue glow */
+            filter: drop-shadow(0 0 8px #00DDEB);
         }
         .header-title {
-            font-size: 1.2rem; /* Reverted to original */
+            font-size: 1.2rem;
             font-weight: bold;
             font-family: "Times New Roman", Times, serif;
             text-align: center;
             margin: 0;
-            color: #00DDEB; /* Neon blue */
+            color: #00DDEB;
         }
         .header-subtitle {
-            font-size: 0.6rem; /* Reverted to original */
-            color: #FFFFFF; /* White */
+            font-size: 0.6rem;
+            color: #FFFFFF;
             font-weight: bold;
             text-align: center;
             margin: 0;
@@ -83,14 +83,16 @@
             left: -220px;
             width: 220px;
             height: calc(100% - 40px);
-            background: linear-gradient(to bottom, #000000, #1C1C1C); /* Black to dark gray */
+            background: linear-gradient(to bottom, #000000, #000000);
             box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
-            border-right: 2px solid #00DDEB; /* Neon blue border */
+            border-right: 2px solid #00DDEB;
             display: flex;
             flex-direction: column;
             padding-top: 20px;
             transition: left 0.5s ease-in-out;
             z-index: 999;
+            overflow-y: auto;
+            min-height: 100%;
         }
         .menu-drawer.open {
             left: 0;
@@ -99,8 +101,8 @@
             margin: 8px 15px;
             padding: 8px;
             text-decoration: none;
-            color: #00DDEB; /* Neon blue text */
-            background: linear-gradient(to right, #1C1C1C, #00DDEB); /* Dark gray to neon blue */
+            color: #FFFFFF; /* Changed to white */
+            background: linear-gradient(to right, #1C1C1C, #00DDEB);
             border-radius: 5px;
             text-align: center;
             font-weight: 600;
@@ -125,33 +127,33 @@
             text-align: center;
         }
         .welcome-note {
-            color: #00DDEB; /* Neon blue */
+            color: #00DDEB;
             font-weight: 600;
             font-size: 1.3em;
             margin: 8px 0;
         }
         .welcome-subtext {
-            color: #00DDEB; /* Neon blue */
+            color: #00DDEB;
             font-weight: 500;
             font-size: 0.9em;
             margin: 4px 0;
         }
         .content-box {
-            background-color: #1C1C1C; /* Dark gray */
+            background-color: #1C1C1C;
             border-radius: 12px;
             padding: 15px;
             box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
             margin: 15px auto;
             width: 85%;
             max-width: 750px;
-            color: #00DDEB; /* Neon blue text */
+            color: #00DDEB;
             font-size: 0.85rem;
         }
         .content-box h2 {
-            color: #FFFFFF; /* White */
+            color: #FFFFFF;
         }
         .content-box a {
-            color: #00DDEB; /* Neon blue links */
+            color: #00DDEB;
         }
         .blink {
             color: red;
@@ -165,8 +167,8 @@
         footer {
             text-align: center;
             padding: 8px;
-            background: linear-gradient(to top, #000000, #1C1C1C); /* Black to dark gray */
-            color: #FFFFFF; /* White text */
+            background: linear-gradient(to top, #000000, #000000);
+            color: #FFFFFF;
             position: fixed;
             width: 100%;
             bottom: 0;
@@ -185,14 +187,14 @@
             height: 80px;
             overflow: hidden;
             position: relative;
-            border: 1px solid #00DDEB; /* Neon blue border */
+            border: 1px solid #00DDEB;
         }
         .whats-new-header {
-            color: #00DDEB; /* Neon blue */
+            color: #00DDEB;
             text-align: center;
             margin-top: 0;
             padding: 4px 0;
-            font-size: 0.9rem; /* Reverted to original */
+            font-size: 0.9rem;
             margin-bottom: 0.5mm;
         }
         .whats-new-content {
@@ -206,7 +208,7 @@
         }
         .whats-new li {
             margin-bottom: 10px;
-            color: #00DDEB; /* Neon blue */
+            color: #00DDEB;
             padding: 4px 0;
             font-size: 0.8rem;
         }
@@ -217,8 +219,8 @@
             text-align: center;
         }
         .quick-links-header {
-            color: #00DDEB; /* Neon blue */
-            font-size: 1rem; /* Reverted to original */
+            color: #00DDEB;
+            font-size: 1rem;
             font-weight: 600;
             margin: 8px 0;
         }
@@ -235,10 +237,10 @@
             justify-content: center;
             width: 80px;
             height: 80px;
-            background: linear-gradient(to bottom, #1C1C1C, #00DDEB); /* Dark gray to neon blue */
+            background: linear-gradient(to bottom, #1C1C1C, #00DDEB);
             border-radius: 12px;
             text-decoration: none;
-            color: #000000; /* Black text for contrast */
+            color: #000000;
             box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.5), inset 0 0 5px rgba(255, 255, 255, 0.2);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
@@ -260,7 +262,7 @@
             position: fixed;
             top: -5%;
             z-index: 9999;
-            color: #FFFFFF; /* White for dot */
+            color: #FFFFFF;
             pointer-events: none;
             animation-name: fall;
             animation-timing-function: linear;
@@ -271,6 +273,19 @@
                 transform: translateY(110vh) rotate(360deg);
             }
         }
+        .wa-share-btn, .wa-share-link {
+            background: #25D366;
+            color: #fff;
+            border: 0;
+            border-radius: 10px;
+            padding: 10px 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .wa-share-btn:active { transform: scale(0.98); }
     </style>
 </head>
 <body>
@@ -287,10 +302,8 @@
     </header>
     <div class="menu-drawer" id="menu-drawer">
         <br>
-<a href="bonus.html">Performance Payment</a
-
+        <a href="bonus.html">Performance Payment</a>
         <a href="di.html">Ship Theory Dictionary</a>
-
         <a href="atn.html">Attendance Register</a>
         <a href="calender.html">CSL Calendar</a>
         <a href="csl.html">Salary Calculator</a>
@@ -379,53 +392,14 @@
             </p>
         </div>
         <br>
-        <!-- Share Button -->
         <button id="waShareBtn" type="button" class="wa-share-btn">📤 Share This App</button>
-        <style>
-            .wa-share-btn, .wa-share-link {
-                background: #25D366;
-                color: #fff;
-                border: 0;
-                border-radius: 10px;
-                padding: 10px 16px;
-                font-size: 16px;
-                font-weight: 600;
-                cursor: pointer;
-                text-decoration: none;
-                display: inline-block;
-            }
-            .wa-share-btn:active { transform: scale(0.98); }
-        </style>
-        <script>
-            (function(){
-                const shareMessage =
-`CSL Calculations എന്ന mobile ആപ്പ് install ചെയ്യാനായി താഴെ ഉള്ള download link ൽ നിന്നും apk download ചെയ്തു insatll ചെയ്യുക 
-Link : https://cslcalculations.netlify.app/csl2.apk`;
-                function tryNativeShare() {
-                    if (navigator.share) {
-                        navigator.share({ text: shareMessage }).catch(() => {});
-                        return true;
-                    }
-                    return false;
-                }
-                function openWhatsApp() {
-                    const waUrl = "https://wa.me/?text=" + encodeURIComponent(shareMessage);
-                    try { location.href = waUrl; } catch(e) { window.open(waUrl, "_blank"); }
-                }
-                document.getElementById("waShareBtn").addEventListener("click", function(){
-                    if (!tryNativeShare()) {
-                        openWhatsApp();
-                    }
-                });
-            })();
-        </script>
         <br><br>
         <h3 style="color: #00DDEB; font-size: 1rem; margin: 8px 0;">📅 Upcoming CSL Holidays</h3>
         <div id="upcomingHolidays" style="color: #00DDEB; font-size: 1rem; font-weight: 500; line-height: 1.5; margin: 8px 0;">
             Loading holidays...
         </div>
         <div style="
-            background: linear-gradient(135deg, #1C1C1C, #00DDEB); /* Dark gray to neon blue */
+            background: linear-gradient(135deg, #1C1C1C, #00DDEB);
             color: white;
             padding: 10px;
             text-align: center;
@@ -437,15 +411,15 @@ Link : https://cslcalculations.netlify.app/csl2.apk`;
             animation: popUp 0.8s ease-out;
         ">
             <h2 style="
-                font-size: 22px; /* Reverted to original (22px = 1.375rem) */
+                font-size: 22px;
                 font-weight: 700;
-                color: #FFFFFF; /* White */
+                color: #FFFFFF;
                 text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
                 margin-bottom: 6px;
             ">📱 VTsoft – Mobile App Development</h2>
             <p style="
                 font-size: 14px;
-                background: linear-gradient(90deg, #00DDEB, #1C1C1C); /* Neon blue to dark gray */
+                background: linear-gradient(90deg, #00DDEB, #1C1C1C);
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
                 font-weight: 500;
@@ -485,28 +459,13 @@ Link : https://cslcalculations.netlify.app/csl2.apk`;
                 💬 Chat on WhatsApp
             </a>
         </div>
-        <style>
-            @keyframes popUp {
-                0% { transform: scale(0.8); opacity: 0; }
-                100% { transform: scale(1); opacity: 1; }
-            }
-        </style>
-        <script>
-            function goToWhatsApp(e) {
-                e.preventDefault();
-                window.open("https://wa.me/919037383927", "_blank");
-                setTimeout(function() {
-                    window.location.href = "index.html";
-                }, 2000);
-            }
-        </script>
     </section>
     <div style="height: 60px;"></div>
     <footer>
         © 2025 CSL Calculations | VTSoft | All Rights Reserved
     </footer>
     <script>
-        // Holiday data (month is 0-indexed, so 0=January)
+        // Holiday data
         const holidays = [
             { date: new Date(new Date().getFullYear(), 2, 31), name: "Id-ul-Fitr (Ramzan)" },
             { date: new Date(new Date().getFullYear(), 3, 14), name: "Vishu / Dr. BR Ambedkar Jayanthi" },
@@ -526,24 +485,44 @@ Link : https://cslcalculations.netlify.app/csl2.apk`;
         today.setHours(0, 0, 0, 0);
         // Find upcoming holidays
         const upcoming = holidays.filter(holiday => holiday.date >= today);
-        const nextTwo = upcoming.slice(0, 2);
+        предполагаемые = upcoming.slice(0, 2);
         // Format display
-        let displayText = nextTwo.length > 0
-            ? nextTwo.map(holiday =>
+        let displayText = предполагаемые.length > 0
+            ? предполагаемые.map(holiday =>
                 `${holiday.date.toLocaleDateString('en-IN', {month:'short', day:'numeric'})}: ${holiday.name}`
               ).join("<br>")
             : "No upcoming holidays";
         document.getElementById('upcomingHolidays').innerHTML = displayText;
-        // Dynamically set --index for each menu item
+        // Menu and other scripts
         document.addEventListener('DOMContentLoaded', function() {
+            const menuDrawer = document.getElementById('menu-drawer');
+            const menuIcon = document.getElementById('menu-icon');
             const menuItems = document.querySelectorAll('.menu-drawer a');
+            // Set menu item animation indices
             menuItems.forEach((item, index) => {
                 item.style.setProperty('--index', index);
             });
-            // Menu toggle
-            document.getElementById("menu-icon").addEventListener("click", function() {
-                var menu = document.getElementById("menu-drawer");
-                menu.classList.toggle("open");
+            // Menu toggle with debugging
+            menuIcon.addEventListener('click', function(e) {
+                e.stopPropagation();
+                console.log('Menu icon clicked, toggling open class');
+                menuDrawer.classList.toggle('open');
+            });
+            // Close menu on outside click
+            document.addEventListener('click', function(e) {
+                if (menuDrawer.classList.contains('open') &&
+                    !menuDrawer.contains(e.target) &&
+                    !menuIcon.contains(e.target)) {
+                    console.log('Outside click detected, closing menu');
+                    menuDrawer.classList.remove('open');
+                }
+            });
+            // Prevent menu items from closing the menu
+            menuItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    console.log('Menu item clicked:', this.textContent);
+                });
             });
             // What's new animation
             const container = document.querySelector('.whats-new');
@@ -551,11 +530,10 @@ Link : https://cslcalculations.netlify.app/csl2.apk`;
             const list = document.querySelector('.whats-new ul');
             let animating = true;
             let scrollPos = 0;
-            // Clone list items for seamless looping
             list.innerHTML += list.innerHTML;
             function animate() {
                 if (!animating) return;
-                scrollPos -= 0.2; // Adjust speed (smaller = slower)
+                scrollPos -= 0.2;
                 if (scrollPos <= -list.scrollHeight/2) {
                     scrollPos = 0;
                 }
@@ -571,8 +549,28 @@ Link : https://cslcalculations.netlify.app/csl2.apk`;
                 animate();
             });
         });
-    </script>
-    <script>
+        // WhatsApp share
+        (function(){
+            const shareMessage =
+`CSL Calculations എന്ന mobile ആപ്പ് install ചെയ്യാനായി താഴെ ഉള്ള download link ൽ നിന്നും apk download ചെയ്തു insatll ചെയ്യുക 
+Link : https://cslcalculations.netlify.app/csl2.apk`;
+            function tryNativeShare() {
+                if (navigator.share) {
+                    navigator.share({ text: shareMessage }).catch(() => {});
+                    return true;
+                }
+                return false;
+            }
+            function openWhatsApp() {
+                const waUrl = "https://wa.me/?text=" + encodeURIComponent(shareMessage);
+                try { location.href = waUrl; } catch(e) { window.open(waUrl, "_blank"); }
+            }
+            document.getElementById("waShareBtn").addEventListener("click", function(){
+                if (!tryNativeShare()) {
+                    openWhatsApp();
+                }
+            });
+        })();
         // Dot animation creation
         function createDot() {
             const dot = document.createElement('div');
@@ -585,29 +583,33 @@ Link : https://cslcalculations.netlify.app/csl2.apk`;
             document.body.appendChild(dot);
             setTimeout(() => dot.remove(), 10000);
         }
-        // Start and stop functions
         function startDotFall() {
             if (window.dotFallActive) return;
             window.dotFallActive = true;
-            window.dotFallInterval = setInterval(createDot, 333); /* Reduced from 500ms to 333ms for 50% more dots */
+            window.dotFallInterval = setInterval(createDot, 333);
         }
         function stopDotFall() {
             window.dotFallActive = false;
             clearInterval(window.dotFallInterval);
             document.querySelectorAll('.dot').forEach(dot => dot.remove());
         }
-        // Idle detection - 5 seconds
         let idleTimer;
         function resetIdleTimer() {
             clearTimeout(idleTimer);
             if (window.dotFallActive) stopDotFall();
             idleTimer = setTimeout(startDotFall, 5000);
         }
-        // Detect user activity
         ['mousemove', 'mousedown', 'touchstart', 'scroll', 'keydown'].forEach(event =>
             document.addEventListener(event, resetIdleTimer)
         );
-        resetIdleTimer(); // Initialize
+        resetIdleTimer();
+        function goToWhatsApp(e) {
+            e.preventDefault();
+            window.open("https://wa.me/919037383927", "_blank");
+            setTimeout(function() {
+                window.location.href = "index.html";
+            }, 2000);
+        }
     </script>
 </body>
 </html>
