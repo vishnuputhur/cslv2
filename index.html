@@ -21,8 +21,8 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background: linear-gradient(to bottom, #000000, #000000);
-            color: #00DDEB;
+            background: linear-gradient(to bottom, #8B6508, #006400); /* Darker Onam theme: dark gold to dark green */
+            color: #FFFFFF;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
@@ -34,7 +34,7 @@
             justify-content: center;
             align-items: center;
             padding: 5px;
-            background: #000000;
+            background: linear-gradient(to right, #B22222, #8B6508); /* Darker Onam colors: dark red to dark gold */
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
             position: fixed;
             top: 0;
@@ -55,12 +55,12 @@
         .menu-icon div {
             width: 100%;
             height: 3px;
-            background-color: #00DDEB;
+            background-color: #FFFFFF;
             transition: 0.3s;
         }
         .menu-icon:hover {
             transform: scale(1.1);
-            filter: drop-shadow(0 0 8px #00DDEB);
+            filter: drop-shadow(0 0 8px #8B6508);
         }
         .header-title {
             font-size: 1.2rem;
@@ -68,7 +68,7 @@
             font-family: "Times New Roman", Times, serif;
             text-align: center;
             margin: 0;
-            color: #00DDEB;
+            color: #FFFFFF;
         }
         .header-subtitle {
             font-size: 0.6rem;
@@ -83,9 +83,9 @@
             left: -220px;
             width: 220px;
             height: calc(100% - 40px);
-            background: linear-gradient(to bottom, #000000, #000000);
+            background: linear-gradient(to bottom, #006400, #8B6508); /* Darker Onam theme */
             box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
-            border-right: 2px solid #00DDEB;
+            border-right: 2px solid #B22222;
             display: flex;
             flex-direction: column;
             padding-top: 20px;
@@ -101,8 +101,8 @@
             margin: 8px 15px;
             padding: 8px;
             text-decoration: none;
-            color: #FFFFFF; /* Changed to white */
-            background: linear-gradient(to right, #1C1C1C, #00DDEB);
+            color: #FFFFFF;
+            background: linear-gradient(to right, #B22222, #8B6508);
             border-radius: 5px;
             text-align: center;
             font-weight: 600;
@@ -126,37 +126,52 @@
             padding: 60px 20px 20px;
             text-align: center;
         }
+        .onam-message {
+            background: linear-gradient(135deg, #B22222, #8B6508);
+            color: #FFFFFF;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px auto;
+            width: 85%;
+            max-width: 750px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            font-family: 'Arial', sans-serif;
+        }
         .welcome-note {
-            color: #00DDEB;
+            color: #FFFFFF;
             font-weight: 600;
             font-size: 1.3em;
             margin: 8px 0;
         }
         .welcome-subtext {
-            color: #00DDEB;
+            color: #FFFFFF;
             font-weight: 500;
             font-size: 0.9em;
             margin: 4px 0;
         }
         .content-box {
-            background-color: #1C1C1C;
+            background-color: rgba(255, 255, 255, 0.1);
             border-radius: 12px;
             padding: 15px;
             box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
             margin: 15px auto;
             width: 85%;
             max-width: 750px;
-            color: #00DDEB;
+            color: #FFFFFF;
             font-size: 0.85rem;
+            border: 1px solid #8B6508;
         }
         .content-box h2 {
-            color: #FFFFFF;
+            color: #FFFFFF; /* Changed to white for readability */
         }
         .content-box a {
-            color: #00DDEB;
+            color: #B22222;
         }
         .blink {
-            color: red;
+            color: #B22222;
             font-size: 12px;
             font-weight: bold;
             animation: blinker 1s linear infinite;
@@ -167,7 +182,7 @@
         footer {
             text-align: center;
             padding: 8px;
-            background: linear-gradient(to top, #000000, #000000);
+            background: linear-gradient(to top, #006400, #8B6508); /* Darker Onam theme */
             color: #FFFFFF;
             position: fixed;
             width: 100%;
@@ -187,10 +202,10 @@
             height: 80px;
             overflow: hidden;
             position: relative;
-            border: 1px solid #00DDEB;
+            border: 1px solid #8B6508;
         }
         .whats-new-header {
-            color: #00DDEB;
+            color: #FFFFFF;
             text-align: center;
             margin-top: 0;
             padding: 4px 0;
@@ -208,7 +223,7 @@
         }
         .whats-new li {
             margin-bottom: 10px;
-            color: #00DDEB;
+            color: #FFFFFF;
             padding: 4px 0;
             font-size: 0.8rem;
         }
@@ -219,7 +234,7 @@
             text-align: center;
         }
         .quick-links-header {
-            color: #00DDEB;
+            color: #FFFFFF;
             font-size: 1rem;
             font-weight: 600;
             margin: 8px 0;
@@ -237,10 +252,10 @@
             justify-content: center;
             width: 80px;
             height: 80px;
-            background: linear-gradient(to bottom, #1C1C1C, #00DDEB);
+            background: linear-gradient(to bottom, #B22222, #8B6508);
             border-radius: 12px;
             text-decoration: none;
-            color: #000000;
+            color: #FFFFFF;
             box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.5), inset 0 0 5px rgba(255, 255, 255, 0.2);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
@@ -258,11 +273,11 @@
             text-align: center;
             line-height: 1.2;
         }
-        .dot {
+        .flower {
             position: fixed;
             top: -5%;
             z-index: 9999;
-            color: #FFFFFF;
+            color: #B22222;
             pointer-events: none;
             animation-name: fall;
             animation-timing-function: linear;
@@ -319,6 +334,7 @@
         <a href="about.html">About</a>
     </div>
     <section>
+        <div class="onam-message">ഏവർക്കും ഹൃദയം നിറഞ്ഞ ഓണാശംസകൾ</div>
         <div class="whats-new-header">New Updates</div>
         <div class="whats-new">
             <div class="whats-new-content">
@@ -326,11 +342,10 @@
                     <li>Watsapp Chat added in contact us</li>
                     <li>Expense Diary Added</li>
                     <li>Water Level Calculator with PDF output</li>
- <li><span class="blink">New</span> Bonus/ Perfomance calculation Added</li>
+                    <li><span class="blink">New</span> Bonus/ Perfomance calculation Added</li>
                     <li>New Version APK Released (V2)</li>
                     <li>Improved UI/UX design</li>
                     <li>2025-26 income tax calculator added soon</li>
-                   
                     <li>DA added 0.3% (49%)</li>
                     <li>CSL Calender Note Added</li>
                     <li>Salary calculation updates</li>
@@ -395,12 +410,12 @@
         <br>
         <button id="waShareBtn" type="button" class="wa-share-btn">📤 Share This App</button>
         <br><br>
-        <h3 style="color: #00DDEB; font-size: 1rem; margin: 8px 0;">📅 Upcoming CSL Holidays</h3>
-        <div id="upcomingHolidays" style="color: #00DDEB; font-size: 1rem; font-weight: 500; line-height: 1.5; margin: 8px 0;">
+        <h3 style="color: #FFFFFF; font-size: 1rem; margin: 8px 0;">📅 Upcoming CSL Holidays</h3>
+        <div id="upcomingHolidays" style="color: #FFFFFF; font-size: 1rem; font-weight: 500; line-height: 1.5; margin: 8px 0;">
             Loading holidays...
         </div>
         <div style="
-            background: linear-gradient(135deg, #1C1C1C, #00DDEB);
+            background: linear-gradient(135deg, #B22222, #8B6508);
             color: white;
             padding: 10px;
             text-align: center;
@@ -420,7 +435,7 @@
             ">📱 VTsoft – Mobile App Development</h2>
             <p style="
                 font-size: 14px;
-                background: linear-gradient(90deg, #00DDEB, #1C1C1C);
+                background: linear-gradient(90deg, #8B6508, #B22222);
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
                 font-weight: 500;
@@ -486,7 +501,7 @@
         today.setHours(0, 0, 0, 0);
         // Find upcoming holidays
         const upcoming = holidays.filter(holiday => holiday.date >= today);
-        предполагаемые = upcoming.slice(0, 2);
+        const предполагаемые = upcoming.slice(0, 2);
         // Format display
         let displayText = предполагаемые.length > 0
             ? предполагаемые.map(holiday =>
@@ -549,6 +564,21 @@
                 animating = true;
                 animate();
             });
+            // Flower animation on scroll
+            let lastScrollTop = 0;
+            window.addEventListener('scroll', function() {
+                let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                if (scrollTop > lastScrollTop) {
+                    // Scrolling down
+                    if (!window.flowerFallActive) {
+                        startFlowerFall();
+                    }
+                } else {
+                    // Scrolling up
+                    stopFlowerFall();
+                }
+                lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+            });
         });
         // WhatsApp share
         (function(){
@@ -572,38 +602,31 @@ Link : https://cslcalculations.netlify.app/csl2.apk`;
                 }
             });
         })();
-        // Dot animation creation
-        function createDot() {
-            const dot = document.createElement('div');
-            dot.classList.add('dot');
-            dot.style.left = Math.random() * 100 + 'vw';
-            dot.style.fontSize = (Math.random() * 10 + 8) + 'px';
-            dot.style.opacity = Math.random().toFixed(2);
-            dot.style.animationDuration = (Math.random() * 3 + 5) + 's';
-            dot.innerHTML = '.';
-            document.body.appendChild(dot);
-            setTimeout(() => dot.remove(), 10000);
+        // Flower animation creation
+        function createFlower() {
+            const flower = document.createElement('div');
+            flower.classList.add('flower');
+            flower.style.left = Math.random() * 100 + 'vw';
+            flower.style.fontSize = (Math.random() * 10 + 8) + 'px';
+            flower.style.opacity = Math.random().toFixed(2);
+            flower.style.animationDuration = (Math.random() * 3 + 5) + 's';
+            const flowers = ['🌸', '🌼', '🌺', '🌻']; // Onam flower emojis
+            flower.innerHTML = flowers[Math.floor(Math.random() * flowers.length)];
+            document.body.appendChild(flower);
+            setTimeout(() => flower.remove(), 10000);
         }
-        function startDotFall() {
-            if (window.dotFallActive) return;
-            window.dotFallActive = true;
-            window.dotFallInterval = setInterval(createDot, 333);
+        function startFlowerFall() {
+            if (window.flowerFallActive) return;
+            window.flowerFallActive = true;
+            window.flowerFallInterval = setInterval(createFlower, 500); // Reverted to 500ms for increased flower frequency
         }
-        function stopDotFall() {
-            window.dotFallActive = false;
-            clearInterval(window.dotFallInterval);
-            document.querySelectorAll('.dot').forEach(dot => dot.remove());
+        function stopFlowerFall() {
+            window.flowerFallActive = false;
+            clearInterval(window.flowerFallInterval);
+            document.querySelectorAll('.flower').forEach(flower => flower.remove());
         }
-        let idleTimer;
-        function resetIdleTimer() {
-            clearTimeout(idleTimer);
-            if (window.dotFallActive) stopDotFall();
-            idleTimer = setTimeout(startDotFall, 5000);
-        }
-        ['mousemove', 'mousedown', 'touchstart', 'scroll', 'keydown'].forEach(event =>
-            document.addEventListener(event, resetIdleTimer)
-        );
-        resetIdleTimer();
+        // Start flower fall after 2 seconds
+        setTimeout(startFlowerFall, 2000);
         function goToWhatsApp(e) {
             e.preventDefault();
             window.open("https://wa.me/919037383927", "_blank");
