@@ -154,13 +154,43 @@
             color: black;
         }
 
-        .day.leave {
-            background: #FFB6C1 !important;
+        .leave-cl {
+            background: #FFB6B6 !important;
             color: white;
         }
 
-        .day.half-day {
-            background: linear-gradient(to right, #90EE90 50%, #FFB6C1 50%) !important;
+        .leave-el {
+            background: #C04070 !important;
+            color: white;
+        }
+
+        .leave-hpl {
+            background: #FFA07A !important;
+            color: white;
+        }
+
+        .leave-special {
+            background: #FFC0CB !important;
+            color: white;
+        }
+
+        .half-day-cl {
+            background: linear-gradient(to right, #90EE90 50%, #FFB6B6 50%) !important;
+            color: white;
+        }
+
+        .half-day-el {
+            background: linear-gradient(to right, #90EE90 50%, #C04070 50%) !important;
+            color: white;
+        }
+
+        .half-day-hpl {
+            background: linear-gradient(to right, #90EE90 50%, #FFA07A 50%) !important;
+            color: white;
+        }
+
+        .half-day-special {
+            background: linear-gradient(to right, #90EE90 50%, #FFC0CB 50%) !important;
             color: white;
         }
 
@@ -282,6 +312,12 @@
         .bottom-padding {
             height: 60px;
         }
+
+        .leave-msg {
+            color: red;
+            font-size: 10px;
+            margin: 5px 0;
+        }
     </style>
 </head>
 <body onload="showMonth(today.getMonth())">
@@ -373,7 +409,7 @@
         let currentMonth = today.getMonth();
         let attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || {};
         let employeeData = JSON.parse(localStorage.getItem('employeeData')) || {
-            name: '', code: '', cl: 0, el: 0, hpl: 0, special: 3, elBaseMonth: today.getMonth()
+            name: '', code: '', cl: 0, el: 0, hpl: 0, special: 3, elBaseMonth: today.getMonth(), settingsUpdated: false
         };
 
         function getISOWeek(date) {
@@ -433,7 +469,12 @@
                         }
                         if (attendanceData[dateStr]) {
                             if (attendanceData[dateStr].leave) {
-                                classes += attendanceData[dateStr].halfDay === 'Yes' ? ' half-day' : ' leave';
+                                const leaveType = attendanceData[dateStr].leave.toLowerCase();
+                                if (attendanceData[dateStr].halfDay === 'Yes') {
+                                    classes += ` half-day half-day-${leaveType}`;
+                                } else {
+                                    classes += ` leave leave-${leaveType}`;
+                                }
                             } else if (attendanceData[dateStr].inPunch && attendanceData[dateStr].outPunch) {
                                 classes += ' present-full';
                             } else if (attendanceData[dateStr].inPunch) {
@@ -462,13 +503,21 @@
         }
 
         function updateSummaryBox() {
-            let totalOT = 0, totalLate = 0, leaves = [], clTaken = 0, elTaken = 0, hplTaken = 0, specialTaken = 0, presentDays = 0;
+            let totalOT = 0, quarterlyOT = 0, totalLate = 0, leaves = [], clTaken = 0, elTaken = 0, hplTaken = 0, specialTaken = 0, presentDays = 0;
             const prevMonth = (currentMonth === 0 ? 11 : currentMonth - 1);
             const prevYear = currentMonth === 0 ? 2024 : 2025;
             const otStartDate = new Date(prevYear, prevMonth, 20);
             const otEndDate = new Date(2025, currentMonth, 19);
             const monthStart = new Date(2025, currentMonth, 1);
             const monthEnd = new Date(2025, currentMonth + 1, 0);
+
+            // Calculate current quarter
+            const quarter = Math.floor(currentMonth / 3);
+            const quarterStartMonth = quarter * 3;
+            const quarterEndMonth = quarterStartMonth + 2;
+            const quarterStart = new Date(2025, quarterStartMonth, 1);
+            const quarterEnd = new Date(2025, quarterEndMonth + 1, 0);
+
             for (let dateStr in attendanceData) {
                 const date = new Date(dateStr);
                 if (date >= monthStart && date <= monthEnd) {
@@ -489,9 +538,13 @@
                 if (date >= otStartDate && date <= otEndDate) {
                     if (attendanceData[dateStr].ot) totalOT += parseFloat(attendanceData[dateStr].ot);
                 }
+                if (date >= quarterStart && date <= quarterEnd) {
+                    if (attendanceData[dateStr].ot) quarterlyOT += parseFloat(attendanceData[dateStr].ot);
+                }
             }
             document.getElementById('summary-box').innerHTML = `
                 <p>Total OT: ${totalOT.toFixed(2)} hrs</p>
+                <p>Quarterly OT: ${quarterlyOT.toFixed(2)} hrs (max 75)</p>
                 <p>Late: ${totalLate} min</p>
                 <p>Leaves: ${leaves.length ? leaves.join(', ') : 'None'}</p>
                 <p>CL: ${employeeData.cl.toFixed(1)} (${clTaken})</p>
@@ -522,7 +575,7 @@
         function showAttendancePopup(dateStr) {
             const data = attendanceData[dateStr] || {};
             const defaultTimes = shiftTimes[data.shift] || { start: '', end: '' };
-            document.getElementById('attendance-popup').innerHTML = `
+            let popupHTML = `
                 <h3 style="font-size: 14px; margin: 5px 0;">${dateStr}</h3>
                 <div class="settings-row">
                     <label for="shift">Shift:</label>
@@ -563,11 +616,17 @@
                         <option value="Yes" ${data.halfDay === 'Yes' ? 'selected' : ''}>Yes</option>
                     </select>
                 </div>
+            `;
+            if (!employeeData.settingsUpdated) {
+                popupHTML += `<p class="leave-msg">Please update leave balance in settings tab</p>`;
+            }
+            popupHTML += `
                 <div>
                     <button class="btn save-btn" onclick="saveAttendance('${dateStr}')">Save</button>
                     <button class="btn clear-btn" onclick="document.getElementById('attendance-popup').style.display='none'">Close</button>
                 </div>
             `;
+            document.getElementById('attendance-popup').innerHTML = popupHTML;
             document.getElementById('attendance-popup').style.display = 'block';
             updateHalfDayOptions();
         }
@@ -636,6 +695,7 @@
             employeeData.hpl = parseFloat(document.getElementById('hplBalance').value);
             employeeData.special = parseInt(document.getElementById('specialLeave').value);
             employeeData.elBaseMonth = currentMonth;
+            employeeData.settingsUpdated = true;
             localStorage.setItem('employeeData', JSON.stringify(employeeData));
             alert('Settings saved!');
             loadSettings();
