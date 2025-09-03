@@ -38,7 +38,7 @@
 
         .sub-title {
             font-size: 18px;
-            margin-top: 79px;
+            margin-top: 60px;
             font-weight: bold;
             font-family: 'Times New Roman', serif;
             color: #ffffff;
@@ -89,7 +89,7 @@
             color: white;
             border-radius: 5px;
             position: sticky;
-            top: 170px;
+            top: 130px; /* Changed from 170px */
             z-index: 900;
             font-size: 14px;
         }
@@ -109,7 +109,7 @@
             padding: 5px;
             font-weight: bold;
             position: sticky;
-            top: 210px;
+            top: 170px; /* Changed from 210px */
             z-index: 800;
             font-size: 12px;
         }
@@ -155,7 +155,7 @@
         }
 
         .leave-cl {
-            background: #FFB6B6 !important;
+            background: #ADD8E6 !important;
             color: white;
         }
 
@@ -175,7 +175,7 @@
         }
 
         .half-day-cl {
-            background: linear-gradient(to right, #90EE90 50%, #FFB6B6 50%) !important;
+            background: linear-gradient(to right, #90EE90 50%, #ADD8E6 50%) !important;
             color: white;
         }
 
@@ -318,6 +318,11 @@
             font-size: 10px;
             margin: 5px 0;
         }
+
+        .ot-remaining {
+            color: red;
+            font-size: 10px;
+        }
     </style>
 </head>
 <body onload="showMonth(today.getMonth())">
@@ -379,7 +384,7 @@
 
     <div class="popup" id="attendance-popup"></div>
     <div class="bottom-padding"></div>
-    <div class="footer">Powered by VT@Soft © 2025 | Version 2.1.0</div>
+    <div class="footer">Powered by VT@Soft © 2025 | Version 1.0</div>
 
     <script>
         const holidays = {
@@ -490,7 +495,7 @@
             }
             document.getElementById('calendar-container').innerHTML = calendarHTML;
             updateSummaryBox();
-            window.scrollTo({ top: document.getElementById('calendar-container').offsetTop - 170, behavior: 'smooth' });
+            window.scrollTo({ top: document.getElementById('calendar-container').offsetTop - 130, behavior: 'smooth' }); // Changed from 170
         }
 
         function calculateLateMinutes(inPunch, shift) {
@@ -508,19 +513,23 @@
             const prevYear = currentMonth === 0 ? 2024 : 2025;
             const otStartDate = new Date(prevYear, prevMonth, 20);
             const otEndDate = new Date(2025, currentMonth, 19);
-            const monthStart = new Date(2025, currentMonth, 1);
-            const monthEnd = new Date(2025, currentMonth + 1, 0);
 
             // Calculate current quarter
             const quarter = Math.floor(currentMonth / 3);
             const quarterStartMonth = quarter * 3;
             const quarterEndMonth = quarterStartMonth + 2;
-            const quarterStart = new Date(2025, quarterStartMonth, 1);
-            const quarterEnd = new Date(2025, quarterEndMonth + 1, 0);
+            const quarterStart = new Date(2025, quarterStartMonth - 1, 20); // Start from 20th of previous month
+            const quarterEnd = new Date(2025, quarterEndMonth, 19); // End on 19th of last month
 
             for (let dateStr in attendanceData) {
                 const date = new Date(dateStr);
-                if (date >= monthStart && date <= monthEnd) {
+                if (date >= otStartDate && date <= otEndDate) {
+                    if (attendanceData[dateStr].ot) totalOT += parseFloat(attendanceData[dateStr].ot);
+                }
+                if (date >= quarterStart && date <= quarterEnd) {
+                    if (attendanceData[dateStr].ot) quarterlyOT += parseFloat(attendanceData[dateStr].ot);
+                }
+                if (date >= new Date(2025, currentMonth, 1) && date <= new Date(2025, currentMonth + 1, 0)) {
                     if (attendanceData[dateStr].leave) {
                         const deduction = attendanceData[dateStr].halfDay === 'Yes' ? 0.5 : 1;
                         if (attendanceData[dateStr].leave === 'CL') clTaken += deduction;
@@ -535,16 +544,12 @@
                         totalLate += calculateLateMinutes(attendanceData[dateStr].inPunch, attendanceData[dateStr].shift);
                     }
                 }
-                if (date >= otStartDate && date <= otEndDate) {
-                    if (attendanceData[dateStr].ot) totalOT += parseFloat(attendanceData[dateStr].ot);
-                }
-                if (date >= quarterStart && date <= quarterEnd) {
-                    if (attendanceData[dateStr].ot) quarterlyOT += parseFloat(attendanceData[dateStr].ot);
-                }
             }
+            const otRemaining = 75 - quarterlyOT;
+            const otRemainingDisplay = otRemaining >= 0 ? `(-${otRemaining.toFixed(2)}hr)` : `(+${Math.abs(otRemaining).toFixed(2)}hr)`;
             document.getElementById('summary-box').innerHTML = `
                 <p>Total OT: ${totalOT.toFixed(2)} hrs</p>
-                <p>Quarterly OT: ${quarterlyOT.toFixed(2)} hrs (max 75)</p>
+                <p>Quarterly OT: ${quarterlyOT.toFixed(2)} hrs <span class="ot-remaining">${otRemainingDisplay}</span></p>
                 <p>Late: ${totalLate} min</p>
                 <p>Leaves: ${leaves.length ? leaves.join(', ') : 'None'}</p>
                 <p>CL: ${employeeData.cl.toFixed(1)} (${clTaken})</p>
@@ -663,7 +668,18 @@
             const halfDay = document.getElementById('halfDay').value;
             const shift = document.getElementById('shift').value;
 
-            if (leave && (attendanceData[dateStr]?.leave !== leave || attendanceData[dateStr]?.halfDay !== halfDay)) {
+            // Revert previous leave deduction if it exists
+            if (attendanceData[dateStr]?.leave) {
+                const prevDeduction = attendanceData[dateStr].halfDay === 'Yes' ? 0.5 : 1;
+                const prevLeave = attendanceData[dateStr].leave;
+                if (prevLeave === 'CL') employeeData.cl += prevDeduction;
+                else if (prevLeave === 'EL') employeeData.el += prevDeduction;
+                else if (prevLeave === 'HPL') employeeData.hpl += prevDeduction * 2;
+                else if (prevLeave === 'Special') employeeData.special += prevDeduction;
+            }
+
+            // Apply new leave deduction only if leave is selected and it's new or changed
+            if (leave && (!attendanceData[dateStr]?.leave || attendanceData[dateStr].leave !== leave || attendanceData[dateStr].halfDay !== halfDay)) {
                 let deduction = halfDay === 'Yes' ? 0.5 : 1;
                 if (leave === 'HPL') deduction *= 2;
                 if (leave === 'CL' && employeeData.cl >= deduction) employeeData.cl -= deduction;
