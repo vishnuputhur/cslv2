@@ -21,7 +21,7 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background: linear-gradient(to bottom, #8B6508, #006400); /* Darker Onam theme: dark gold to dark green */
+            background: linear-gradient(to bottom, #155c05 50%, #006400 50%);
             color: #FFFFFF;
             display: flex;
             flex-direction: column;
@@ -34,7 +34,7 @@
             justify-content: center;
             align-items: center;
             padding: 5px;
-            background: linear-gradient(to right, #B22222, #8B6508); /* Darker Onam colors: dark red to dark gold */
+            background: #155c05;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
             position: fixed;
             top: 0;
@@ -83,7 +83,7 @@
             left: -220px;
             width: 220px;
             height: calc(100% - 40px);
-            background: linear-gradient(to bottom, #006400, #8B6508); /* Darker Onam theme */
+            background: linear-gradient(to bottom, #006400, #8B6508);
             box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
             border-right: 2px solid #B22222;
             display: flex;
@@ -140,6 +140,26 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             font-family: 'Arial', sans-serif;
         }
+        .mobile-image-container {
+            display: none; /* Hidden by default */
+            margin: 15px auto;
+            width: 85%;
+            max-width: 750px;
+            background: #155c05; /* Match top half of page background */
+            border-radius: 10px;
+            padding: 5px; /* Small padding to blend edges */
+        }
+        .mobile-image {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: contain; /* Preserve aspect ratio */
+        }
+        @media only screen and (max-width: 600px) {
+            .mobile-image-container {
+                display: block; /* Show on mobile screens */
+            }
+        }
         .welcome-note {
             color: #FFFFFF;
             font-weight: 600;
@@ -165,7 +185,7 @@
             border: 1px solid #8B6508;
         }
         .content-box h2 {
-            color: #FFFFFF; /* Changed to white for readability */
+            color: #FFFFFF;
         }
         .content-box a {
             color: #B22222;
@@ -182,7 +202,7 @@
         footer {
             text-align: center;
             padding: 8px;
-            background: linear-gradient(to top, #006400, #8B6508); /* Darker Onam theme */
+            background: linear-gradient(to top, #006400, #8B6508);
             color: #FFFFFF;
             position: fixed;
             width: 100%;
@@ -335,6 +355,9 @@
     </div>
     <section>
         <div class="onam-message">ഏവർക്കും ഹൃദയം നിറഞ്ഞ ഓണാശംസകൾ</div>
+        <div class="mobile-image-container">
+            <img src="https://i.ibb.co/vCbnZRg1/imgbin-3a5c2f74180dd210ce0a430a0fdbeb56.png" alt="imgbin-3a5c2f74180dd210ce0a430a0fdbeb56" border="0" class="mobile-image">
+        </div>
         <div class="whats-new-header">New Updates</div>
         <div class="whats-new">
             <div class="whats-new-content">
@@ -610,7 +633,7 @@ Link : https://cslcalculations.netlify.app/csl2.apk`;
             flower.style.fontSize = (Math.random() * 10 + 8) + 'px';
             flower.style.opacity = Math.random().toFixed(2);
             flower.style.animationDuration = (Math.random() * 3 + 5) + 's';
-            const flowers = ['🌸', '🌼', '🌺', '🌻']; // Onam flower emojis
+            const flowers = ['🌸', '🌼', '🌺', '🌻'];
             flower.innerHTML = flowers[Math.floor(Math.random() * flowers.length)];
             document.body.appendChild(flower);
             setTimeout(() => flower.remove(), 10000);
@@ -618,7 +641,7 @@ Link : https://cslcalculations.netlify.app/csl2.apk`;
         function startFlowerFall() {
             if (window.flowerFallActive) return;
             window.flowerFallActive = true;
-            window.flowerFallInterval = setInterval(createFlower, 500); // Reverted to 500ms for increased flower frequency
+            window.flowerFallInterval = setInterval(createFlower, 500);
         }
         function stopFlowerFall() {
             window.flowerFallActive = false;
