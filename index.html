@@ -21,7 +21,7 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background: linear-gradient(to bottom, #155c05 50%, #006400 50%);
+            background: linear-gradient(to bottom, #09697a, #043740);
             color: #FFFFFF;
             display: flex;
             flex-direction: column;
@@ -34,7 +34,7 @@
             justify-content: center;
             align-items: center;
             padding: 5px;
-            background: #155c05;
+            background: #09697a;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
             position: fixed;
             top: 0;
@@ -60,7 +60,7 @@
         }
         .menu-icon:hover {
             transform: scale(1.1);
-            filter: drop-shadow(0 0 8px #8B6508);
+            filter: drop-shadow(0 0 8px #043740);
         }
         .header-title {
             font-size: 1.2rem;
@@ -83,9 +83,9 @@
             left: -220px;
             width: 220px;
             height: calc(100% - 40px);
-            background: linear-gradient(to bottom, #006400, #8B6508);
+            background: linear-gradient(to bottom, #09697a, #043740);
             box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
-            border-right: 2px solid #B22222;
+            border-right: 2px solid #043740;
             display: flex;
             flex-direction: column;
             padding-top: 20px;
@@ -102,7 +102,7 @@
             padding: 8px;
             text-decoration: none;
             color: #FFFFFF;
-            background: linear-gradient(to right, #B22222, #8B6508);
+            background: linear-gradient(to right, #09697a, #043740);
             border-radius: 5px;
             text-align: center;
             font-weight: 600;
@@ -126,40 +126,6 @@
             padding: 60px 20px 20px;
             text-align: center;
         }
-        .onam-message {
-            background: linear-gradient(135deg, #B22222, #8B6508);
-            color: #FFFFFF;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 15px auto;
-            width: 85%;
-            max-width: 750px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            text-align: center;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-            font-family: 'Arial', sans-serif;
-        }
-        .mobile-image-container {
-            display: none; /* Hidden by default */
-            margin: 15px auto;
-            width: 100%;
-            max-width: 1050px;
-            background: #155c05; /* Match top half of page background */
-            border-radius: 10px;
-            padding: 5px; /* Small padding to blend edges */
-        }
-        .mobile-image {
-            width: 100%;
-            height: auto;
-            display: block;
-            object-fit: contain; /* Preserve aspect ratio */
-        }
-        @media only screen and (max-width: 600px) {
-            .mobile-image-container {
-                display: block; /* Show on mobile screens */
-            }
-        }
         .welcome-note {
             color: #FFFFFF;
             font-weight: 600;
@@ -182,16 +148,16 @@
             max-width: 750px;
             color: #FFFFFF;
             font-size: 0.85rem;
-            border: 1px solid #8B6508;
+            border: 1px solid #043740;
         }
         .content-box h2 {
             color: #FFFFFF;
         }
         .content-box a {
-            color: #B22222;
+            color: #2A8292; /* Lighter teal for links */
         }
         .blink {
-            color: #B22222;
+            color: #FFFFFF; /* Neutral white for blink */
             font-size: 12px;
             font-weight: bold;
             animation: blinker 1s linear infinite;
@@ -202,7 +168,7 @@
         footer {
             text-align: center;
             padding: 8px;
-            background: linear-gradient(to top, #006400, #8B6508);
+            background: linear-gradient(to top, #09697a, #043740);
             color: #FFFFFF;
             position: fixed;
             width: 100%;
@@ -222,14 +188,14 @@
             height: 80px;
             overflow: hidden;
             position: relative;
-            border: 1px solid #8B6508;
+            border: 1px solid #043740;
         }
         .whats-new-header {
             color: #FFFFFF;
             text-align: center;
             margin-top: 0;
             padding: 4px 0;
-            font-size: 0.9rem;
+            personally: 0.9rem;
             margin-bottom: 0.5mm;
         }
         .whats-new-content {
@@ -272,7 +238,7 @@
             justify-content: center;
             width: 80px;
             height: 80px;
-            background: linear-gradient(to bottom, #B22222, #8B6508);
+            background: linear-gradient(to bottom, #09697a, #043740);
             border-radius: 12px;
             text-decoration: none;
             color: #FFFFFF;
@@ -293,21 +259,6 @@
             text-align: center;
             line-height: 1.2;
         }
-        .flower {
-            position: fixed;
-            top: -5%;
-            z-index: 9999;
-            color: #B22222;
-            pointer-events: none;
-            animation-name: fall;
-            animation-timing-function: linear;
-            animation-iteration-count: 1;
-        }
-        @keyframes fall {
-            to {
-                transform: translateY(110vh) rotate(360deg);
-            }
-        }
         .wa-share-btn, .wa-share-link {
             background: #25D366;
             color: #fff;
@@ -321,6 +272,61 @@
             display: inline-block;
         }
         .wa-share-btn:active { transform: scale(0.98); }
+        .vtsoft-section {
+            background: linear-gradient(135deg, #09697a, #043740);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-family: 'Poppins', sans-serif;
+            border-radius: 10px;
+            margin: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            line-height: 1.4;
+            animation: popUp 0.8s ease-out;
+        }
+        .vtsoft-section h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #FFFFFF;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+            margin-bottom: 6px;
+        }
+        .vtsoft-section p:nth-child(2) {
+            font-size: 14px;
+            background: linear-gradient(90deg, #09697a, #043740);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 500;
+            margin: 4px 0;
+        }
+        .vtsoft-section p:nth-child(3) {
+            font-size: 14px;
+            color: #fff;
+            font-weight: bold;
+            margin: 4px 0;
+        }
+        .vtsoft-section p:nth-child(4) {
+            font-size: 12px;
+            color: #f1f1f1;
+            margin-top: 5px;
+        }
+        .vtsoft-section a {
+            display: inline-block;
+            margin-top: 6px;
+            background: linear-gradient(90deg, #25D366, #128C7E);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+            font-size: 14px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .vtsoft-section a:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.4);
+        }
     </style>
 </head>
 <body>
@@ -354,10 +360,6 @@
         <a href="about.html">About</a>
     </div>
     <section>
-        <div class="onam-message">ഏവർക്കും ഹൃദയം നിറഞ്ഞ ഓണാശംസകൾ</div>
-        <div class="mobile-image-container">
-            <img src="https://i.ibb.co/vCbnZRg1/imgbin-3a5c2f74180dd210ce0a430a0fdbeb56.png" alt="imgbin-3a5c2f74180dd210ce0a430a0fdbeb56" border="0" class="mobile-image">
-        </div>
         <div class="whats-new-header">New Updates</div>
         <div class="whats-new">
             <div class="whats-new-content">
@@ -437,66 +439,12 @@
         <div id="upcomingHolidays" style="color: #FFFFFF; font-size: 1rem; font-weight: 500; line-height: 1.5; margin: 8px 0;">
             Loading holidays...
         </div>
-        <div style="
-            background: linear-gradient(135deg, #B22222, #8B6508);
-            color: white;
-            padding: 10px;
-            text-align: center;
-            font-family: 'Poppins', sans-serif;
-            border-radius: 10px;
-            margin: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            line-height: 1.4;
-            animation: popUp 0.8s ease-out;
-        ">
-            <h2 style="
-                font-size: 22px;
-                font-weight: 700;
-                color: #FFFFFF;
-                text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
-                margin-bottom: 6px;
-            ">📱 VTsoft – Mobile App Development</h2>
-            <p style="
-                font-size: 14px;
-                background: linear-gradient(90deg, #8B6508, #B22222);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                font-weight: 500;
-                margin: 4px 0;
-            ">
-                For Funds, small financial institutions & societies
-            </p>
-            <p style="
-                font-size: 14px;
-                color: #fff;
-                font-weight: bold;
-                margin: 4px 0;
-            ">
-                Custom mobile apps at very low cost – tailored to your needs
-            </p>
-            <p style="
-                font-size: 12px;
-                color: #f1f1f1;
-                margin-top: 5px;
-            ">
-                നിങ്ങളുടെ ആവശ്യത്തിനു അനുസരിച്ചു mobile അപ്പുകൾ കുറഞ്ഞ ചിലവിൽ നിർമ്മിക്കാൻ സമീപിക്കുക
-            </p>
-            <a href="https://wa.me/919037383927" onclick="goToWhatsApp(event)" style="
-                display: inline-block;
-                margin-top: 6px;
-                background: linear-gradient(90deg, #25D366, #128C7E);
-                color: white;
-                padding: 5px 12px;
-                border-radius: 8px;
-                text-decoration: none;
-                font-weight: bold;
-                box-shadow: 0 3px 6px rgba(0,0,0,0.3);
-                font-size: 14px;
-                transition: transform 0.2s ease, box-shadow 0.2s ease;
-            " onmouseover="this.style.transform='scale(1.05)';this.style.boxShadow='0 5px 10px rgba(0,0,0,0.4)'" 
-            onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 3px 6px rgba(0,0,0,0.3)'">
-                💬 Chat on WhatsApp
-            </a>
+        <div class="vtsoft-section">
+            <h2>📱 VTsoft – Mobile App Development</h2>
+            <p>For Funds, small financial institutions & societies</p>
+            <p>Custom mobile apps at very low cost – tailored to your needs</p>
+            <p>നിങ്ങളുടെ ആവശ്യത്തിനു അനുസരിച്ചു mobile അപ്പുകൾ കുറഞ്ഞ ചിലവിൽ നിർമ്മിക്കാൻ സമീപിക്കുക</p>
+            <a href="https://wa.me/919037383927" onclick="goToWhatsApp(event)">💬 Chat on WhatsApp</a>
         </div>
     </section>
     <div style="height: 60px;"></div>
@@ -587,21 +535,6 @@
                 animating = true;
                 animate();
             });
-            // Flower animation on scroll
-            let lastScrollTop = 0;
-            window.addEventListener('scroll', function() {
-                let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-                if (scrollTop > lastScrollTop) {
-                    // Scrolling down
-                    if (!window.flowerFallActive) {
-                        startFlowerFall();
-                    }
-                } else {
-                    // Scrolling up
-                    stopFlowerFall();
-                }
-                lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
-            });
         });
         // WhatsApp share
         (function(){
@@ -625,31 +558,6 @@ Link : https://cslcalculations.netlify.app/csl2.apk`;
                 }
             });
         })();
-        // Flower animation creation
-        function createFlower() {
-            const flower = document.createElement('div');
-            flower.classList.add('flower');
-            flower.style.left = Math.random() * 100 + 'vw';
-            flower.style.fontSize = (Math.random() * 10 + 8) + 'px';
-            flower.style.opacity = Math.random().toFixed(2);
-            flower.style.animationDuration = (Math.random() * 3 + 5) + 's';
-            const flowers = ['🌸', '🌼', '🌺', '🌻'];
-            flower.innerHTML = flowers[Math.floor(Math.random() * flowers.length)];
-            document.body.appendChild(flower);
-            setTimeout(() => flower.remove(), 10000);
-        }
-        function startFlowerFall() {
-            if (window.flowerFallActive) return;
-            window.flowerFallActive = true;
-            window.flowerFallInterval = setInterval(createFlower, 500);
-        }
-        function stopFlowerFall() {
-            window.flowerFallActive = false;
-            clearInterval(window.flowerFallInterval);
-            document.querySelectorAll('.flower').forEach(flower => flower.remove());
-        }
-        // Start flower fall after 2 seconds
-        setTimeout(startFlowerFall, 2000);
         function goToWhatsApp(e) {
             e.preventDefault();
             window.open("https://wa.me/919037383927", "_blank");
