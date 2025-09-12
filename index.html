@@ -21,20 +21,22 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background: linear-gradient(to bottom, #09697a, #043740);
-            color: #FFFFFF;
+            background: radial-gradient(1200px 600px at 10% 20%, rgba(139,60,255,0.12), transparent 8%),
+                        linear-gradient(180deg, #0f0226 0%, #2b053f 100%);
+            color: #f6f3f0;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
             overflow-x: hidden;
             font-size: 0.85rem;
+            background-attachment: fixed;
         }
         header {
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 5px;
-            background: #09697a;
+            background: #0f0226;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
             position: fixed;
             top: 0;
@@ -55,12 +57,12 @@
         .menu-icon div {
             width: 100%;
             height: 3px;
-            background-color: #FFFFFF;
+            background-color: #f6f3f0;
             transition: 0.3s;
         }
         .menu-icon:hover {
             transform: scale(1.1);
-            filter: drop-shadow(0 0 8px #043740);
+            filter: drop-shadow(0 0 8px #b257ff);
         }
         .header-title {
             font-size: 1.2rem;
@@ -68,11 +70,11 @@
             font-family: "Times New Roman", Times, serif;
             text-align: center;
             margin: 0;
-            color: #FFFFFF;
+            color: #f6f3f0;
         }
         .header-subtitle {
             font-size: 0.6rem;
-            color: #FFFFFF;
+            color: rgba(246,243,240,0.75);
             font-weight: bold;
             text-align: center;
             margin: 0;
@@ -83,9 +85,9 @@
             left: -220px;
             width: 220px;
             height: calc(100% - 40px);
-            background: linear-gradient(to bottom, #09697a, #043740);
+            background: linear-gradient(to bottom, #0f0226, #2b053f);
             box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
-            border-right: 2px solid #043740;
+            border-right: 2px solid #2b053f;
             display: flex;
             flex-direction: column;
             padding-top: 20px;
@@ -101,12 +103,12 @@
             margin: 8px 15px;
             padding: 8px;
             text-decoration: none;
-            color: #FFFFFF;
-            background: linear-gradient(to right, #09697a, #043740);
+            color: #f6f3f0;
+            background: rgba(11,7,20,0.45);
             border-radius: 5px;
             text-align: center;
             font-weight: 600;
-            box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.5), inset 0 0 5px rgba(255, 255, 255, 0.2);
+            box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.5), inset 0 0 5px rgba(255, 255, 255, 0.02);
             transform: translateX(-100%) perspective(500px) rotateY(0deg);
             opacity: 0;
             transition: transform 0.4s ease, opacity 0.4s ease, box-shadow 0.3s ease;
@@ -119,7 +121,7 @@
         }
         .menu-drawer a:hover {
             transform: translateY(-4px) perspective(500px) rotateY(5deg);
-            box-shadow: 5px 5px 12px rgba(0, 0, 0, 0.7), inset 0 0 5px rgba(255, 255, 255, 0.3);
+            box-shadow: 5px 5px 12px rgba(0, 0, 0, 0.7), inset 0 0 5px rgba(178,87,255,0.16);
         }
         section {
             flex: 1;
@@ -127,37 +129,38 @@
             text-align: center;
         }
         .welcome-note {
-            color: #FFFFFF;
+            color: #f6f3f0;
             font-weight: 600;
             font-size: 1.3em;
             margin: 8px 0;
         }
         .welcome-subtext {
-            color: #FFFFFF;
+            color: #f6f3f0;
             font-weight: 500;
             font-size: 0.9em;
             margin: 4px 0;
         }
         .content-box {
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(11,7,20,0.45);
             border-radius: 12px;
             padding: 15px;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2), 0 0 40px rgba(178,87,255,0.16);
             margin: 15px auto;
             width: 85%;
             max-width: 750px;
-            color: #FFFFFF;
+            color: #f6f3f0;
             font-size: 0.85rem;
-            border: 1px solid #043740;
+            border: 1.5px solid rgba(203,169,255,0.25);
+            backdrop-filter: blur(8px) saturate(120%);
         }
         .content-box h2 {
-            color: #FFFFFF;
+            color: #f6f3f0;
         }
         .content-box a {
-            color: #2A8292; /* Lighter teal for links */
+            color: #b257ff; /* Neon purple for links */
         }
         .blink {
-            color: #FFFFFF; /* Neutral white for blink */
+            color: #f6f3f0; /* Warm white for blink */
             font-size: 12px;
             font-weight: bold;
             animation: blinker 1s linear infinite;
@@ -168,18 +171,19 @@
         footer {
             text-align: center;
             padding: 8px;
-            background: linear-gradient(to top, #09697a, #043740);
-            color: #FFFFFF;
+            background: linear-gradient(to top, #0f0226, #2b053f);
+            color: #f6f3f0;
             position: fixed;
             width: 100%;
             bottom: 0;
             font-size: 0.7rem;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.6);
         }
         .version {
             font-size: 0.6rem;
         }
         .whats-new {
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(11,7,20,0.45);
             border-radius: 10px;
             padding: 12px;
             margin: 15px auto;
@@ -188,10 +192,12 @@
             height: 80px;
             overflow: hidden;
             position: relative;
-            border: 1px solid #043740;
+            border: 1.5px solid rgba(203,169,255,0.25);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2), 0 0 40px rgba(178,87,255,0.16);
+            backdrop-filter: blur(8px) saturate(120%);
         }
         .whats-new-header {
-            color: #FFFFFF;
+            color: #f6f3f0;
             text-align: center;
             margin-top: 0;
             padding: 4px 0;
@@ -209,7 +215,7 @@
         }
         .whats-new li {
             margin-bottom: 10px;
-            color: #FFFFFF;
+            color: #f6f3f0;
             padding: 4px 0;
             font-size: 0.8rem;
         }
@@ -220,7 +226,7 @@
             text-align: center;
         }
         .quick-links-header {
-            color: #FFFFFF;
+            color: #f6f3f0;
             font-size: 1rem;
             font-weight: 600;
             margin: 8px 0;
@@ -238,16 +244,18 @@
             justify-content: center;
             width: 80px;
             height: 80px;
-            background: linear-gradient(to bottom, #09697a, #043740);
+            background: rgba(11,7,20,0.45);
             border-radius: 12px;
             text-decoration: none;
-            color: #FFFFFF;
-            box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.5), inset 0 0 5px rgba(255, 255, 255, 0.2);
+            color: #f6f3f0;
+            box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.5), inset 0 0 5px rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(8px) saturate(120%);
+            border: 1.5px solid rgba(203,169,255,0.25);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         .quick-link-button:hover {
             transform: translateY(-4px) scale(1.05);
-            box-shadow: 5px 5px 12px rgba(0, 0, 0, 0.7), inset 0 0 5px rgba(255, 255, 255, 0.3);
+            box-shadow: 5px 5px 12px rgba(0, 0, 0, 0.7), inset 0 0 5px rgba(178,87,255,0.16);
         }
         .quick-link-icon {
             font-size: 2rem;
@@ -260,7 +268,7 @@
             line-height: 1.2;
         }
         .wa-share-btn, .wa-share-link {
-            background: #25D366;
+            background: linear-gradient(180deg, #8b3cff, #b257ff);
             color: #fff;
             border: 0;
             border-radius: 10px;
@@ -270,30 +278,34 @@
             cursor: pointer;
             text-decoration: none;
             display: inline-block;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2), 0 0 20px rgba(178,87,255,0.16);
+            backdrop-filter: blur(8px) saturate(120%);
         }
         .wa-share-btn:active { transform: scale(0.98); }
         .vtsoft-section {
-            background: linear-gradient(135deg, #09697a, #043740);
-            color: white;
+            background: rgba(11,7,20,0.45);
+            color: #f6f3f0;
             padding: 10px;
             text-align: center;
             font-family: 'Poppins', sans-serif;
             border-radius: 10px;
             margin: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2), 0 0 40px rgba(178,87,255,0.16);
             line-height: 1.4;
             animation: popUp 0.8s ease-out;
+            border: 1.5px solid rgba(203,169,255,0.25);
+            backdrop-filter: blur(8px) saturate(120%);
         }
         .vtsoft-section h2 {
             font-size: 22px;
             font-weight: 700;
-            color: #FFFFFF;
+            color: #f6f3f0;
             text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
             margin-bottom: 6px;
         }
         .vtsoft-section p:nth-child(2) {
             font-size: 14px;
-            background: linear-gradient(90deg, #09697a, #043740);
+            background: linear-gradient(90deg, #0f0226, #2b053f);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             font-weight: 500;
@@ -301,31 +313,31 @@
         }
         .vtsoft-section p:nth-child(3) {
             font-size: 14px;
-            color: #fff;
+            color: #f6f3f0;
             font-weight: bold;
             margin: 4px 0;
         }
         .vtsoft-section p:nth-child(4) {
             font-size: 12px;
-            color: #f1f1f1;
+            color: #f6f3f0;
             margin-top: 5px;
         }
         .vtsoft-section a {
             display: inline-block;
             margin-top: 6px;
-            background: linear-gradient(90deg, #25D366, #128C7E);
-            color: white;
+            background: linear-gradient(90deg, #8b3cff, #b257ff);
+            color: #f6f3f0;
             padding: 5px 12px;
             border-radius: 8px;
             text-decoration: none;
             font-weight: bold;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.3), 0 0 20px rgba(178,87,255,0.16);
             font-size: 14px;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .vtsoft-section a:hover {
             transform: scale(1.05);
-            box-shadow: 0 5px 10px rgba(0,0,0,0.4);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.4), 0 0 20px rgba(178,87,255,0.16);
         }
     </style>
 </head>
@@ -435,8 +447,8 @@
         <br>
         <button id="waShareBtn" type="button" class="wa-share-btn">📤 Share This App</button>
         <br><br>
-        <h3 style="color: #FFFFFF; font-size: 1rem; margin: 8px 0;">📅 Upcoming CSL Holidays</h3>
-        <div id="upcomingHolidays" style="color: #FFFFFF; font-size: 1rem; font-weight: 500; line-height: 1.5; margin: 8px 0;">
+        <h3 style="color: #f6f3f0; font-size: 1rem; margin: 8px 0;">📅 Upcoming CSL Holidays</h3>
+        <div id="upcomingHolidays" style="color: #f6f3f0; font-size: 1rem; font-weight: 500; line-height: 1.5; margin: 8px 0;">
             Loading holidays...
         </div>
         <div class="vtsoft-section">
