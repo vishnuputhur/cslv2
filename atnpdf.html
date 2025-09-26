@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Attendance PDF</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 20mm;
+            width: 210mm; /* A4 width */
+            height: 297mm; /* A4 height */
+            box-sizing: border-box;
+            color: #1E3A5F;
+        }
+        h1 {
+            text-align: center;
+            color: #1E3A5F;
+        }
+        .header-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+            font-size: 12px;
+        }
+        th {
+            background-color: #f2f2f2;
+            color: #1E3A5F;
+        }
+        .holiday {
+            color: red !important;
+            font-weight: bold !important;
+        }
+        .leave-cl {
+            background-color: #ADD8E6;
+            color: white;
+        }
+        .leave-el {
+            background-color: #C04070;
+            color: white;
+        }
+        .leave-hpl {
+            background-color: #FFA07A;
+            color: white;
+        }
+        .leave-special {
+            background-color: #FFC0CB;
+            color: white;
+        }
+        .summary {
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .footer {
+            text-align: center;
+            font-size: 10px;
+            color: gray;
+            position: absolute;
+            bottom: 10mm;
+            width: 100%;
+            left: 0;
+        }
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            .footer {
+                position: fixed;
+                bottom: 0;
+            }
+        }
+    </style>
+</head>
+<body onload="window.print(); setTimeout(() => { history.back(); }, 500);">
+    <h1>Attendance Register</h1>
+    <div class="header-info">
+        <span>Name: <strong id="name"></strong> | Code: <strong id="code"></strong></span>
+        <span>Month: <strong id="month"></strong></span>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Shift</th>
+                <th>In Time</th>
+                <th>Out Time</th>
+                <th>Leave</th>
+                <th>OT</th>
+            </tr>
+        </thead>
+        <tbody id="table-body">
+            <!-- Rows will be inserted here -->
+        </tbody>
+    </table>
+    <div class="summary">
+        <p>Total Leave Taken: <strong id="totalLeave"></strong></p>
+        <p>Total OT: <strong id="totalOT"></strong> hrs</p>
+        <p>Total Present Days: <strong id="totalPresent"></strong></p>
+    </div>
+    <div class="footer">Powered by VT@Soft</div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const data = JSON.parse(decodeURIComponent(urlParams.get('data')));
+
+        document.getElementById('name').textContent = data.name;
+        document.getElementById('code').textContent = data.code;
+        document.getElementById('month').textContent = data.month;
+        document.getElementById('totalLeave').textContent = data.totalLeave;
+        document.getElementById('totalOT').textContent = data.totalOT;
+        document.getElementById('totalPresent').textContent = data.totalPresent;
+
+        const tableBody = document.getElementById('table-body');
+        data.table.forEach(row => {
+            const tr = document.createElement('tr');
+            if (row.isHoliday) {
+                tr.classList.add('holiday');
+            }
+            if (row.leaveType) {
+                tr.classList.add(`leave-${row.leaveType}`);
+            }
+            tr.innerHTML = `
+                <td>${row.date}</td>
+                <td>${row.shift}</td>
+                <td>${row.inTime}</td>
+                <td>${row.outTime}</td>
+                <td>${row.leave}</td>
+                <td>${row.ot}</td>
+            `;
+            tableBody.appendChild(tr);
+        });
+    </script>
+</body>
+</html>
