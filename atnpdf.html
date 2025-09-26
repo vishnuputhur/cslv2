@@ -24,17 +24,17 @@
             background-color: #FFFFFF; /* White background */
             border: 3px double #000000; /* Double-line black border */
             box-sizing: border-box;
-            padding: 8px; /* Reduced padding for compact layout */
+            padding: 5px; /* Minimal padding */
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            justify-content: flex-start; /* Start from top */
+            gap: 5px; /* Minimal gap between elements */
         }
 
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px; /* Reduced to save space */
             font-size: 12px;
             font-weight: bold;
             color: #000000;
@@ -52,14 +52,14 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 9px; /* Reduced font size to fit more rows */
+            font-size: 8px; /* Further reduced to fit */
             font-weight: bold;
-            margin-bottom: 8px; /* Reduced to save space */
+            flex-grow: 1; /* Allow table to expand and fill space */
         }
 
         th, td {
             border: 1px solid #000000; /* Black borders for table */
-            padding: 3px; /* Reduced padding for compact rows */
+            padding: 2px; /* Minimal padding */
             text-align: center;
             color: #000000;
         }
@@ -82,7 +82,6 @@
             font-size: 9px;
             font-weight: bold;
             color: #000000;
-            margin-bottom: 8px; /* Reduced to save space */
         }
 
         .summary span {
