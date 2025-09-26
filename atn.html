@@ -233,16 +233,6 @@
             text-align: right;
         }
 
-        .popup input, .popup select {
-            width: 120px;
-            padding: 5px;
-            font-size: 12px;
-            margin: 5px 0;
-            border: 1px solid #1E3A5F;
-            border-radius: 4px;
-            background: #FAF8E3;
-        }
-
         .settings-row {
             display: flex;
             align-items: center;
@@ -819,15 +809,15 @@
                     totalPresent: totalPresent
                 };
 
-                // Encode data and redirect to atnpdf.html
+                // Encode data and redirect to atnpdf.html using openchrome://
                 const encodedData = encodeURIComponent(JSON.stringify(pdfData));
-                const redirectUrl = `https://vishnuputhur.github.io/cslv2/atnpdf.html?data=${encodedData}`;
+                const redirectUrl = `openchrome://vishnuputhur.github.io/cslv2/atnpdf.html?data=${encodedData}`;
                 
                 // Log for debugging
-                console.log('Redirecting to:', redirectUrl);
+                console.log('Triggering Chrome with URL:', redirectUrl);
 
-                // Perform redirect
-                window.location.assign(redirectUrl);
+                // Perform redirect to open Chrome
+                window.location.href = redirectUrl;
             } catch (error) {
                 console.error('Error in generateMonthlyPDF:', error);
                 alert('Failed to generate PDF: ' + error.message);
