@@ -515,7 +515,6 @@
             const otStartDate = new Date(prevYear, prevMonth, 20);
             const otEndDate = new Date(2025, currentMonth, 19);
 
-            // Calculate current quarter
             const quarter = Math.floor(currentMonth / 3);
             const quarterStartMonth = quarter * 3;
             const quarterEndMonth = quarterStartMonth + 2;
@@ -776,51 +775,63 @@
         }
 
         function generateMonthlyPDF() {
-            const monthName = new Date(2025, currentMonth).toLocaleString('default', { month: 'long' });
-            let tableData = [];
-            let totalLeave = 0, totalOT = 0, totalPresent = 0;
-            const daysInMonth = new Date(2025, currentMonth + 1, 0).getDate();
+            try {
+                const monthName = new Date(2025, currentMonth).toLocaleString('default', { month: 'long' });
+                let tableData = [];
+                let totalLeave = 0, totalOT = 0, totalPresent = 0;
+                const daysInMonth = new Date(2025, currentMonth + 1, 0).getDate();
 
-            for (let d = 1; d <= daysInMonth; d++) {
-                const dateStr = `2025-${String(currentMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-                const data = attendanceData[dateStr] || {};
-                const dateObj = new Date(2025, currentMonth, d);
-                const isHol = isHoliday(dateStr, dateObj.getDay(), dateObj);
-                const leaveStr = data.leave ? `${data.leave}${data.halfDay === 'Yes' ? ' (Half)' : ''}` : (isHol ? 'Holiday' : '');
-                const leaveType = data.leave ? data.leave.toLowerCase() : '';
+                for (let d = 1; d <= daysInMonth; d++) {
+                    const dateStr = `2025-${String(currentMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                    const data = attendanceData[dateStr] || {};
+                    const dateObj = new Date(2025, currentMonth, d);
+                    const isHol = isHoliday(dateStr, dateObj.getDay(), dateObj);
+                    const leaveStr = data.leave ? `${data.leave}${data.halfDay === 'Yes' ? ' (Half)' : ''}` : (isHol ? 'Holiday' : '');
+                    const leaveType = data.leave ? data.leave.toLowerCase() : '';
 
-                if (data.leave) {
-                    const deduction = data.halfDay === 'Yes' ? 0.5 : 1;
-                    totalLeave += deduction;
-                } else if (data.inPunch && data.outPunch && !isHol) {
-                    totalPresent += 1;
+                    if (data.leave) {
+                        const deduction = data.halfDay === 'Yes' ? 0.5 : 1;
+                        totalLeave += deduction;
+                    } else if (data.inPunch && data.outPunch && !isHol) {
+                        totalPresent += 1;
+                    }
+                    if (data.ot) totalOT += parseFloat(data.ot);
+
+                    tableData.push({
+                        date: dateStr,
+                        shift: data.shift || '',
+                        inTime: data.inPunch || '',
+                        outTime: data.outPunch || '',
+                        leave: leaveStr,
+                        ot: data.ot ? `${data.ot} hrs` : '0',
+                        isHoliday: isHol,
+                        leaveType: leaveType
+                    });
                 }
-                if (data.ot) totalOT += parseFloat(data.ot);
 
-                tableData.push({
-                    date: dateStr,
-                    shift: data.shift || '',
-                    inTime: data.inPunch || '',
-                    outTime: data.outPunch || '',
-                    leave: leaveStr,
-                    ot: data.ot ? `${data.ot} hrs` : '0',
-                    isHoliday: isHol,
-                    leaveType: leaveType
-                });
+                const pdfData = {
+                    name: employeeData.name || 'Unknown',
+                    code: employeeData.code || 'Unknown',
+                    month: `${monthName} 2025`,
+                    table: tableData,
+                    totalLeave: totalLeave.toFixed(1),
+                    totalOT: totalOT.toFixed(2),
+                    totalPresent: totalPresent
+                };
+
+                // Encode data and redirect to atnpdf.html
+                const encodedData = encodeURIComponent(JSON.stringify(pdfData));
+                const redirectUrl = `https://vishnuputhur.github.io/cslv2/atnpdf.html?data=${encodedData}`;
+                
+                // Log for debugging
+                console.log('Redirecting to:', redirectUrl);
+
+                // Perform redirect
+                window.location.assign(redirectUrl);
+            } catch (error) {
+                console.error('Error in generateMonthlyPDF:', error);
+                alert('Failed to generate PDF: ' + error.message);
             }
-
-            const pdfData = {
-                name: employeeData.name || 'Unknown',
-                code: employeeData.code || 'Unknown',
-                month: `${monthName} 2025`,
-                table: tableData,
-                totalLeave: totalLeave.toFixed(1),
-                totalOT: totalOT.toFixed(2),
-                totalPresent: totalPresent
-            };
-
-            const encodedData = encodeURIComponent(JSON.stringify(pdfData));
-            window.location.href = "https://vishnuputhur.github.io/cslv2/atnpdf.html?data=" + encodedData;
         }
 
         document.addEventListener('DOMContentLoaded', loadSettings);
