@@ -3,195 +3,245 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monthly Attendance PDF</title>
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <title>Attendance PDF</title>
     <style>
         body {
+            display: none; /* Hide the page during PDF generation */
             font-family: 'Poppins', sans-serif;
-            margin: 20mm;
-            width: 210mm; /* A4 width */
-            height: 297mm; /* A4 height */
+            background-color: #F5E6C4; /* Light cream background for warmth */
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 180mm; /* A4 width (210mm) - 2x10mm margins */
+            height: 277mm; /* A4 height (297mm) - 2x10mm margins */
+            margin: 10mm; /* Equal 10mm margins on all sides */
+            background-color: #FFFFFF; /* White background for content */
+            border: 3px double #1E3A5F; /* Double-line border in dark blue */
             box-sizing: border-box;
-            color: #1E3A5F;
-            display: none; /* Hide the page content to avoid flashing */
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
-        h1 {
-            text-align: center;
-            color: #1E3A5F;
-        }
-        .header-info {
+
+        .header {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 20px;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 5px;
+            background-color: #1E3A5F; /* Dark blue heading */
+            color: #F5E6C4; /* Light cream text */
+            border-radius: 5px;
         }
+
+        .header span {
+            font-size: 14px;
+            font-weight: bold;
+            flex: 1;
+            text-align: center;
+        }
+
+        .header .name { text-align: left; }
+        .header .code { text-align: center; }
+        .header .date { text-align: right; }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: center;
-            font-size: 12px;
-        }
-        th {
-            background-color: #f2f2f2;
-            color: #1E3A5F;
-        }
-        .holiday {
-            color: red !important;
-            font-weight: bold !important;
-        }
-        .leave-cl {
-            background-color: #ADD8E6;
-            color: white;
-        }
-        .leave-el {
-            background-color: #C04070;
-            color: white;
-        }
-        .leave-hpl {
-            background-color: #FFA07A;
-            color: white;
-        }
-        .leave-special {
-            background-color: #FFC0CB;
-            color: white;
-        }
-        .summary {
-            font-size: 14px;
+            font-size: 10px; /* Reduced font size to fit more rows */
+            font-weight: bold;
             margin-bottom: 10px;
         }
+
+        th, td {
+            border: 1px solid #1E3A5F; /* Dark blue borders */
+            padding: 4px; /* Reduced padding for compact rows */
+            text-align: center;
+            color: #1E3A5F; /* Dark blue text */
+        }
+
+        th {
+            background-color: #8B1E3F; /* Maroon for table header */
+            color: #FFFFFF; /* White text for contrast */
+        }
+
+        tr:nth-child(even) {
+            background-color: #E6F3FA; /* Light blue for alternate rows */
+        }
+
+        tr:nth-child(odd) {
+            background-color: #FAF8E3; /* Light cream for alternate rows */
+        }
+
+        .holiday { color: #DC2626; } /* Red for holidays */
+        .leave-cl { background-color: #ADD8E6 !important; } /* Light blue for CL */
+        .leave-el { background-color: #C04070 !important; color: #FFFFFF; } /* Pink for EL */
+        .leave-hpl { background-color: #FFA07A !important; } /* Light salmon for HPL */
+        .leave-special { background-color: #FFC0CB !important; } /* Light pink for Special */
+
+        .summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 10px;
+            font-weight: bold;
+            color: #1E3A5F;
+            padding: 5px;
+            background-color: #E6F3FA; /* Light blue background for summary */
+            border-radius: 5px;
+        }
+
+        .summary span {
+            flex: 1;
+            text-align: center;
+        }
+
         .footer {
             text-align: center;
             font-size: 10px;
-            color: gray;
+            font-weight: bold;
+            color: #1E3A5F;
+            margin-top: 5px;
             position: absolute;
-            bottom: 10mm;
+            bottom: -20px; /* Outside the double border */
             width: 100%;
-            left: 0;
+        }
+
+        #download-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #1E3A5F;
+            color: #F5E6C4;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            z-index: 2000;
+            display: none;
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
-<body onload="generateAndDownloadPDF()">
-    <h1>Attendance Register</h1>
-    <div class="header-info">
-        <span>Name: <strong id="name"></strong> | Code: <strong id="code"></strong></span>
-        <span>Month: <strong id="month"></strong></span>
+<body>
+    <div id="download-message">Your download will start now</div>
+    <div class="container" id="pdf-content">
+        <div class="header">
+            <span class="name" id="name"></span>
+            <span class="code" id="code"></span>
+            <span class="date" id="month"></span>
+        </div>
+        <table id="attendance-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Shift</th>
+                    <th>In Time</th>
+                    <th>Out Time</th>
+                    <th>Leave</th>
+                    <th>OT</th>
+                </tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+        </table>
+        <div class="summary">
+            <span id="total-leave"></span>
+            <span id="total-ot"></span>
+            <span id="total-present"></span>
+        </div>
+        <div class="footer">Powered by VT@Soft</div>
     </div>
-    <table>
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Shift</th>
-                <th>In Time</th>
-                <th>Out Time</th>
-                <th>Leave</th>
-                <th>OT</th>
-            </tr>
-        </thead>
-        <tbody id="table-body">
-            <!-- Rows will be inserted here -->
-        </tbody>
-    </table>
-    <div class="summary">
-        <p>Total Leave Taken: <strong id="totalLeave"></strong></p>
-        <p>Total OT: <strong id="totalOT"></strong> hrs</p>
-        <p>Total Present Days: <strong id="totalPresent"></strong></p>
-    </div>
-    <div class="footer">Powered by VT@Soft</div>
 
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const data = JSON.parse(decodeURIComponent(urlParams.get('data')));
+        const { jsPDF } = window.jspdf;
 
-        // Populate the page content
-        document.getElementById('name').textContent = data.name;
-        document.getElementById('code').textContent = data.code;
-        document.getElementById('month').textContent = data.month;
-        document.getElementById('totalLeave').textContent = data.totalLeave;
-        document.getElementById('totalOT').textContent = data.totalOT;
-        document.getElementById('totalPresent').textContent = data.totalPresent;
-
-        const tableBody = document.getElementById('table-body');
-        data.table.forEach(row => {
-            const tr = document.createElement('tr');
-            if (row.isHoliday) {
-                tr.classList.add('holiday');
+        window.onload = function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const encodedData = urlParams.get('data');
+            if (!encodedData) {
+                document.getElementById('download-message').innerText = 'Error: No data provided';
+                document.getElementById('download-message').style.display = 'block';
+                return;
             }
-            if (row.leaveType) {
-                tr.classList.add(`leave-${row.leaveType}`);
-            }
-            tr.innerHTML = `
-                <td>${row.date}</td>
-                <td>${row.shift}</td>
-                <td>${row.inTime}</td>
-                <td>${row.outTime}</td>
-                <td>${row.leave}</td>
-                <td>${row.ot}</td>
-            `;
-            tableBody.appendChild(tr);
-        });
 
-        function generateAndDownloadPDF() {
-            const { jsPDF } = window.jspdf;
+            try {
+                const pdfData = JSON.parse(decodeURIComponent(encodedData));
+
+                // Populate header
+                document.getElementById('name').innerText = `Name: ${pdfData.name}`;
+                document.getElementById('code').innerText = `Code: ${pdfData.code}`;
+                document.getElementById('month').innerText = `Month: ${pdfData.month}`;
+
+                // Populate table
+                const tbody = document.getElementById('table-body');
+                pdfData.table.forEach(row => {
+                    const tr = document.createElement('tr');
+                    if (row.isHoliday) tr.classList.add('holiday');
+                    if (row.leaveType) tr.classList.add(`leave-${row.leaveType}`);
+                    tr.innerHTML = `
+                        <td>${row.date}</td>
+                        <td>${row.shift}</td>
+                        <td>${row.inTime}</td>
+                        <td>${row.outTime}</td>
+                        <td>${row.leave}</td>
+                        <td>${row.ot}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                // Populate summary
+                document.getElementById('total-leave').innerText = `Total Leave: ${pdfData.totalLeave}`;
+                document.getElementById('total-ot').innerText = `Total OT: ${pdfData.totalOT} hrs`;
+                document.getElementById('total-present').innerText = `Total Present: ${pdfData.totalPresent}`;
+
+                // Show download message and trigger PDF generation
+                document.getElementById('download-message').style.display = 'block';
+                setTimeout(generatePDF, 100); // Small delay to ensure rendering
+            } catch (error) {
+                document.getElementById('download-message').innerText = 'Error: ' + error.message;
+                document.getElementById('download-message').style.display = 'block';
+                console.error('Error processing data:', error);
+            }
+        };
+
+        function generatePDF() {
             const doc = new jsPDF({
                 orientation: 'portrait',
                 unit: 'mm',
                 format: 'a4'
             });
 
-            // Temporarily show the body to capture it
-            document.body.style.display = 'block';
-
-            html2canvas(document.body, {
-                scale: 2, // Improve quality
-                useCORS: true,
-                logging: false,
-                windowWidth: 210 * 3.78, // Approximate A4 width in pixels (210mm * 3.78px/mm at 96dpi)
-                windowHeight: document.body.scrollHeight
+            html2canvas(document.getElementById('pdf-content'), {
+                scale: 2, // Higher scale for better quality
+                useCORS: true
             }).then(canvas => {
                 const imgData = canvas.toDataURL('image/png');
-                const imgWidth = 210; // A4 width in mm
-                const pageHeight = 297; // A4 height in mm
-                const imgHeight = canvas.height * imgWidth / canvas.width;
-                let heightLeft = imgHeight;
+                const imgProps = doc.getImageProperties(imgData);
+                const pdfWidth = doc.internal.pageSize.getWidth();
+                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
-                let position = 0;
+                doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
 
-                // Add the first page
-                doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                heightLeft -= pageHeight;
+                // Save PDF with dynamic filename
+                const month = document.getElementById('month').innerText.split(' ')[1] || 'Month';
+                doc.save(`Attendance_${month}.pdf`);
 
-                // Add additional pages if content overflows
-                while (heightLeft > 0) {
-                    position = heightLeft - imgHeight;
-                    doc.addPage();
-                    doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                    heightLeft -= pageHeight;
-                }
-
-                // Auto-download the PDF with a meaningful filename
-                const monthName = data.month.replace(/\s+/, '_');
-                doc.save(`Attendance_${monthName}.pdf`);
-
-                // Hide the body again
-                document.body.style.display = 'none';
-
-                // Close the page after 5 seconds to ensure download completes
-                setTimeout(() => {
-                    window.close();
-                }, 5000);
+                // Close the window after 5 seconds
+                setTimeout(() => window.close(), 5000);
             }).catch(error => {
+                document.getElementById('download-message').innerText = 'Error generating PDF: ' + error.message;
                 console.error('Error generating PDF:', error);
-                // Fallback to print if PDF generation fails
-                document.body.style.display = 'block';
-                window.print();
-                setTimeout(() => {
-                    window.close();
-                }, 5000);
             });
         }
     </script>
