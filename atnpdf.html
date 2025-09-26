@@ -10,10 +10,6 @@
             font-family: 'Poppins', sans-serif;
             margin: 0;
             padding: 0;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             background-color: #FFFFFF; /* White background */
         }
 
@@ -27,8 +23,9 @@
             padding: 5px; /* Minimal padding */
             display: flex;
             flex-direction: column;
-            justify-content: flex-start; /* Start from top */
+            justify-content: flex-start;
             gap: 5px; /* Minimal gap between elements */
+            overflow: hidden; /* Prevent overflow issues */
         }
 
         .header {
@@ -38,6 +35,7 @@
             font-size: 12px;
             font-weight: bold;
             color: #000000;
+            margin-bottom: 5px;
         }
 
         .header span {
@@ -52,20 +50,19 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 8px; /* Further reduced to fit */
+            font-size: 8px; /* Small font to fit all rows */
             font-weight: bold;
-            flex-grow: 1; /* Allow table to expand and fill space */
         }
 
         th, td {
-            border: 1px solid #000000; /* Black borders for table */
+            border: 1px solid #000000; /* Black borders */
             padding: 2px; /* Minimal padding */
             text-align: center;
             color: #000000;
         }
 
         th {
-            background-color: #FFFFFF; /* White background for header */
+            background-color: #FFFFFF; /* White background */
             color: #000000;
         }
 
@@ -79,9 +76,10 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 9px;
+            font-size: 8px;
             font-weight: bold;
             color: #000000;
+            margin-top: 5px;
         }
 
         .summary span {
@@ -91,11 +89,11 @@
 
         .footer {
             text-align: center;
-            font-size: 9px;
+            font-size: 8px;
             font-weight: bold;
             color: #000000;
             position: absolute;
-            bottom: -15px; /* Outside the double border */
+            bottom: -12px; /* Outside the double border */
             width: 100%;
         }
 
@@ -191,7 +189,7 @@
 
                 // Show download message and trigger PDF generation
                 document.getElementById('download-message').style.display = 'block';
-                setTimeout(generatePDF, 100); // Small delay to ensure rendering
+                setTimeout(generatePDF, 500); // Increased delay for rendering
             } catch (error) {
                 document.getElementById('download-message').innerText = 'Error: ' + error.message;
                 document.getElementById('download-message').style.display = 'block';
@@ -206,9 +204,14 @@
                 format: 'letter' // Letter size: 215.9mm × 279.4mm
             });
 
-            html2canvas(document.getElementById('pdf-content'), {
-                scale: 2, // Higher scale for better quality
-                useCORS: true
+            const container = document.getElementById('pdf-content');
+            html2canvas(container, {
+                scale: 2, // Higher scale for quality
+                useCORS: true,
+                width: container.offsetWidth,
+                height: container.offsetHeight,
+                windowWidth: 195.9 * 3.78, // Convert mm to pixels (1mm ≈ 3.78px at 96dpi)
+                windowHeight: 259.4 * 3.78
             }).then(canvas => {
                 const imgData = canvas.toDataURL('image/png');
                 const imgProps = doc.getImageProperties(imgData);
