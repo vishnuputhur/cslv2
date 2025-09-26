@@ -89,7 +89,7 @@
             color: white;
             border-radius: 5px;
             position: sticky;
-            top: 130px; /* Changed from 170px */
+            top: 130px;
             z-index: 900;
             font-size: 14px;
         }
@@ -109,7 +109,7 @@
             padding: 5px;
             font-weight: bold;
             position: sticky;
-            top: 170px; /* Changed from 210px */
+            top: 170px;
             z-index: 800;
             font-size: 12px;
         }
@@ -496,7 +496,7 @@
             }
             document.getElementById('calendar-container').innerHTML = calendarHTML;
             updateSummaryBox();
-            window.scrollTo({ top: document.getElementById('calendar-container').offsetTop - 130, behavior: 'smooth' }); // Changed from 170
+            window.scrollTo({ top: document.getElementById('calendar-container').offsetTop - 130, behavior: 'smooth' });
         }
 
         function calculateLateMinutes(inPunch, shift) {
@@ -519,8 +519,8 @@
             const quarter = Math.floor(currentMonth / 3);
             const quarterStartMonth = quarter * 3;
             const quarterEndMonth = quarterStartMonth + 2;
-            const quarterStart = new Date(2025, quarterStartMonth - 1, 20); // Start from 20th of previous month
-            const quarterEnd = new Date(2025, quarterEndMonth, 19); // End on 19th of last month
+            const quarterStart = new Date(2025, quarterStartMonth - 1, 20);
+            const quarterEnd = new Date(2025, quarterEndMonth, 19);
 
             for (let dateStr in attendanceData) {
                 const date = new Date(dateStr);
@@ -820,7 +820,7 @@
             };
 
             const encodedData = encodeURIComponent(JSON.stringify(pdfData));
-            window.location.href = "pdf.html?data=" + encodedData;
+            window.location.href = "https://vishnuputhur.github.io/cslv2/atnpdf.html?data=" + encodedData;
         }
 
         document.addEventListener('DOMContentLoaded', loadSettings);
