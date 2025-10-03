@@ -290,7 +290,7 @@
 
         .footer {
             font-size: 14px;
-            padding: 15px;
+            padding: 4.5px;
             background-color: #0F2A44;
             width: 100%;
             position: fixed;
@@ -300,7 +300,7 @@
         }
 
         .bottom-padding {
-            height: 60px;
+            height: 18px;
         }
 
         .leave-msg {
@@ -375,7 +375,7 @@
 
     <div class="popup" id="attendance-popup"></div>
     <div class="bottom-padding"></div>
-    <div class="footer">Powered by VT@Soft © 2025 | Version 1.0</div>
+    <div class="footer">Powered by VT@Soft © 2025 | Version 2.7</div>
 
     <script>
         const holidays = {
@@ -419,6 +419,20 @@
         function isHoliday(dateStr, dayOfWeek, date) {
             if (dayOfWeek === 0) return true; // Sunday
             return holidays[dateStr] || weekends.includes(dateStr); // 2nd and 4th Saturdays
+        }
+
+        function formatTimeFromHours(decimalHours) {
+            if (!decimalHours) return '';
+            const hours = Math.floor(decimalHours);
+            const minutes = Math.round((decimalHours - hours) * 60);
+            return `${hours}.${String(minutes).padStart(2, '0')}`;
+        }
+
+        function parseTimeToHours(timeStr) {
+            if (!timeStr) return 0;
+            timeStr = timeStr.replace(':', '.'); // Allow both : and . for input
+            const [hours, minutes] = timeStr.split('.').map(Number);
+            return hours + (minutes / 60 || 0);
         }
 
         function showMonth(month) {
@@ -477,7 +491,7 @@
                                 classes += ' present-in';
                             }
                         }
-                        const otDisplay = attendanceData[dateStr]?.ot > 0 ? `<span class="ot-display">${attendanceData[dateStr].ot}h</span>` : '';
+                        const otDisplay = attendanceData[dateStr]?.ot && attendanceData[dateStr].ot != 0 ? `<span class="ot-display">${formatTimeFromHours(attendanceData[dateStr].ot)}h</span>` : '';
                         calendarHTML += `<div class="${classes}" onclick="showAttendancePopup('${dateStr}')">${date}${otDisplay}</div>`;
                         date++;
                     }
@@ -500,16 +514,21 @@
 
         function updateSummaryBox() {
             let totalOT = 0, quarterlyOT = 0, totalLate = 0, leaves = [], clTaken = 0, elTaken = 0, hplTaken = 0, specialTaken = 0, presentDays = 0;
+            let nextMonthTotalOT = 0;
             const prevMonth = (currentMonth === 0 ? 11 : currentMonth - 1);
             const prevYear = currentMonth === 0 ? 2024 : 2025;
             const otStartDate = new Date(prevYear, prevMonth, 20);
             const otEndDate = new Date(2025, currentMonth, 19);
+            const nextMonthStart = new Date(2025, currentMonth, 20);
+            const nextMonthEnd = new Date(2025, currentMonth + 1, 19);
 
             const quarter = Math.floor(currentMonth / 3);
             const quarterStartMonth = quarter * 3;
             const quarterEndMonth = quarterStartMonth + 2;
             const quarterStart = new Date(2025, quarterStartMonth - 1, 20);
             const quarterEnd = new Date(2025, quarterEndMonth, 19);
+
+            let hasNextMonthEntries = false;
 
             for (let dateStr in attendanceData) {
                 const date = new Date(dateStr);
@@ -519,13 +538,19 @@
                 if (date >= quarterStart && date <= quarterEnd) {
                     if (attendanceData[dateStr].ot) quarterlyOT += parseFloat(attendanceData[dateStr].ot);
                 }
+                if (date >= nextMonthStart && date <= nextMonthEnd) {
+                    if (attendanceData[dateStr].ot) {
+                        nextMonthTotalOT += parseFloat(attendanceData[dateStr].ot);
+                        hasNextMonthEntries = true;
+                    }
+                }
                 if (date >= new Date(2025, currentMonth, 1) && date <= new Date(2025, currentMonth + 1, 0)) {
                     if (attendanceData[dateStr].leave) {
                         const deduction = attendanceData[dateStr].halfDay === 'Yes' ? 0.5 : 1;
                         if (attendanceData[dateStr].leave === 'CL') clTaken += deduction;
-                        if (attendanceData[dateStr].leave === 'EL') elTaken += deduction;
-                        if (attendanceData[dateStr].leave === 'HPL') hplTaken += deduction * 2;
-                        if (attendanceData[dateStr].leave === 'Special') specialTaken += deduction;
+                        else if (attendanceData[dateStr].leave === 'EL') elTaken += deduction;
+                        else if (attendanceData[dateStr].leave === 'HPL') hplTaken += deduction * 2;
+                        else if (attendanceData[dateStr].leave === 'Special') specialTaken += deduction;
                         leaves.push(`${dateStr}: ${attendanceData[dateStr].leave}${attendanceData[dateStr].halfDay === 'Yes' ? ' (Half)' : ''}`);
                     } else if (attendanceData[dateStr].inPunch && attendanceData[dateStr].outPunch) {
                         presentDays += 1;
@@ -537,9 +562,17 @@
             }
             const otRemaining = 75 - quarterlyOT;
             const otRemainingDisplay = otRemaining >= 0 ? `(-${otRemaining.toFixed(2)}hr)` : `(+${Math.abs(otRemaining).toFixed(2)}hr)`;
-            document.getElementById('summary-box').innerHTML = `
-                <p>Total OT: ${totalOT.toFixed(2)} hrs</p>
-                <p>Quarterly OT: ${quarterlyOT.toFixed(2)} hrs <span class="ot-remaining">${otRemainingDisplay}</span></p>
+            
+            let summaryHTML = `
+                <p>Total OT: ${formatTimeFromHours(totalOT)} hrs</p>
+                <p>Quarterly OT: ${formatTimeFromHours(quarterlyOT)} hrs <span class="ot-remaining">${otRemainingDisplay}</span></p>
+            `;
+            
+            if (hasNextMonthEntries) {
+                summaryHTML += `<p>Next Month Total OT: ${formatTimeFromHours(nextMonthTotalOT)} hrs</p>`;
+            }
+            
+            summaryHTML += `
                 <p>Late: ${totalLate} min</p>
                 <p>Leaves: ${leaves.length ? leaves.join(', ') : 'None'}</p>
                 <p>CL: ${employeeData.cl.toFixed(1)} (${clTaken})</p>
@@ -548,6 +581,8 @@
                 <p>Special: ${employeeData.special} (${specialTaken})</p>
                 <p>Total Present Days: ${presentDays}</p>
             `;
+            
+            document.getElementById('summary-box').innerHTML = summaryHTML;
         }
 
         function applyHolidayLeaveRule() {
@@ -592,7 +627,7 @@
                 </div>
                 <div class="settings-row">
                     <label for="ot">OT:</label>
-                    <input type="number" id="ot" step="0.5" value="${data.ot || 0}">
+                    <input type="text" id="ot" value="${formatTimeFromHours(data.ot)}" placeholder="H:MM">
                 </div>
                 <div class="settings-row">
                     <label for="leave">Leave:</label>
@@ -653,7 +688,7 @@
         function saveAttendance(dateStr) {
             const inPunch = document.getElementById('inPunch').value;
             const outPunch = document.getElementById('outPunch').value;
-            const ot = document.getElementById('ot').value;
+            const ot = parseTimeToHours(document.getElementById('ot').value);
             const leave = document.getElementById('leave').value;
             const halfDay = document.getElementById('halfDay').value;
             const shift = document.getElementById('shift').value;
@@ -793,7 +828,7 @@
                         inTime: data.inPunch || '',
                         outTime: data.outPunch || '',
                         leave: leaveStr,
-                        ot: data.ot ? `${data.ot} hrs` : '0',
+                        ot: data.ot ? `${formatTimeFromHours(data.ot)} hrs` : '0',
                         isHoliday: isHol,
                         leaveType: leaveType
                     });
@@ -805,18 +840,14 @@
                     month: `${monthName} 2025`,
                     table: tableData,
                     totalLeave: totalLeave.toFixed(1),
-                    totalOT: totalOT.toFixed(2),
+                    totalOT: formatTimeFromHours(totalOT),
                     totalPresent: totalPresent
                 };
 
-                // Encode data and redirect to atnpdf.html using openchrome://
                 const encodedData = encodeURIComponent(JSON.stringify(pdfData));
                 const redirectUrl = `openchrome://vishnuputhur.github.io/cslv2/atnpdf.html?data=${encodedData}`;
                 
-                // Log for debugging
                 console.log('Triggering Chrome with URL:', redirectUrl);
-
-                // Perform redirect to open Chrome
                 window.location.href = redirectUrl;
             } catch (error) {
                 console.error('Error in generateMonthlyPDF:', error);
