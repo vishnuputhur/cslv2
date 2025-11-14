@@ -383,8 +383,8 @@
     <h1>CSL Image Resize Tool</h1>
 
     <div class="box">
-      <label>CSL Code Number (4 digits):</label>
-      <input type="text" id="codeInput" maxlength="4" placeholder="Example: 1234">
+      <label>CSL Code Number (up to 8 digits):</label>
+      <input type="text" id="codeInput" maxlength="8" placeholder="Example: 1234">
       <div id="codeError" class="error-msg"></div>
 
       <label>Select Image File:</label>
@@ -506,8 +506,8 @@
       currentCode = e.target.value.replace(/[^0-9]/g, '');
       codeInput.value = currentCode;
       
-      if (currentCode.length !== 4 && currentCode.length > 0) {
-        codeError.textContent = 'Please enter exactly 4 digits';
+      if (currentCode.length > 8) {
+        codeError.textContent = 'Please enter up to 8 digits';
         codeError.style.display = 'block';
         downloadBtn.disabled = true;
         cropBtn.disabled = true;
@@ -614,19 +614,16 @@
     }
 
     function updateDownloadButton() {
-      const hasValidCode = currentCode.length === 4;
+      const hasValidCode = currentCode.length > 0;
       const hasValidImage = resizedImageDataUrl !== '';
       downloadBtn.disabled = !(hasValidCode && hasValidImage);
       cropBtn.disabled = !hasValidImage;
     }
 
     function updateFileNameInfo() {
-      if (currentCode.length === 4) {
-        const fileName = `0000${currentCode}.jpg`;
-        fileNameInfo.innerHTML = `<strong>File name:</strong> ${fileName}`;
-      } else {
-        fileNameInfo.innerHTML = `<strong>File name:</strong> 0000&lt;code&gt;.jpg`;
-      }
+      const paddedCode = currentCode.padStart(8, '0');
+      const fileName = `${paddedCode}.jpg`;
+      fileNameInfo.innerHTML = `<strong>File name:</strong> ${fileName}`;
     }
 
     // Crop functionality
@@ -814,7 +811,7 @@
     // Download functionality - FIXED with proper error messages
     downloadBtn.addEventListener('click', function() {
       // Check if code is entered
-      if (!currentCode || currentCode.length !== 4) {
+      if (!currentCode || currentCode.length === 0) {
         alert('pls enter code no first');
         codeInput.focus();
         return;
@@ -828,8 +825,8 @@
 
       trackEvent('Image', 'Download', 'Image downloaded');
 
-      // File name generation: 4 zeros + code + .jpg
-      const fileName = `0000${currentCode}.jpg`;
+      // File name generation: pad code to 8 digits + .jpg
+      const fileName = currentCode.padStart(8, '0') + '.jpg';
       
       // Use canvas.toBlob for better mobile support
       canvas.toBlob(function(blob) {
