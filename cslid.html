@@ -89,6 +89,44 @@
       display: block;
     }
 
+    /* Custom file input styling for better mobile compatibility */
+    .file-input-container {
+      position: relative;
+      width: 70%;
+      margin: 0 auto;
+    }
+
+    .file-input-label {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      font-size: 14px;
+      background-color: #1E3A5F;
+      color: white;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      text-align: center;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .file-input {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .file-name {
+      font-size: 12px;
+      color: #1E3A5F;
+      margin-top: 5px;
+      text-align: center;
+    }
+
     .error-msg {
       color: #8B0000;
       font-size: 13px;
@@ -162,29 +200,16 @@
       font-weight: bold;
     }
 
-    .link-btn {
-      margin-top: 15px;
-      padding: 12px 16px;
-      font-size: 14px;
-      background-color: #28a745;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      width: 80%;
-      text-decoration: none;
-      display: inline-block;
-    }
-
     .instruction-box {
       background-color: #fff3cd;
       color: #856404;
-      padding: 12px;
-      border-radius: 6px;
+      padding: 15px;
+      border-radius: 8px;
       margin-top: 15px;
       font-size: 13px;
       text-align: left;
       border: 1px solid #ffeaa7;
+      line-height: 1.4;
     }
 
     .instruction-box strong {
@@ -192,6 +217,42 @@
       text-align: center;
       margin-bottom: 8px;
       font-size: 14px;
+      color: #856404;
+    }
+
+    .csl-link-box {
+      background-color: #e7f3ff;
+      color: #1E3A5F;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 15px;
+      font-size: 13px;
+      text-align: center;
+      border: 1px solid #b3d9ff;
+      line-height: 1.4;
+    }
+
+    .csl-link-box strong {
+      display: block;
+      text-align: center;
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: #1E3A5F;
+    }
+
+    .link-btn {
+      margin-top: 10px;
+      padding: 10px 16px;
+      font-size: 14px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+      text-decoration: none;
+      display: inline-block;
+      font-weight: bold;
     }
 
     /* Crop Modal Styles */
@@ -274,16 +335,21 @@
 
     .zoom-controls {
       margin: 10px 0;
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
     .zoom-controls button {
       padding: 8px 12px;
-      margin: 0 5px;
       background-color: #1E3A5F;
       color: white;
       border: none;
       border-radius: 4px;
       cursor: pointer;
+      font-size: 12px;
+      min-width: 80px;
     }
 
     .footer {
@@ -322,7 +388,11 @@
       <div id="codeError" class="error-msg"></div>
 
       <label>Select Image File:</label>
-      <input type="file" id="imageInput" accept="image/*">
+      <div class="file-input-container">
+        <label for="imageInput" class="file-input-label">Choose Image</label>
+        <input type="file" id="imageInput" class="file-input" accept="image/*">
+        <div id="fileName" class="file-name"></div>
+      </div>
       <div id="fileError" class="error-msg"></div>
     </div>
 
@@ -332,17 +402,20 @@
       <br>
       <div id="fileNameInfo"></div>
       <button id="cropBtn" class="crop-btn" disabled>Crop Image</button>
-      <button id="downloadBtn" class="copy-btn" disabled>Download Resized Image</button>
+      <button id="downloadBtn" class="copy-btn">Download Resized Image</button>
       
-      <a href="https://apps.cochinshipyard.in:446/idcardrenewal/login.jsp" target="_blank" class="link-btn">
-        CSL ID Card Updation Link
-      </a>
-      
-      <div class="instruction-box">
-        <strong>Important Instructions:</strong>
-        When uploading the image in the next page, DO NOT upload directly from gallery. 
-        Click the three dots (⋮) in the corner, browse to your Downloads folder, 
-        and select the file you just downloaded.
+      <!-- New CSL Link Box -->
+      <div class="csl-link-box">
+        <strong>📋 Important Instructions</strong>
+        <div style="text-align: left; margin-bottom: 10px;">
+           When uploading the image in the next page, DO NOT upload directly from gallery. Click the three dots (⋮) in the corner, browse to your Downloads folder, and select the file you just downloaded.
+        </div>
+        <div style="text-align: left; margin-bottom: 15px;">
+           CSL ന്റെ പേജിൽ ഫോട്ടോ അപ്‌ലോഡ് ചെയ്യുമ്പോൾ ഗാലറിയിൽ നിന്ന് നേരെ ഫോട്ടോ അപ്‌ലോഡ് ചെയ്യരുത്. files കാണുന്ന പേജിന്റെ മുകളിൽ ഉള്ള മൂന്ന് ഡോട്ടുകൾ (⋮) ക്ലിക്ക് ചെയ്ത്, browes എന്ന option എടുത്തു ഡൗൺലോഡ്സ് ഫോൾഡറിലേക്ക് പോയി, ഇപ്പോൾ ഡൗൺലോഡ് ചെയ്ത ഫയൽ തിരഞ്ഞെടുക്കുക.
+        </div>
+        <a href="https://apps.cochinshipyard.in:446/idcardrenewal/login.jsp" target="_blank" class="link-btn">
+          CSL ID Card Updation Link
+        </a>
       </div>
     </div>
 
@@ -396,6 +469,7 @@
     const downloadBtn = document.getElementById('downloadBtn');
     const cropBtn = document.getElementById('cropBtn');
     const fileNameInfo = document.getElementById('fileNameInfo');
+    const fileNameDisplay = document.getElementById('fileName');
     const codeError = document.getElementById('codeError');
     const fileError = document.getElementById('fileError');
     const ctx = canvas.getContext('2d');
@@ -445,10 +519,11 @@
       updateFileNameInfo();
     });
 
-    // Image processing
+    // Enhanced file input for mobile compatibility
     imageInput.addEventListener('change', function(e) {
       const file = e.target.files[0];
       fileError.style.display = 'none';
+      fileNameDisplay.textContent = '';
       
       if (!file) {
         previewDiv.style.display = 'none';
@@ -457,8 +532,12 @@
         return;
       }
       
+      // Show selected file name
+      fileNameDisplay.textContent = `Selected: ${file.name}`;
+      
       // Check file type
-      if (!file.type.match('image.*')) {
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      if (!validTypes.includes(file.type)) {
         fileError.textContent = 'Please select a valid image file (JPEG, PNG, etc.)!';
         fileError.style.display = 'block';
         previewDiv.style.display = 'none';
@@ -519,6 +598,12 @@
       reader.readAsDataURL(file);
     });
 
+    // Alternative click handler for mobile devices
+    document.querySelector('.file-input-label').addEventListener('click', function(e) {
+      // This ensures the file input is triggered even on problematic mobile devices
+      imageInput.click();
+    });
+
     function processImage(img) {
       // Canvas-ൽ ഇമേജ് വരയ്ക്കുക (150×200)
       ctx.clearRect(0, 0, 150, 200);
@@ -546,6 +631,10 @@
 
     // Crop functionality
     cropBtn.addEventListener('click', function() {
+      if (!resizedImageDataUrl) {
+        alert('Please upload an image first!');
+        return;
+      }
       trackEvent('Image', 'Crop', 'Crop button clicked');
       openCropModal();
     });
@@ -722,15 +811,18 @@
       cropModal.style.display = 'none';
     });
 
-    // Download functionality - FIXED for mobile compatibility
+    // Download functionality - FIXED with proper error messages
     downloadBtn.addEventListener('click', function() {
-      if (currentCode.length !== 4) {
-        alert('Please enter a valid 4-digit CSL code!');
+      // Check if code is entered
+      if (!currentCode || currentCode.length !== 4) {
+        alert('pls enter code no first');
+        codeInput.focus();
         return;
       }
 
-      if (!canvas || canvas.width === 0) {
-        alert('Please upload an image first!');
+      // Check if image is uploaded
+      if (!resizedImageDataUrl) {
+        alert('Please upload and process an image before downloading!');
         return;
       }
 
@@ -741,20 +833,32 @@
       
       // Use canvas.toBlob for better mobile support
       canvas.toBlob(function(blob) {
+        if (!blob) {
+          alert('Failed to create image. Please try again.');
+          return;
+        }
+        
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.download = fileName;
         link.href = url;
         link.style.display = 'none';
         document.body.appendChild(link);
-        link.click();
+        
+        // Trigger download
+        try {
+          link.click();
+          // Show success message
+          setTimeout(() => {
+            alert(`✅ Image downloaded successfully as:\n${fileName}\n\nCheck your Downloads folder!`);
+          }, 300);
+        } catch (error) {
+          console.error('Download error:', error);
+          alert('❌ Download failed. Please try again.');
+        }
+        
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
-        
-        // Optional: Show success message
-        setTimeout(() => {
-          alert(`Image downloaded as ${fileName}. Check your Downloads folder!`);
-        }, 500);
       }, 'image/jpeg', 0.9);
     });
 
