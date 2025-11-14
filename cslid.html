@@ -149,6 +149,19 @@
       cursor: not-allowed;
     }
 
+    .crop-btn {
+      margin-top: 10px;
+      padding: 10px 16px;
+      font-size: 14px;
+      background-color: #ffc107;
+      color: #1E3A5F;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 70%;
+      font-weight: bold;
+    }
+
     .link-btn {
       margin-top: 15px;
       padding: 12px 16px;
@@ -179,6 +192,89 @@
       text-align: center;
       margin-bottom: 8px;
       font-size: 14px;
+    }
+
+    /* Crop Modal Styles */
+    .crop-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .crop-container {
+      background-color: #F5E6C4;
+      padding: 20px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .crop-canvas-container {
+      position: relative;
+      margin: 15px 0;
+      border: 2px solid #1E3A5F;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    #cropCanvas {
+      max-width: 100%;
+      display: block;
+    }
+
+    .crop-area {
+      position: absolute;
+      border: 2px dashed #ff0000;
+      background-color: rgba(255, 0, 0, 0.1);
+      cursor: move;
+    }
+
+    .crop-controls {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 15px;
+      gap: 10px;
+    }
+
+    .crop-controls button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      flex: 1;
+    }
+
+    #applyCrop {
+      background-color: #28a745;
+      color: white;
+    }
+
+    #cancelCrop {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .zoom-controls {
+      margin: 10px 0;
+    }
+
+    .zoom-controls button {
+      padding: 8px 12px;
+      margin: 0 5px;
+      background-color: #1E3A5F;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
     }
 
     .footer {
@@ -226,6 +322,7 @@
       <canvas id="resizedCanvas" width="150" height="200"></canvas>
       <br>
       <div id="fileNameInfo"></div>
+      <button id="cropBtn" class="crop-btn" disabled>Crop Image</button>
       <button id="downloadBtn" class="copy-btn" disabled>Download Resized Image</button>
       
       <a href="https://apps.cochinshipyard.in:446/idcardrenewal/login.jsp" target="_blank" class="link-btn">
@@ -240,24 +337,79 @@
       </div>
     </div>
 
+    <!-- Crop Modal -->
+    <div id="cropModal" class="crop-modal">
+      <div class="crop-container">
+        <h3 style="color: #1E3A5F; margin-bottom: 15px;">Crop Your Image</h3>
+        
+        <div class="crop-canvas-container">
+          <canvas id="cropCanvas"></canvas>
+          <div id="cropArea" class="crop-area" style="display: none;"></div>
+        </div>
+
+        <div class="zoom-controls">
+          <button id="zoomIn">Zoom In +</button>
+          <button id="zoomOut">Zoom Out -</button>
+          <button id="resetZoom">Reset Zoom</button>
+        </div>
+
+        <div class="crop-controls">
+          <button id="cancelCrop">Cancel</button>
+          <button id="applyCrop">Apply Crop</button>
+        </div>
+      </div>
+    </div>
+
     <div class="bottom-space"></div>
   </div>
 
   <div class="footer">Powered by VT@Soft © 2025 | Version 1.0</div>
 
   <script>
+    // Google Analytics Event Tracking
+    function trackEvent(category, action, label) {
+      if (typeof gtag !== 'undefined') {
+        gtag('event', action, {
+          'event_category': category,
+          'event_label': label
+        });
+      }
+    }
+
     const codeInput = document.getElementById('codeInput');
     const imageInput = document.getElementById('imageInput');
     const previewDiv = document.getElementById('preview');
     const canvas = document.getElementById('resizedCanvas');
     const downloadBtn = document.getElementById('downloadBtn');
+    const cropBtn = document.getElementById('cropBtn');
     const fileNameInfo = document.getElementById('fileNameInfo');
     const codeError = document.getElementById('codeError');
     const fileError = document.getElementById('fileError');
     const ctx = canvas.getContext('2d');
 
+    // Crop elements
+    const cropModal = document.getElementById('cropModal');
+    const cropCanvas = document.getElementById('cropCanvas');
+    const cropArea = document.getElementById('cropArea');
+    const cropCtx = cropCanvas.getContext('2d');
+    const zoomInBtn = document.getElementById('zoomIn');
+    const zoomOutBtn = document.getElementById('zoomOut');
+    const resetZoomBtn = document.getElementById('resetZoom');
+    const applyCropBtn = document.getElementById('applyCrop');
+    const cancelCropBtn = document.getElementById('cancelCrop');
+
     let currentCode = '';
     let resizedImageDataUrl = '';
+    let originalImage = null;
+    let scale = 1;
+    let offsetX = 0;
+    let offsetY = 0;
+    let isDragging = false;
+    let dragStartX = 0;
+    let dragStartY = 0;
+    let cropStartX = 0;
+    let cropStartY = 0;
+    let isResizing = false;
 
     // CSL code validation
     codeInput.addEventListener('input', function(e) {
@@ -268,6 +420,7 @@
         codeError.textContent = 'Please enter exactly 4 digits';
         codeError.style.display = 'block';
         downloadBtn.disabled = true;
+        cropBtn.disabled = true;
       } else {
         codeError.style.display = 'none';
         updateDownloadButton();
@@ -284,6 +437,7 @@
       if (!file) {
         previewDiv.style.display = 'none';
         downloadBtn.disabled = true;
+        cropBtn.disabled = true;
         return;
       }
       
@@ -292,20 +446,19 @@
         fileError.style.display = 'block';
         previewDiv.style.display = 'none';
         downloadBtn.disabled = true;
+        cropBtn.disabled = true;
         return;
       }
+
+      trackEvent('Image', 'Upload', 'File selected');
 
       const reader = new FileReader();
       
       reader.onload = function(event) {
         const img = new Image();
         img.onload = function() {
-          // Canvas-ൽ ഇമേജ് വരയ്ക്കുക (150×200)
-          ctx.clearRect(0, 0, 150, 200);
-          ctx.drawImage(img, 0, 0, 150, 200);
-          
-          // Resized image data URL സംഭരിക്കുക
-          resizedImageDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+          originalImage = img;
+          processImage(img);
           
           previewDiv.style.display = 'block';
           updateDownloadButton();
@@ -322,15 +475,26 @@
         fileError.style.display = 'block';
         previewDiv.style.display = 'none';
         downloadBtn.disabled = true;
+        cropBtn.disabled = true;
       };
       
       reader.readAsDataURL(file);
     });
 
+    function processImage(img) {
+      // Canvas-ൽ ഇമേജ് വരയ്ക്കുക (150×200)
+      ctx.clearRect(0, 0, 150, 200);
+      ctx.drawImage(img, 0, 0, 150, 200);
+      
+      // Resized image data URL സംഭരിക്കുക
+      resizedImageDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+    }
+
     function updateDownloadButton() {
       const hasValidCode = currentCode.length === 4;
       const hasValidImage = resizedImageDataUrl !== '';
       downloadBtn.disabled = !(hasValidCode && hasValidImage);
+      cropBtn.disabled = !hasValidImage;
     }
 
     function updateFileNameInfo() {
@@ -342,11 +506,166 @@
       }
     }
 
+    // Crop functionality
+    cropBtn.addEventListener('click', function() {
+      trackEvent('Image', 'Crop', 'Crop button clicked');
+      openCropModal();
+    });
+
+    function openCropModal() {
+      if (!originalImage) return;
+
+      // Reset zoom and position
+      scale = 1;
+      offsetX = 0;
+      offsetY = 0;
+
+      // Set crop canvas size
+      cropCanvas.width = 300;
+      cropCanvas.height = 400;
+
+      drawCropImage();
+      setupCropArea();
+
+      cropModal.style.display = 'flex';
+    }
+
+    function drawCropImage() {
+      cropCtx.clearRect(0, 0, cropCanvas.width, cropCanvas.height);
+      cropCtx.save();
+      cropCtx.translate(offsetX, offsetY);
+      cropCtx.scale(scale, scale);
+      cropCtx.drawImage(originalImage, 0, 0);
+      cropCtx.restore();
+    }
+
+    function setupCropArea() {
+      const cropWidth = 150 * scale;
+      const cropHeight = 200 * scale;
+      const centerX = (cropCanvas.width - cropWidth) / 2;
+      const centerY = (cropCanvas.height - cropHeight) / 2;
+
+      cropArea.style.width = cropWidth + 'px';
+      cropArea.style.height = cropHeight + 'px';
+      cropArea.style.left = centerX + 'px';
+      cropArea.style.top = centerY + 'px';
+      cropArea.style.display = 'block';
+
+      cropStartX = centerX;
+      cropStartY = centerY;
+    }
+
+    // Zoom controls
+    zoomInBtn.addEventListener('click', function() {
+      scale *= 1.2;
+      drawCropImage();
+      setupCropArea();
+    });
+
+    zoomOutBtn.addEventListener('click', function() {
+      scale /= 1.2;
+      if (scale < 0.1) scale = 0.1;
+      drawCropImage();
+      setupCropArea();
+    });
+
+    resetZoomBtn.addEventListener('click', function() {
+      scale = 1;
+      offsetX = 0;
+      offsetY = 0;
+      drawCropImage();
+      setupCropArea();
+    });
+
+    // Crop area dragging
+    cropArea.addEventListener('mousedown', startDrag);
+    cropArea.addEventListener('touchstart', startDrag);
+
+    function startDrag(e) {
+      e.preventDefault();
+      isDragging = true;
+      const clientX = e.clientX || e.touches[0].clientX;
+      const clientY = e.clientY || e.touches[0].clientY;
+      dragStartX = clientX - cropStartX;
+      dragStartY = clientY - cropStartY;
+    }
+
+    document.addEventListener('mousemove', drag);
+    document.addEventListener('touchmove', drag);
+
+    function drag(e) {
+      if (!isDragging) return;
+      e.preventDefault();
+      const clientX = e.clientX || e.touches[0].clientX;
+      const clientY = e.clientY || e.touches[0].clientY;
+      
+      cropStartX = clientX - dragStartX;
+      cropStartY = clientY - dragStartY;
+
+      // Boundary checks
+      const maxX = cropCanvas.width - parseFloat(cropArea.style.width);
+      const maxY = cropCanvas.height - parseFloat(cropArea.style.height);
+      
+      cropStartX = Math.max(0, Math.min(cropStartX, maxX));
+      cropStartY = Math.max(0, Math.min(cropStartY, maxY));
+
+      cropArea.style.left = cropStartX + 'px';
+      cropArea.style.top = cropStartY + 'px';
+    }
+
+    document.addEventListener('mouseup', stopDrag);
+    document.addEventListener('touchend', stopDrag);
+
+    function stopDrag() {
+      isDragging = false;
+    }
+
+    // Apply crop
+    applyCropBtn.addEventListener('click', function() {
+      trackEvent('Image', 'Crop', 'Crop applied');
+      
+      const cropX = (cropStartX - offsetX) / scale;
+      const cropY = (cropStartY - offsetY) / scale;
+      const cropWidth = 150 / scale;
+      const cropHeight = 200 / scale;
+
+      // Create temporary canvas for cropping
+      const tempCanvas = document.createElement('canvas');
+      const tempCtx = tempCanvas.getContext('2d');
+      tempCanvas.width = 150;
+      tempCanvas.height = 200;
+
+      // Draw cropped area to temp canvas
+      tempCtx.drawImage(
+        originalImage,
+        cropX, cropY, cropWidth, cropHeight,
+        0, 0, 150, 200
+      );
+
+      // Update main canvas with cropped image
+      ctx.clearRect(0, 0, 150, 200);
+      ctx.drawImage(tempCanvas, 0, 0);
+
+      // Update resized image data URL
+      resizedImageDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+
+      cropModal.style.display = 'none';
+    });
+
+    // Cancel crop
+    cancelCropBtn.addEventListener('click', function() {
+      trackEvent('Image', 'Crop', 'Crop cancelled');
+      cropModal.style.display = 'none';
+    });
+
+    // Download functionality
     downloadBtn.addEventListener('click', function() {
       if (currentCode.length !== 4 || !resizedImageDataUrl) {
         alert('Please provide both CSL code and image!');
         return;
       }
+
+      trackEvent('Image', 'Download', 'Image downloaded');
 
       // File name generation: 4 zeros + code + .jpg
       const fileName = `0000${currentCode}.jpg`;
@@ -367,6 +686,9 @@
         e.preventDefault();
       }
     });
+
+    // Track page view
+    trackEvent('Page', 'View', 'CSL Image Resize Tool');
   </script>
 
 </body>
