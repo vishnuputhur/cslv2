@@ -673,11 +673,14 @@
       const cropAreaLeft = 75;  // Center of 300px container minus half of 150px crop area
       const cropAreaTop = 100;  // Center of 400px container minus half of 200px crop area
       
+      // Compute actual scale factor from original to canvas
+      const actualScale = imageWidth / originalImage.width;
+      
       // Calculate the source coordinates in the original image
-      const sourceX = (cropAreaLeft - imageX) / scale;
-      const sourceY = (cropAreaTop - imageY) / scale;
-      const sourceWidth = 150 / scale;
-      const sourceHeight = 200 / scale;
+      const sourceX = (cropAreaLeft - imageX) / actualScale;
+      const sourceY = (cropAreaTop - imageY) / actualScale;
+      const sourceWidth = 150 / actualScale;
+      const sourceHeight = 200 / actualScale;
 
       console.log('Crop coordinates:', sourceX, sourceY, sourceWidth, sourceHeight);
 
