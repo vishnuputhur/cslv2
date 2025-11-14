@@ -363,7 +363,7 @@
         </div>
 
         <div style="color: #1E3A5F; font-size: 12px; margin: 10px 0;">
-          Drag the red box to select crop area
+          Drag the image to position it within the red crop box
         </div>
 
         <div class="crop-controls">
@@ -457,8 +457,9 @@
         return;
       }
       
+      // Check file type
       if (!file.type.match('image.*')) {
-        fileError.textContent = 'Please select a valid image file!';
+        fileError.textContent = 'Please select a valid image file (JPEG, PNG, etc.)!';
         fileError.style.display = 'block';
         previewDiv.style.display = 'none';
         downloadBtn.disabled = true;
@@ -473,6 +474,8 @@
       reader.onload = function(event) {
         const img = new Image();
         img.onload = function() {
+          console.log('Image loaded:', img.width, 'x', img.height);
+          
           // Check if image is too small
           if (img.width < MIN_WIDTH || img.height < MIN_HEIGHT) {
             fileError.textContent = `Image too small! Minimum size required: ${MIN_WIDTH}×${MIN_HEIGHT} pixels. Your image: ${img.width}×${img.height}`;
@@ -493,11 +496,20 @@
           // Auto-scroll to preview
           previewDiv.scrollIntoView({behavior: 'smooth'});
         };
+        
+        img.onerror = function() {
+          fileError.textContent = 'Failed to load image! Please try a different image file.';
+          fileError.style.display = 'block';
+          previewDiv.style.display = 'none';
+          downloadBtn.disabled = true;
+          cropBtn.disabled = true;
+        };
+        
         img.src = event.target.result;
       };
       
       reader.onerror = function() {
-        fileError.textContent = 'Failed to read file!';
+        fileError.textContent = 'Failed to read file! Please try a different image.';
         fileError.style.display = 'block';
         previewDiv.style.display = 'none';
         downloadBtn.disabled = true;
@@ -565,15 +577,17 @@
         // Image is wider
         imageWidth = containerWidth * scale;
         imageHeight = imageWidth / imgAspect;
-        imageX = 0;
+        imageX = (containerWidth - imageWidth) / 2;
         imageY = (containerHeight - imageHeight) / 2;
       } else {
         // Image is taller
         imageHeight = containerHeight * scale;
         imageWidth = imageHeight * imgAspect;
         imageX = (containerWidth - imageWidth) / 2;
-        imageY = 0;
+        imageY = (containerHeight - imageHeight) / 2;
       }
+      
+      console.log('Image position:', imageX, imageY, imageWidth, imageHeight);
     }
 
     function drawCropImage() {
@@ -610,14 +624,13 @@
       drawCropImage();
     });
 
-    // Crop area dragging
-    cropArea.addEventListener('mousedown', startDrag);
-    cropArea.addEventListener('touchstart', startDrag);
+    // Image dragging for positioning
+    cropCanvas.addEventListener('mousedown', startDrag);
+    cropCanvas.addEventListener('touchstart', startDrag);
 
     function startDrag(e) {
       e.preventDefault();
       isDragging = true;
-      const rect = cropArea.getBoundingClientRect();
       dragStartX = e.clientX || e.touches[0].clientX;
       dragStartY = e.clientY || e.touches[0].clientY;
     }
@@ -638,7 +651,7 @@
       dragStartX = clientX;
       dragStartY = clientY;
 
-      // Move the image (not the crop area)
+      // Move the image
       imageX += deltaX;
       imageY += deltaY;
 
@@ -652,25 +665,29 @@
       isDragging = false;
     }
 
-    // Apply crop
+    // Apply crop - FIXED VERSION
     applyCropBtn.addEventListener('click', function() {
       trackEvent('Image', 'Crop', 'Crop applied');
       
-      // Calculate the actual crop coordinates in the original image
-      const cropCanvasRect = cropCanvas.getBoundingClientRect();
-      const cropAreaRect = cropArea.getBoundingClientRect();
+      // Calculate crop coordinates relative to the displayed image
+      const cropAreaLeft = 75;  // Center of 300px container minus half of 150px crop area
+      const cropAreaTop = 100;  // Center of 400px container minus half of 200px crop area
       
-      // Calculate the relative position of crop area within the displayed image
-      const relativeX = (cropAreaRect.left - cropCanvasRect.left - imageX) / scale;
-      const relativeY = (cropAreaRect.top - cropCanvasRect.top - imageY) / scale;
-      const cropWidth = 150 / scale;
-      const cropHeight = 200 / scale;
+      // Calculate the source coordinates in the original image
+      const sourceX = (cropAreaLeft - imageX) / scale;
+      const sourceY = (cropAreaTop - imageY) / scale;
+      const sourceWidth = 150 / scale;
+      const sourceHeight = 200 / scale;
+
+      console.log('Crop coordinates:', sourceX, sourceY, sourceWidth, sourceHeight);
 
       // Ensure crop coordinates are within image bounds
-      const boundedX = Math.max(0, Math.min(relativeX, originalImage.width - cropWidth));
-      const boundedY = Math.max(0, Math.min(relativeY, originalImage.height - cropHeight));
-      const boundedWidth = Math.min(cropWidth, originalImage.width - boundedX);
-      const boundedHeight = Math.min(cropHeight, originalImage.height - boundedY);
+      const boundedX = Math.max(0, Math.min(sourceX, originalImage.width - sourceWidth));
+      const boundedY = Math.max(0, Math.min(sourceY, originalImage.height - sourceHeight));
+      const boundedWidth = Math.min(sourceWidth, originalImage.width - boundedX);
+      const boundedHeight = Math.min(sourceHeight, originalImage.height - boundedY);
+
+      console.log('Bounded coordinates:', boundedX, boundedY, boundedWidth, boundedHeight);
 
       // Create temporary canvas for cropping
       const tempCanvas = document.createElement('canvas');
@@ -678,7 +695,8 @@
       tempCanvas.width = 150;
       tempCanvas.height = 200;
 
-      // Draw cropped area to temp canvas
+      // Clear and draw cropped area
+      tempCtx.clearRect(0, 0, 150, 200);
       tempCtx.drawImage(
         originalImage,
         boundedX, boundedY, boundedWidth, boundedHeight,
@@ -693,6 +711,11 @@
       resizedImageDataUrl = canvas.toDataURL('image/jpeg', 0.9);
 
       cropModal.style.display = 'none';
+      
+      // Show success message
+      setTimeout(() => {
+        alert('Crop applied successfully!');
+      }, 100);
     });
 
     // Cancel crop
