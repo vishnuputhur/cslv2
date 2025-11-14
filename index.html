@@ -359,6 +359,7 @@
         <a href="wl.html">Water Level Calculator</a>
         <a href="bmi.html">BMI & Age Calculator</a>
         <a href="exp.html">Expense Diary</a>
+        <a href="cslid.html" onclick="openInExternalBrowser(event)">ID Card Photo Resize</a>
         <a href="contact.html">Contact Us</a>
         <a href="about.html">About</a>
     </div>
@@ -377,6 +378,7 @@
                     <li>DA added 0.3% (49%)</li>
                     <li>CSL Calender Note Added</li>
                     <li>Salary calculation updates</li>
+                    <li><span class="blink">New</span> ID Card Photo Resize Tool Added</li>
                 </ul>
             </div>
         </div>
@@ -395,6 +397,10 @@
                     <span class="quick-link-icon">📝</span>
                     <span class="quick-link-label">Attendance Register</span>
                 </a>
+                <a href="cslid.html" class="quick-link-button" onclick="openInExternalBrowser(event)">
+                    <span class="quick-link-icon">🖼️</span>
+                    <span class="quick-link-label">ID Card Photo Resize</span>
+                </a>
             </div>
         </div>
         <div class="content-box">
@@ -404,6 +410,14 @@
                 Total Calculation Done: <strong>51.5K</strong><br>
                 Total User: <strong>653</strong><br>
                 <span style="font-size: 0.6rem;">Last update 25-10-2025</span>
+            </p>
+        </div>
+        <div class="content-box">
+            <h2>CSL ID Card Photo Resize Tool</h2>
+            <p>
+                Easily resize your photos to 150×200 pixels for CSL ID card renewal. 
+                Enter your 4-digit code and upload any image to get perfectly formatted photo.<br>
+                <a href="cslid.html" onclick="openInExternalBrowser(event)">Click to Open in Browser</a>
             </p>
         </div>
         <div class="content-box">
@@ -464,6 +478,18 @@
         © 2025 CSL Calculations | VTSoft | All Rights Reserved
     </footer>
     <script>
+        // External browser function
+        function openInExternalBrowser(event) {
+            event.preventDefault();
+            const url = 'https://vishnuputhur.github.io/cslv2/cslid.html';
+            // Try to open in external browser
+            window.open(url, '_system');
+            // Fallback for browsers that don't support _system
+            setTimeout(function() {
+                window.open(url, '_blank');
+            }, 500);
+        }
+
         // Holiday data
         const holidays = [
             { date: new Date(new Date().getFullYear(), 2, 31), name: "Id-ul-Fitr (Ramzan)" },
