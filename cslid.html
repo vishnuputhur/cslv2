@@ -75,10 +75,9 @@
       font-weight: bold;
       text-align: center;
       margin: 10px 0 5px 0;
-      cursor: pointer;
     }
 
-    .box input[type="text"], .box select {
+    .box input, .box select {
       width: 70%;
       padding: 10px;
       font-size: 14px;
@@ -88,26 +87,6 @@
       text-align: center;
       margin: 0 auto;
       display: block;
-    }
-
-    .file-label {
-      display: block;
-      width: 70%;
-      padding: 10px;
-      font-size: 14px;
-      background-color: #1E3A5F;
-      color: white;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      box-sizing: border-box;
-      text-align: center;
-      margin: 0 auto;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .file-input {
-      display: none;
     }
 
     .error-msg {
@@ -342,9 +321,8 @@
       <input type="text" id="codeInput" maxlength="4" placeholder="Example: 1234">
       <div id="codeError" class="error-msg"></div>
 
-      <label for="imageInput">Select Image File:</label>
-      <label for="imageInput" class="file-label">Choose Image</label>
-      <input type="file" id="imageInput" class="file-input" accept="image/*">
+      <label>Select Image File:</label>
+      <input type="file" id="imageInput" accept="image/*">
       <div id="fileError" class="error-msg"></div>
     </div>
 
