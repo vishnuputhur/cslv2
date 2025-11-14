@@ -359,7 +359,7 @@
         <a href="wl.html">Water Level Calculator</a>
         <a href="bmi.html">BMI & Age Calculator</a>
         <a href="exp.html">Expense Diary</a>
-        <a href="cslid.html" onclick="openInExternalBrowser(event)">ID Card Photo Resize</a>
+        <a href="#" onclick="openCSLIDInChrome()">ID Card Photo Resize</a>
         <a href="contact.html">Contact Us</a>
         <a href="about.html">About</a>
     </div>
@@ -397,7 +397,7 @@
                     <span class="quick-link-icon">📝</span>
                     <span class="quick-link-label">Attendance Register</span>
                 </a>
-                <a href="cslid.html" class="quick-link-button" onclick="openInExternalBrowser(event)">
+                <a href="#" class="quick-link-button" onclick="openCSLIDInChrome()">
                     <span class="quick-link-icon">🖼️</span>
                     <span class="quick-link-label">ID Card Photo Resize</span>
                 </a>
@@ -417,7 +417,7 @@
             <p>
                 Easily resize your photos to 150×200 pixels for CSL ID card renewal. 
                 Enter your 4-digit code and upload any image to get perfectly formatted photo.<br>
-                <a href="cslid.html" onclick="openInExternalBrowser(event)">Click to Open in Browser</a>
+                <a href="#" onclick="openCSLIDInChrome()">Click to Open in Chrome Browser</a>
             </p>
         </div>
         <div class="content-box">
@@ -478,16 +478,25 @@
         © 2025 CSL Calculations | VTSoft | All Rights Reserved
     </footer>
     <script>
-        // External browser function
-        function openInExternalBrowser(event) {
-            event.preventDefault();
-            const url = 'https://vishnuputhur.github.io/cslv2/cslid.html';
-            // Try to open in external browser
-            window.open(url, '_system');
-            // Fallback for browsers that don't support _system
+        // Open CSL ID page in Chrome browser
+        function openCSLIDInChrome() {
+            const redirectUrl = `openchrome://vishnuputhur.github.io/cslv2/cslid.html`;
+            
+            // Try to open in Chrome using openchrome protocol
+            window.location.href = redirectUrl;
+            
+            // Fallback - if openchrome doesn't work, try regular methods
             setTimeout(function() {
-                window.open(url, '_blank');
-            }, 500);
+                // Try window.open
+                const newWindow = window.open('https://vishnuputhur.github.io/cslv2/cslid.html', '_system');
+                
+                // If that doesn't work, try location.href
+                if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+                    window.location.href = 'https://vishnuputhur.github.io/cslv2/cslid.html';
+                }
+            }, 1000);
+            
+            return false;
         }
 
         // Holiday data
