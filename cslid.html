@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CSL Image Resize Tool</title>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-21G1BS7S3S"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-21G1BS7S3S');
+  </script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      background-color: #1E3A5F;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #F5E6C4;
+      text-align: center;
+      padding-top: 90px; /* Space for fixed header */
+    }
+
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+      background-color: #1E3A5F; /* Match body background */
+    }
+
+    .top-img {
+      width: 100%;
+      max-height: 160px; /* Original size */
+      object-fit: cover;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 10px 0 5px 0;
+      color: #ffffff;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 0 15px;
+    }
+
+    .box {
+      background-color: #F5E6C4;
+      color: #1E3A5F;
+      width: 93%;
+      max-width: 350px;
+      margin: 10px auto 30px auto;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 4px 4px 12px rgba(0,0,0,0.3);
+      box-sizing: border-box;
+      overflow: auto;
+    }
+
+    .box label {
+      display: block;
+      font-size: 15px;
+      font-weight: bold;
+      text-align: center;
+      margin: 10px 0 5px 0;
+    }
+
+    .box input, .box select {
+      width: 70%;
+      padding: 10px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+      text-align: center;
+      margin: 0 auto;
+      display: block;
+    }
+
+    .error-msg {
+      color: #8B0000;
+      font-size: 13px;
+      text-align: center;
+      margin-top: 5px;
+      display: none;
+    }
+
+    /* SEPARATE STYLING FOR PREVIEW CARD */
+    #preview {
+      background-color: #F5E6C4;
+      color: #1E3A5F;
+      width: 93%;
+      max-width: 350px;
+      margin: 10px auto 30px auto;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 4px 4px 12px rgba(0,0,0,0.3);
+      box-sizing: border-box;
+      display: none;
+    }
+
+    #preview h3 {
+      text-align: center;
+      font-size: 16px;
+      font-weight: bold;
+      margin: 10px 0;
+      color: #1E3A5F;
+    }
+
+    #resizedCanvas {
+      border: 1px solid #ccc;
+      margin: 10px auto;
+      display: block;
+    }
+
+    #fileNameInfo {
+      font-size: 14px;
+      text-align: center;
+      margin: 10px 0;
+      color: #1E3A5F;
+    }
+
+    .copy-btn {
+      margin-top: 10px;
+      padding: 10px 16px;
+      font-size: 14px;
+      background-color: #1E3A5F;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 70%;
+    }
+
+    .copy-btn:disabled {
+      background-color: #6c757d;
+      cursor: not-allowed;
+    }
+
+    .link-btn {
+      margin-top: 15px;
+      padding: 12px 16px;
+      font-size: 14px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 80%;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .instruction-box {
+      background-color: #fff3cd;
+      color: #856404;
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 15px;
+      font-size: 13px;
+      text-align: left;
+      border: 1px solid #ffeaa7;
+    }
+
+    .instruction-box strong {
+      display: block;
+      text-align: center;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .footer {
+      font-size: 14px;
+      padding: 15px;
+      background-color: #0F2A45;
+      width: 100%;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      z-index: 100;
+      text-align: center;
+    }
+
+    .bottom-space {
+      height: 120px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Fixed header with image -->
+  <div class="header">
+    <a href="index.html">
+      <img src="https://i.ibb.co/BYPxNBB/Screenshot-20250529-141452-CSL-Calculations.jpg" alt="CSL Calculator" class="top-img">
+    </a>
+  </div>
+
+  <div class="container">
+    <!-- Heading outside the box -->
+    <h1>CSL Image Resize Tool</h1>
+
+    <div class="box">
+      <label>CSL Code Number (4 digits):</label>
+      <input type="text" id="codeInput" maxlength="4" placeholder="Example: 1234">
+      <div id="codeError" class="error-msg"></div>
+
+      <label>Select Image File:</label>
+      <input type="file" id="imageInput" accept="image/*">
+      <div id="fileError" class="error-msg"></div>
+    </div>
+
+    <div id="preview">
+      <h3>Resized Image (150×200 pixels):</h3>
+      <canvas id="resizedCanvas" width="150" height="200"></canvas>
+      <br>
+      <div id="fileNameInfo"></div>
+      <button id="downloadBtn" class="copy-btn" disabled>Download Resized Image</button>
+      
+      <a href="https://apps.cochinshipyard.in:446/idcardrenewal/login.jsp" target="_blank" class="link-btn">
+        CSL ID Card Updation Link
+      </a>
+      
+      <div class="instruction-box">
+        <strong>Important Instructions:</strong>
+        When uploading the image in the next page, DO NOT upload directly from gallery. 
+        Click the three dots (⋮) in the corner, browse to your Downloads folder, 
+        and select the file you just downloaded.
+      </div>
+    </div>
+
+    <div class="bottom-space"></div>
+  </div>
+
+  <div class="footer">Powered by VT@Soft © 2025 | Version 1.0</div>
+
+  <script>
+    const codeInput = document.getElementById('codeInput');
+    const imageInput = document.getElementById('imageInput');
+    const previewDiv = document.getElementById('preview');
+    const canvas = document.getElementById('resizedCanvas');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const fileNameInfo = document.getElementById('fileNameInfo');
+    const codeError = document.getElementById('codeError');
+    const fileError = document.getElementById('fileError');
+    const ctx = canvas.getContext('2d');
+
+    let currentCode = '';
+    let resizedImageDataUrl = '';
+
+    // CSL code validation
+    codeInput.addEventListener('input', function(e) {
+      currentCode = e.target.value.replace(/[^0-9]/g, '');
+      codeInput.value = currentCode;
+      
+      if (currentCode.length !== 4 && currentCode.length > 0) {
+        codeError.textContent = 'Please enter exactly 4 digits';
+        codeError.style.display = 'block';
+        downloadBtn.disabled = true;
+      } else {
+        codeError.style.display = 'none';
+        updateDownloadButton();
+      }
+      
+      updateFileNameInfo();
+    });
+
+    // Image processing
+    imageInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      fileError.style.display = 'none';
+      
+      if (!file) {
+        previewDiv.style.display = 'none';
+        downloadBtn.disabled = true;
+        return;
+      }
+      
+      if (!file.type.match('image.*')) {
+        fileError.textContent = 'Please select a valid image file!';
+        fileError.style.display = 'block';
+        previewDiv.style.display = 'none';
+        downloadBtn.disabled = true;
+        return;
+      }
+
+      const reader = new FileReader();
+      
+      reader.onload = function(event) {
+        const img = new Image();
+        img.onload = function() {
+          // Canvas-ൽ ഇമേജ് വരയ്ക്കുക (150×200)
+          ctx.clearRect(0, 0, 150, 200);
+          ctx.drawImage(img, 0, 0, 150, 200);
+          
+          // Resized image data URL സംഭരിക്കുക
+          resizedImageDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+          
+          previewDiv.style.display = 'block';
+          updateDownloadButton();
+          updateFileNameInfo();
+          
+          // Auto-scroll to preview
+          previewDiv.scrollIntoView({behavior: 'smooth'});
+        };
+        img.src = event.target.result;
+      };
+      
+      reader.onerror = function() {
+        fileError.textContent = 'Failed to read file!';
+        fileError.style.display = 'block';
+        previewDiv.style.display = 'none';
+        downloadBtn.disabled = true;
+      };
+      
+      reader.readAsDataURL(file);
+    });
+
+    function updateDownloadButton() {
+      const hasValidCode = currentCode.length === 4;
+      const hasValidImage = resizedImageDataUrl !== '';
+      downloadBtn.disabled = !(hasValidCode && hasValidImage);
+    }
+
+    function updateFileNameInfo() {
+      if (currentCode.length === 4) {
+        const fileName = `0000${currentCode}.jpg`;
+        fileNameInfo.innerHTML = `<strong>File name:</strong> ${fileName}`;
+      } else {
+        fileNameInfo.innerHTML = `<strong>File name:</strong> 0000&lt;code&gt;.jpg`;
+      }
+    }
+
+    downloadBtn.addEventListener('click', function() {
+      if (currentCode.length !== 4 || !resizedImageDataUrl) {
+        alert('Please provide both CSL code and image!');
+        return;
+      }
+
+      // File name generation: 4 zeros + code + .jpg
+      const fileName = `0000${currentCode}.jpg`;
+      
+      // Download the image
+      const link = document.createElement('a');
+      link.download = fileName;
+      link.href = resizedImageDataUrl;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+
+    // Only allow numbers in code input
+    codeInput.addEventListener('keypress', function(e) {
+      const charCode = e.which ? e.which : e.keyCode;
+      if (charCode < 48 || charCode > 57) {
+        e.preventDefault();
+      }
+    });
+  </script>
+
+</body>
+</html>
