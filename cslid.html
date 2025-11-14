@@ -75,9 +75,10 @@
       font-weight: bold;
       text-align: center;
       margin: 10px 0 5px 0;
+      cursor: pointer;
     }
 
-    .box input, .box select {
+    .box input[type="text"], .box select {
       width: 70%;
       padding: 10px;
       font-size: 14px;
@@ -87,6 +88,26 @@
       text-align: center;
       margin: 0 auto;
       display: block;
+    }
+
+    .file-label {
+      display: inline-block;
+      width: 70%;
+      padding: 10px;
+      font-size: 14px;
+      background-color: #1E3A5F;
+      color: white;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+      text-align: center;
+      margin: 0 auto;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .file-input {
+      display: none;
     }
 
     .error-msg {
@@ -321,8 +342,9 @@
       <input type="text" id="codeInput" maxlength="4" placeholder="Example: 1234">
       <div id="codeError" class="error-msg"></div>
 
-      <label>Select Image File:</label>
-      <input type="file" id="imageInput" accept="image/*">
+      <label for="imageInput">Select Image File:</label>
+      <label for="imageInput" class="file-label">Choose Image</label>
+      <input type="file" id="imageInput" class="file-input" accept="image/*">
       <div id="fileError" class="error-msg"></div>
     </div>
 
@@ -727,10 +749,15 @@
       cropModal.style.display = 'none';
     });
 
-    // Download functionality
+    // Download functionality - FIXED for mobile compatibility
     downloadBtn.addEventListener('click', function() {
-      if (currentCode.length !== 4 || !resizedImageDataUrl) {
-        alert('Please provide both CSL code and image!');
+      if (currentCode.length !== 4) {
+        alert('Please enter a valid 4-digit CSL code!');
+        return;
+      }
+
+      if (!canvas || canvas.width === 0) {
+        alert('Please upload an image first!');
         return;
       }
 
@@ -739,13 +766,23 @@
       // File name generation: 4 zeros + code + .jpg
       const fileName = `0000${currentCode}.jpg`;
       
-      // Download the image
-      const link = document.createElement('a');
-      link.download = fileName;
-      link.href = resizedImageDataUrl;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      // Use canvas.toBlob for better mobile support
+      canvas.toBlob(function(blob) {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.download = fileName;
+        link.href = url;
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        // Optional: Show success message
+        setTimeout(() => {
+          alert(`Image downloaded as ${fileName}. Check your Downloads folder!`);
+        }, 500);
+      }, 'image/jpeg', 0.9);
     });
 
     // Only allow numbers in code input
