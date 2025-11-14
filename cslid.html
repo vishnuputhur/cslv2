@@ -223,10 +223,14 @@
       border: 2px solid #1E3A5F;
       border-radius: 8px;
       overflow: hidden;
+      width: 300px;
+      height: 400px;
+      margin: 15px auto;
     }
 
     #cropCanvas {
       max-width: 100%;
+      max-height: 100%;
       display: block;
     }
 
@@ -235,6 +239,11 @@
       border: 2px dashed #ff0000;
       background-color: rgba(255, 0, 0, 0.1);
       cursor: move;
+      width: 150px;
+      height: 200px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
     }
 
     .crop-controls {
@@ -344,13 +353,17 @@
         
         <div class="crop-canvas-container">
           <canvas id="cropCanvas"></canvas>
-          <div id="cropArea" class="crop-area" style="display: none;"></div>
+          <div id="cropArea" class="crop-area"></div>
         </div>
 
         <div class="zoom-controls">
           <button id="zoomIn">Zoom In +</button>
           <button id="zoomOut">Zoom Out -</button>
           <button id="resetZoom">Reset Zoom</button>
+        </div>
+
+        <div style="color: #1E3A5F; font-size: 12px; margin: 10px 0;">
+          Drag the red box to select crop area
         </div>
 
         <div class="crop-controls">
@@ -402,14 +415,17 @@
     let resizedImageDataUrl = '';
     let originalImage = null;
     let scale = 1;
-    let offsetX = 0;
-    let offsetY = 0;
+    let imageX = 0;
+    let imageY = 0;
+    let imageWidth = 0;
+    let imageHeight = 0;
     let isDragging = false;
     let dragStartX = 0;
     let dragStartY = 0;
-    let cropStartX = 0;
-    let cropStartY = 0;
-    let isResizing = false;
+
+    // Minimum image size check
+    const MIN_WIDTH = 150;
+    const MIN_HEIGHT = 200;
 
     // CSL code validation
     codeInput.addEventListener('input', function(e) {
@@ -457,6 +473,16 @@
       reader.onload = function(event) {
         const img = new Image();
         img.onload = function() {
+          // Check if image is too small
+          if (img.width < MIN_WIDTH || img.height < MIN_HEIGHT) {
+            fileError.textContent = `Image too small! Minimum size required: ${MIN_WIDTH}×${MIN_HEIGHT} pixels. Your image: ${img.width}×${img.height}`;
+            fileError.style.display = 'block';
+            previewDiv.style.display = 'none';
+            downloadBtn.disabled = true;
+            cropBtn.disabled = true;
+            return;
+          }
+
           originalImage = img;
           processImage(img);
           
@@ -517,8 +543,7 @@
 
       // Reset zoom and position
       scale = 1;
-      offsetX = 0;
-      offsetY = 0;
+      calculateImagePosition();
 
       // Set crop canvas size
       cropCanvas.width = 300;
@@ -530,51 +555,59 @@
       cropModal.style.display = 'flex';
     }
 
+    function calculateImagePosition() {
+      const containerWidth = 300;
+      const containerHeight = 400;
+      const imgAspect = originalImage.width / originalImage.height;
+      const containerAspect = containerWidth / containerHeight;
+
+      if (imgAspect > containerAspect) {
+        // Image is wider
+        imageWidth = containerWidth * scale;
+        imageHeight = imageWidth / imgAspect;
+        imageX = 0;
+        imageY = (containerHeight - imageHeight) / 2;
+      } else {
+        // Image is taller
+        imageHeight = containerHeight * scale;
+        imageWidth = imageHeight * imgAspect;
+        imageX = (containerWidth - imageWidth) / 2;
+        imageY = 0;
+      }
+    }
+
     function drawCropImage() {
       cropCtx.clearRect(0, 0, cropCanvas.width, cropCanvas.height);
-      cropCtx.save();
-      cropCtx.translate(offsetX, offsetY);
-      cropCtx.scale(scale, scale);
-      cropCtx.drawImage(originalImage, 0, 0);
-      cropCtx.restore();
+      cropCtx.drawImage(originalImage, imageX, imageY, imageWidth, imageHeight);
     }
 
     function setupCropArea() {
-      const cropWidth = 150 * scale;
-      const cropHeight = 200 * scale;
-      const centerX = (cropCanvas.width - cropWidth) / 2;
-      const centerY = (cropCanvas.height - cropHeight) / 2;
-
-      cropArea.style.width = cropWidth + 'px';
-      cropArea.style.height = cropHeight + 'px';
-      cropArea.style.left = centerX + 'px';
-      cropArea.style.top = centerY + 'px';
-      cropArea.style.display = 'block';
-
-      cropStartX = centerX;
-      cropStartY = centerY;
+      // Crop area is fixed at 150x200 in the center
+      cropArea.style.width = '150px';
+      cropArea.style.height = '200px';
+      cropArea.style.left = '50%';
+      cropArea.style.top = '50%';
+      cropArea.style.transform = 'translate(-50%, -50%)';
     }
 
-    // Zoom controls
+    // Zoom controls - only zoom the image, not the crop area
     zoomInBtn.addEventListener('click', function() {
       scale *= 1.2;
+      calculateImagePosition();
       drawCropImage();
-      setupCropArea();
     });
 
     zoomOutBtn.addEventListener('click', function() {
       scale /= 1.2;
       if (scale < 0.1) scale = 0.1;
+      calculateImagePosition();
       drawCropImage();
-      setupCropArea();
     });
 
     resetZoomBtn.addEventListener('click', function() {
       scale = 1;
-      offsetX = 0;
-      offsetY = 0;
+      calculateImagePosition();
       drawCropImage();
-      setupCropArea();
     });
 
     // Crop area dragging
@@ -584,10 +617,9 @@
     function startDrag(e) {
       e.preventDefault();
       isDragging = true;
-      const clientX = e.clientX || e.touches[0].clientX;
-      const clientY = e.clientY || e.touches[0].clientY;
-      dragStartX = clientX - cropStartX;
-      dragStartY = clientY - cropStartY;
+      const rect = cropArea.getBoundingClientRect();
+      dragStartX = e.clientX || e.touches[0].clientX;
+      dragStartY = e.clientY || e.touches[0].clientY;
     }
 
     document.addEventListener('mousemove', drag);
@@ -596,21 +628,21 @@
     function drag(e) {
       if (!isDragging) return;
       e.preventDefault();
+      
       const clientX = e.clientX || e.touches[0].clientX;
       const clientY = e.clientY || e.touches[0].clientY;
       
-      cropStartX = clientX - dragStartX;
-      cropStartY = clientY - dragStartY;
-
-      // Boundary checks
-      const maxX = cropCanvas.width - parseFloat(cropArea.style.width);
-      const maxY = cropCanvas.height - parseFloat(cropArea.style.height);
+      const deltaX = clientX - dragStartX;
+      const deltaY = clientY - dragStartY;
       
-      cropStartX = Math.max(0, Math.min(cropStartX, maxX));
-      cropStartY = Math.max(0, Math.min(cropStartY, maxY));
+      dragStartX = clientX;
+      dragStartY = clientY;
 
-      cropArea.style.left = cropStartX + 'px';
-      cropArea.style.top = cropStartY + 'px';
+      // Move the image (not the crop area)
+      imageX += deltaX;
+      imageY += deltaY;
+
+      drawCropImage();
     }
 
     document.addEventListener('mouseup', stopDrag);
@@ -624,10 +656,21 @@
     applyCropBtn.addEventListener('click', function() {
       trackEvent('Image', 'Crop', 'Crop applied');
       
-      const cropX = (cropStartX - offsetX) / scale;
-      const cropY = (cropStartY - offsetY) / scale;
+      // Calculate the actual crop coordinates in the original image
+      const cropCanvasRect = cropCanvas.getBoundingClientRect();
+      const cropAreaRect = cropArea.getBoundingClientRect();
+      
+      // Calculate the relative position of crop area within the displayed image
+      const relativeX = (cropAreaRect.left - cropCanvasRect.left - imageX) / scale;
+      const relativeY = (cropAreaRect.top - cropCanvasRect.top - imageY) / scale;
       const cropWidth = 150 / scale;
       const cropHeight = 200 / scale;
+
+      // Ensure crop coordinates are within image bounds
+      const boundedX = Math.max(0, Math.min(relativeX, originalImage.width - cropWidth));
+      const boundedY = Math.max(0, Math.min(relativeY, originalImage.height - cropHeight));
+      const boundedWidth = Math.min(cropWidth, originalImage.width - boundedX);
+      const boundedHeight = Math.min(cropHeight, originalImage.height - boundedY);
 
       // Create temporary canvas for cropping
       const tempCanvas = document.createElement('canvas');
@@ -638,7 +681,7 @@
       // Draw cropped area to temp canvas
       tempCtx.drawImage(
         originalImage,
-        cropX, cropY, cropWidth, cropHeight,
+        boundedX, boundedY, boundedWidth, boundedHeight,
         0, 0, 150, 200
       );
 
