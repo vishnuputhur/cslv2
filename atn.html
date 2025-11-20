@@ -398,8 +398,8 @@
         const shiftTimes = {
             "A2": { start: "07:00", end: "15:20", grace: "07:05" },
             "B2": { start: "13:40", end: "22:00", grace: "13:45" },
-            "C2": { start: "08:00", end: "16:15", grace: "08:05" },
-            "C1": { start: "06:00", end: "14:00", grace: "06:05" }
+            "C2": { start: "06:00", end: "14:00", grace: "06:05" },
+            "C1": { start: "08:00", end: "16:20", grace: "08:05" }
         };
 
         const today = new Date();
@@ -518,33 +518,44 @@
             let nextMonthTotalOT = 0;
             const prevMonth = (currentMonth === 0 ? 11 : currentMonth - 1);
             const prevYear = currentMonth === 0 ? 2024 : 2025;
+            
+            // 19-ാം തീയതി ഉൾപ്പെടുത്താൻ end date 20-ാം തീയതി ആക്കുക
             const otStartDate = new Date(prevYear, prevMonth, 20);
-            const otEndDate = new Date(2025, currentMonth, 19);
+            const otEndDate = new Date(2025, currentMonth, 20); // 19-നു പകരം 20 ആക്കുക
+            
             const nextMonthStart = new Date(2025, currentMonth, 20);
-            const nextMonthEnd = new Date(2025, currentMonth + 1, 19);
+            const nextMonthEnd = new Date(2025, currentMonth + 1, 20); // 19-നു പകരം 20 ആക്കുക
 
             const quarter = Math.floor(currentMonth / 3);
             const quarterStartMonth = quarter * 3;
             const quarterEndMonth = quarterStartMonth + 2;
             const quarterStart = new Date(2025, quarterStartMonth - 1, 20);
-            const quarterEnd = new Date(2025, quarterEndMonth, 19);
+            const quarterEnd = new Date(2025, quarterEndMonth, 20); // 19-നു പകരം 20 ആക്കുക
 
             let hasNextMonthEntries = false;
 
             for (let dateStr in attendanceData) {
                 const date = new Date(dateStr);
-                if (date >= otStartDate && date <= otEndDate) {
+                
+                // 20-നു മുമ്പുള്ള തീയതികൾ (20 to 19 inclusive)
+                if (date >= otStartDate && date < otEndDate) {
                     if (attendanceData[dateStr].ot) totalOT += parseFloat(attendanceData[dateStr].ot);
                 }
-                if (date >= quarterStart && date <= quarterEnd) {
+                
+                // Quarterly calculation - 19-ാം തീയതി ഉൾപ്പെടുത്താൻ
+                if (date >= quarterStart && date < quarterEnd) {
                     if (attendanceData[dateStr].ot) quarterlyOT += parseFloat(attendanceData[dateStr].ot);
                 }
-                if (date >= nextMonthStart && date <= nextMonthEnd) {
+                
+                // Next month calculation - 19-ാം തീയതി ഉൾപ്പെടുത്താൻ
+                if (date >= nextMonthStart && date < nextMonthEnd) {
                     if (attendanceData[dateStr].ot) {
                         nextMonthTotalOT += parseFloat(attendanceData[dateStr].ot);
                         hasNextMonthEntries = true;
                     }
                 }
+                
+                // Current month statistics
                 if (date >= new Date(2025, currentMonth, 1) && date <= new Date(2025, currentMonth + 1, 0)) {
                     if (attendanceData[dateStr].leave) {
                         const deduction = attendanceData[dateStr].halfDay === 'Yes' ? 0.5 : 1;
@@ -561,6 +572,7 @@
                     }
                 }
             }
+            
             const otRemaining = 75 - quarterlyOT;
             const otRemainingDisplay = otRemaining >= 0 ? `(-${otRemaining.toFixed(2)}hr)` : `(+${Math.abs(otRemaining).toFixed(2)}hr)`;
             
