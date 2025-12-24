@@ -1,248 +1,563 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-21G1BS7S3S"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CSL Income Tax Calculator</title>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-21G1BS7S3S"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-21G1BS7S3S');
+  </script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      background-color: #1E3A5F;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #F5E6C4;
+      text-align: center;
+      padding-top: 90px;
+    }
 
-  gtag('config', 'G-21G1BS7S3S');
-</script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Income Tax Calculator</title>
-    <style>
-        body {
-            background-color: #004400; /* Dark Green */
-            color: white;
-            font-family: Arial, sans-serif;
-            text-align: center;
-        }
-        .header-box {
-            background-color: #F5F5DC; /* Warm White */
-            color: #00008b; /* Dark Blue */
-            padding: 10px;
-            border-radius: 10px;
-            display: inline-block;
-        }
-        .header-box h1 {
-            margin: 0;
-            font-size: 24px;
-        }
-        .header-box .byline {
-            font-size: 12px;
-            color: #00008b; /* Dark Blue */
-            font-weight: bold; /* Bold font */
-            display: block;
-        }
-        h2 {
-            font-size: 20px;
-            margin-bottom: 5px;
-        }
-        .subheading {
-            font-size: 14px;
-            color: #cccccc;
-            margin-bottom: 15px;
-        }
-        .container {
-            width: 80%;
-            margin: 0 auto;
-            background-color: #F5F5DC; /* Warm White */
-            color: black;
-            padding: 20px;
-            border-radius: 10px;
-        }
-        .field {
-            margin: 15px 0;
-        }
-        input {
-            padding: 10px;
-            width: 90%;
-            border-radius: 5px;
-        }
-        button {
-            padding: 10px 20px;
-            background-color: green;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: darkgreen;
-        }
-        .result {
-            margin-top: 20px;
-            padding: 20px;
-            border: 2px solid yellow;
-            border-radius: 10px;
-        }
-        .taxableIncome {
-            font-size: 14px;
-            color: #cccccc;
-            margin-bottom: 5px;
-        }
-        .totalTax {
-            font-size: 18px;
-            margin-top: 10px;
-        }
-        .difference {
-            font-size: 20px;
-            font-weight: bold;
-            color: limegreen; /* Green font for Difference */
-        }
-        .recommendation {
-            color: red; /* Red font for Recommendation */
-            font-size: 22px;
-            font-weight: bold;
-            animation: blink 1s infinite;
-        }
-        @keyframes blink {
-            50% {
-                opacity: 0;
-            }
-        }
-        footer {
-            margin-top: 30px;
-            font-size: 14px;
-            color: #cccccc;
-        }
-        #popup {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-        #popupContent {
-            background-color: #F5F5DC; /* Warm White */
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            width: 80%;
-            max-width: 400px;
-        }
-        #popupContent p {
-            color: #00008b; /* Dark Blue */
-            font-weight: bold; /* Bold font */
-        }
-    </style>
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+      background-color: #1E3A5F;
+    }
+
+    .top-img {
+      width: 100%;
+      max-height: 160px;
+      object-fit: cover;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 10px 0 5px 0;
+      color: #ffffff;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 0 15px;
+    }
+
+    .box {
+      background-color: #F5E6C4;
+      color: #1E3A5F;
+      width: 93%;
+      max-width: 350px;
+      margin: 10px auto 20px auto;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 4px 4px 12px rgba(0,0,0,0.3);
+      box-sizing: border-box;
+      overflow: auto;
+    }
+
+    .box label {
+      display: block;
+      font-size: 15px;
+      font-weight: bold;
+      text-align: center;
+      margin: 15px 0 5px 0;
+    }
+
+    .input-note {
+      font-size: 11px;
+      color: #666;
+      text-align: center;
+      margin: 0 auto 10px auto;
+      font-style: italic;
+      width: 90%;
+      line-height: 1.3;
+    }
+
+    .box input, .box select {
+      width: 80%;
+      padding: 10px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+      text-align: center;
+      margin: 0 auto 5px auto;
+      display: block;
+    }
+
+    #result {
+      background-color: #F5E6C4;
+      color: #1E3A5F;
+      width: 93%;
+      max-width: 350px;
+      margin: 20px auto 20px auto;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 4px 4px 12px rgba(0,0,0,0.3);
+      box-sizing: border-box;
+      display: none;
+    }
+
+    #result p {
+      text-align: center;
+      font-size: 15px;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+
+    #result .taxable {
+      font-size: 18px;
+      color: #1E3A5F;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+
+    #result .total {
+      font-size: 27px;
+      color: #006400;
+      font-weight: bold;
+      margin: 15px 0;
+    }
+
+    #result .rebated {
+      font-size: 20px;
+      color: #8B0000;
+      text-decoration: line-through;
+      opacity: 0.6;
+      margin: 5px 0;
+    }
+
+    #result .rebate-info {
+      font-size: 14px;
+      color: #006400;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+
+    #result .disclaimer {
+      font-size: 12px;
+      color: #8B0000;
+      text-align: center;
+      margin-top: 20px;
+      font-weight: normal;
+      line-height: 1.4;
+    }
+
+    .details {
+      display: none;
+      background-color: #e8d9b8;
+      color: #1E3A5F;
+      width: 93%;
+      max-width: 350px;
+      margin: 10px auto 20px auto;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 4px 4px 8px rgba(0,0,0,0.2);
+      text-align: left;
+      font-size: 14px;
+    }
+
+    .details h3 {
+      text-align: center;
+      margin-bottom: 15px;
+      color: #1E3A5F;
+    }
+
+    .details ul {
+      padding-left: 20px;
+      margin: 10px 0;
+    }
+
+    .details li {
+      margin-bottom: 8px;
+    }
+
+    .details .slab {
+      font-weight: bold;
+      color: #0F2A45;
+    }
+
+    .details .calculation {
+      color: #8B0000;
+      margin-left: 10px;
+    }
+
+    .details .amount {
+      color: #006400;
+      font-weight: bold;
+    }
+
+    .details .marginal-relief {
+      color: #1E3A5F;
+      font-weight: bold;
+      background-color: #d4e6ff;
+      padding: 8px;
+      border-radius: 6px;
+      margin: 10px 0;
+    }
+
+    .btn {
+      margin-top: 15px;
+      padding: 10px 16px;
+      font-size: 14px;
+      background-color: #1E3A5F;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 80%;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .footer {
+      font-size: 14px;
+      padding: 15px;
+      background-color: #0F2A45;
+      width: 100%;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      z-index: 100;
+      text-align: center;
+    }
+
+    .bottom-space {
+      height: 120px;
+    }
+
+    .cess-info {
+      background-color: #f0e6cc;
+      padding: 8px;
+      border-radius: 6px;
+      margin: 10px 0;
+      border-left: 4px solid #1E3A5F;
+    }
+  </style>
 </head>
 <body>
-    <div id="popup">
-        <div id="popupContent">
-            <p>സാലറി സ്ലിപ് ന്റെ വലതു വശത്തുള്ള Gross Salary enter ചെയ്യുമ്പോൾ  മാർച്ച് വരെ നമുക്ക് ലഭിക്കാൻ സാധ്യത ഉള്ള ഓവർടൈം ന്റെ തുക കൂടി കൂട്ടി ചേർക്കണം. നിങ്ങൾ നിലവിൽ new സ്‌കിമിൽ ആണ് എങ്കിൽ സ്ലിപ്പിൽ chapter 6 ന്റെ കട്ടിങ് ഉണ്ടാവില്ല, അതു കണക്കു കൂട്ടി എടുക്കാൻ കഴിഞ്ഞില്ല എങ്കിൽ കഴിഞ്ഞ വർഷത്തെ സ്ലിപ് ൽ ഉള്ള തുക ചേർത്താൽ മതിയാവും. 
-<br>
-<br>
-NB: Standard deduction, Professional tax തുടങ്ങി കോമൺ ആയി വരുന്ന dedutions എല്ലാം ആപ്പിൽ ചെർത്തിട്ടുണ്ട്. അതു വീണ്ടും ചേർക്കരുത്.!</p>
-            <p>Click "OK" to start .</p>
-            <button onclick="closePopup()">OK</button>
-        </div>
-    </div>
-    <div class="header-box">
-        <h1>Income Tax Calculator</h1>
-    </div>
-    <h2>Compare Your Tax (2024-25)</h2>
-    <p class="subheading">Calculate and compare your tax liabilities under Old and New Tax Regimes</p>
-    <div class="container">
-        <div class="field">
-            <label for="grossSalary">Gross Salary <small>(സാലറി സ്ലിപ്പിൽ തന്നിരിക്കുന്നത്)</small>:</label><br>
-            <input type="number" id="grossSalary" placeholder="Enter your Gross Salary" required>
-        </div>
-        <div class="field">
-            <label for="deduction80c">AGG Chapter VI <small>(Max ₹1,50,000)</small>:</label><br>
-            <input type="number" id="deduction80c" placeholder="Enter 80C Deductions">
-        </div>
-        <div class="field">
-            <label for="homeLoan">Home Loan Interest <small>(Max ₹2,00,000)</small>:</label><br>
-            <input type="number" id="homeLoan" placeholder="Enter Home Loan Interest">
-        </div>
-        <div class="field">
-            <label for="nps">NPS Contributions <small>(Max ₹50,000)</small>:</label><br>
-            <input type="number" id="nps" placeholder="Enter NPS Contributions">
-        </div>
-        <div class="field">
-            <label for="otherDeductions">Other Deductions (HRA, Medical, etc):</label><br>
-            <input type="number" id="otherDeductions" placeholder="Enter Other Deductions">
-        </div>
-        <button onclick="calculateTax()">Compare My Tax</button>
-        <div id="result" class="result"></div>
-        <small>Disclaimer: Calculations are approximations and may vary slightly.</small>
-    </div>
-    <footer>
-        <p>VT@Soft</p>
-        <p>Copyright © 2025 | Version 1.0</p>
-    </footer>
 
-    <script>
-        function closePopup() {
-            document.getElementById('popup').style.display = 'none';
+  <div class="header">
+    <a href="index.html">
+      <img src="https://i.ibb.co/BYPxNBB/Screenshot-20250529-141452-CSL-Calculations.jpg" alt="CSL Calculator" class="top-img">
+    </a>
+  </div>
+
+  <div class="container">
+    <h1>Income Tax Calculator</h1>
+
+    <div class="box">
+      <label>Total Income from Salary Slip:</label>
+      <input type="number" id="totalIncome" min="0" placeholder="Enter amount in ₹">
+      <div class="input-note">"Total Income" shown on the right side of your salary slip</div>
+
+      <label>Which month's salary slip is this?</label>
+      <select id="salaryMonth">
+        <option value="4">April 2025</option>
+        <option value="5">May 2025</option>
+        <option value="6">June 2025</option>
+        <option value="7">July 2025</option>
+        <option value="8">August 2025</option>
+        <option value="9">September 2025</option>
+        <option value="10">October 2025</option>
+        <option value="11">November 2025</option>
+        <option value="12">December 2025</option>
+        <option value="1">January 2026</option>
+        <option value="2">February 2026</option>
+        <option value="3">March 2026</option>
+      </select>
+
+      <label>Average Monthly Overtime Amount (₹):</label>
+      <input type="number" id="overtime" min="0" placeholder="Approximate monthly OT" value="0">
+
+      <button id="calculate_btn" class="btn" onclick="calculateTax()">Calculate Tax</button>
+    </div>
+
+    <div id="result">
+      <p>Taxable Income: <span id="taxableIncome" class="taxable"></span></p>
+      <p>Calculated Tax: <span id="calcTaxAmount" class="rebated"></span></p>
+      <p id="rebateText" class="rebate-info"></p>
+      <p>Income Tax Payable: <span id="taxAmount" class="total"></span></p>
+      
+      <button class="btn" onclick="toggleDetails()">View Tax Details</button>
+      
+      <p class="disclaimer">Note: Calculated amount may vary based on actual overtime earnings, deductions, and other factors. This is an approximate calculation for New Tax Regime (AY 2026-27).</p>
+    </div>
+
+    <div id="details" class="details">
+      <h3>Detailed Tax Calculation</h3>
+      <div id="detailsContent"></div>
+      <button class="btn" onclick="toggleDetails()" style="margin-top: 15px;">Hide Details</button>
+    </div>
+
+    <div class="bottom-space"></div>
+  </div>
+
+  <div class="footer">Powered by VT@Soft © 2025 | Version 1.0</div>
+
+  <script>
+    // Set default month to previous month
+    function setDefaultMonth() {
+      const today = new Date();
+      let currentMonth = today.getMonth() + 1;
+      let previousMonth = currentMonth - 1;
+      
+      if (previousMonth === 0) previousMonth = 12;
+      
+      if (previousMonth >= 4 && previousMonth <= 12) {
+        document.getElementById('salaryMonth').value = previousMonth;
+      } else if (previousMonth >= 1 && previousMonth <= 3) {
+        document.getElementById('salaryMonth').value = previousMonth;
+      }
+    }
+
+    window.onload = setDefaultMonth;
+
+    function calculateTax() {
+      const totalIncome = parseFloat(document.getElementById('totalIncome').value) || 0;
+      const salaryMonth = parseInt(document.getElementById('salaryMonth').value);
+      const overtime = parseFloat(document.getElementById('overtime').value) || 0;
+      
+      if (totalIncome <= 0) {
+        alert("Please enter a valid Total Income amount");
+        return;
+      }
+      
+      // Calculate remaining months from selected month to March (inclusive)
+      // For November: remaining months = Dec, Jan, Feb, Mar = 4 months
+      let remainingMonths = 0;
+      
+      if (salaryMonth >= 4 && salaryMonth <= 11) {
+        // April to November
+        remainingMonths = 12 - salaryMonth + 3; // From salaryMonth+1 to March
+      } else if (salaryMonth === 12) {
+        // December
+        remainingMonths = 3; // Jan, Feb, Mar
+      } else {
+        // January to March
+        remainingMonths = 3 - salaryMonth;
+      }
+      
+      // Calculate projected overtime
+      const projectedOvertime = overtime * remainingMonths;
+      
+      // Calculate total taxable income
+      const taxableIncome = totalIncome + projectedOvertime;
+      
+      // New Tax Regime Slabs for AY 2026-27
+      let tax = 0;
+      let details = [];
+      let marginalRelief = 0;
+      
+      if (taxableIncome <= 400000) {
+        tax = 0;
+        details.push(`<span class="slab">Income up to ₹4,00,000:</span> <span class="amount">No tax</span>`);
+      } else if (taxableIncome <= 800000) {
+        tax = (taxableIncome - 400000) * 0.05;
+        details.push(`<span class="slab">First ₹4,00,000:</span> <span class="amount">No tax</span>`);
+        details.push(`<span class="slab">₹4,00,001 to ₹8,00,000 (${formatNumber(taxableIncome - 400000)}):</span> 5% = <span class="amount">₹${formatNumber(tax)}</span>`);
+      } else if (taxableIncome <= 1200000) {
+        tax = 20000 + (taxableIncome - 800000) * 0.10;
+        details.push(`<span class="slab">First ₹4,00,000:</span> <span class="amount">No tax</span>`);
+        details.push(`<span class="slab">₹4,00,001 to ₹8,00,000 (4,00,000):</span> 5% = <span class="amount">₹20,000</span>`);
+        details.push(`<span class="slab">₹8,00,001 to ₹12,00,000 (${formatNumber(taxableIncome - 800000)}):</span> 10% = <span class="amount">₹${formatNumber((taxableIncome - 800000) * 0.10)}</span>`);
+      } else if (taxableIncome <= 1359000) {
+        // Special slab for income between 12L and 13.59L - Marginal Relief
+        tax = taxableIncome - 1200000;
+        details.push(`<span class="slab">Income exceeds ₹12,00,000 but not more than ₹13,59,000:</span>`);
+        details.push(`<span class="slab">Excess amount (${formatNumber(taxableIncome - 1200000)}) fully taxed</span>`);
+        
+        // Apply Marginal Relief if applicable (excess amount taxed at 100% but capped)
+        if (taxableIncome > 1200000 && taxableIncome <= 1359000) {
+          const normalTax = calculateNormalTax(taxableIncome);
+          if (normalTax < tax) {
+            marginalRelief = tax - normalTax;
+            tax = normalTax;
+            details.push(`<div class="marginal-relief">Marginal Relief Applied: ₹${formatNumber(marginalRelief)}</div>`);
+          }
         }
-
-        function calculateTax() {
-            const grossSalary = parseFloat(document.getElementById('grossSalary').value);
-            const deduction80c = Math.min(parseFloat(document.getElementById('deduction80c').value || 0), 150000);
-            const homeLoan = Math.min(parseFloat(document.getElementById('homeLoan').value || 0), 200000);
-            const nps = Math.min(parseFloat(document.getElementById('nps').value || 0), 50000);
-            const otherDeductions = parseFloat(document.getElementById('otherDeductions').value || 0);
-
-            const standardDeductionOld = 57250;
-            const standardDeductionNew = 75000;
-
-            const totalDeductionsOld = standardDeductionOld + deduction80c + homeLoan + nps + otherDeductions;
-            const taxableIncomeOld = grossSalary - totalDeductionsOld;
-            const totalDeductionsNew = standardDeductionNew;
-            const taxableIncomeNew = grossSalary - totalDeductionsNew;
-
-            let oldTax = 0;
-            let newTax = 0;
-
-            if (taxableIncomeOld > 250000) {
-                if (taxableIncomeOld <= 500000) {
-                    oldTax = 0;
-                } else if (taxableIncomeOld <= 1000000) {
-                    oldTax = 12500 + (taxableIncomeOld - 500000) * 0.2;
-                } else {
-                    oldTax = 112500 + (taxableIncomeOld - 1000000) * 0.3;
-                }
-            }
-
-            if (taxableIncomeNew > 300000) {
-                if (taxableIncomeNew <= 700000) {
-                    newTax = 0;
-                } else if (taxableIncomeNew <= 1000000) {
-                    newTax = 20000 + (taxableIncomeNew - 700000) * 0.1;
-                } else {
-                    newTax = 80000 + (taxableIncomeNew - 1200000) * 0.2;
-                }
-            }
-
-            const cessOld = oldTax > 0 ? oldTax * 0.04 : 0;
-            const cessNew = newTax > 0 ? newTax * 0.04 : 0;
-
-            const totalTaxOld = oldTax + cessOld;
-            const totalTaxNew = newTax + cessNew;
-
-            const difference = Math.abs(totalTaxOld - totalTaxNew);
-            const betterRegime = totalTaxOld < totalTaxNew ? "Old Regime" : "New Regime";
-
-            document.getElementById('result').innerHTML = `
-                <p class="taxableIncome">Taxable Income (Old): ₹${taxableIncomeOld.toFixed(2)}</p>
-                <p class="taxableIncome">Taxable Income (New): ₹${taxableIncomeNew.toFixed(2)}</p>
-                <p class="totalTax">Total Old Tax: ₹${totalTaxOld.toFixed(2)}</p>
-                <p class="totalTax">Total New Tax: ₹${totalTaxNew.toFixed(2)}</p>
-                <p class="difference">Difference: ₹${difference.toFixed(2)}</p>
-                <p class="recommendation">${betterRegime} is Better!</p>
-            `;
+      } else {
+        // For income above 13.59L, use normal tax slabs
+        tax = calculateNormalTax(taxableIncome);
+        const normalTaxDetails = getNormalTaxDetails(taxableIncome);
+        details = details.concat(normalTaxDetails);
+      }
+      
+      // Add Health and Education Cess (4%)
+      const cess = tax * 0.04;
+      const totalTaxWithCess = tax + cess;
+      
+      // Apply Rebate u/s 87A (Rebate up to ₹60,000 for taxable income up to ₹12,00,000)
+      let finalTax = totalTaxWithCess;
+      let rebateApplied = 0;
+      let rebateMessage = "";
+      
+      if (taxableIncome <= 1200000) {
+        // Rebate is lower of: (a) ₹60,000 or (b) Total tax payable
+        rebateApplied = Math.min(60000, finalTax);
+        finalTax = finalTax - rebateApplied;
+        
+        if (rebateApplied > 0) {
+          rebateMessage = `Rebate u/s 87A Applied: ₹${formatNumber(rebateApplied)}`;
         }
-    </script>
+        
+        // Marginal relief for rebate: Tax after rebate should not exceed income above ₹12,00,000
+        // For income up to 12L, no marginal relief needed for rebate
+      }
+      
+      // Update results display
+      document.getElementById('taxableIncome').innerText = '₹' + formatNumber(Math.round(taxableIncome));
+      
+      if (rebateApplied > 0) {
+        document.getElementById('calcTaxAmount').innerText = '₹' + formatNumber(Math.round(totalTaxWithCess));
+        document.getElementById('calcTaxAmount').style.display = 'block';
+        document.getElementById('rebateText').innerText = rebateMessage;
+        document.getElementById('rebateText').style.display = 'block';
+      } else {
+        document.getElementById('calcTaxAmount').style.display = 'none';
+        document.getElementById('rebateText').style.display = 'none';
+      }
+      
+      document.getElementById('taxAmount').innerText = '₹' + formatNumber(Math.round(finalTax));
+      if (finalTax === 0) {
+        document.getElementById('taxAmount').style.color = '#006400';
+      }
+      
+      // Update details
+      let detailsHTML = `
+        <p><strong>Calculation Summary:</strong></p>
+        <p>Salary Income: ₹${formatNumber(totalIncome)}</p>
+        <p>Projected Overtime (${remainingMonths} months × ₹${formatNumber(overtime)}): ₹${formatNumber(projectedOvertime)}</p>
+        <p>Total Taxable Income: ₹${formatNumber(taxableIncome)}</p>
+        <p><strong>Tax Calculation (New Regime AY 2026-27):</strong></p>
+        <ul>`;
+      
+      details.forEach(detail => {
+        detailsHTML += `<li>${detail}</li>`;
+      });
+      
+      detailsHTML += `
+        </ul>
+        <div class="cess-info">
+          <p><strong>Cess Calculation:</strong></p>
+          <p>Basic Tax: ₹${formatNumber(Math.round(tax))}</p>
+          <p>Health & Education Cess (4%): ₹${formatNumber(Math.round(cess))}</p>
+          <p>Tax before Rebate: ₹${formatNumber(Math.round(totalTaxWithCess))}</p>
+        </div>`;
+      
+      if (rebateApplied > 0) {
+        detailsHTML += `
+          <div style="background-color: #d4ffd4; padding: 8px; border-radius: 6px; margin: 10px 0;">
+            <p><strong>Rebate u/s 87A:</strong></p>
+            <p>Maximum Rebate: ₹60,000 (for income up to ₹12,00,000)</p>
+            <p>Rebate Applied: ₹${formatNumber(Math.round(rebateApplied))}</p>
+            <p>${rebateMessage}</p>
+          </div>`;
+      }
+      
+      if (marginalRelief > 0) {
+        detailsHTML += `
+          <div style="background-color: #e6f7ff; padding: 8px; border-radius: 6px; margin: 10px 0;">
+            <p><strong>Marginal Relief Applied:</strong></p>
+            <p>Relief Amount: ₹${formatNumber(Math.round(marginalRelief))}</p>
+            <p>Tax reduced due to marginal relief provision</p>
+          </div>`;
+      }
+      
+      detailsHTML += `
+        <p><strong>Final Tax Payable: ₹${formatNumber(Math.round(finalTax))}</strong></p>
+        <p><em>Note: Assessment Year 2026-27 (Financial Year 2025-26), New Tax Regime</em></p>
+      `;
+      
+      document.getElementById('detailsContent').innerHTML = detailsHTML;
+      
+      // Show results
+      document.getElementById('result').style.display = 'block';
+      document.getElementById('result').scrollIntoView({behavior: 'smooth'});
+    }
+    
+    function calculateNormalTax(income) {
+      if (income <= 400000) return 0;
+      else if (income <= 800000) return (income - 400000) * 0.05;
+      else if (income <= 1200000) return 20000 + (income - 800000) * 0.10;
+      else if (income <= 1600000) return 60000 + (income - 1200000) * 0.15;
+      else if (income <= 2000000) return 120000 + (income - 1600000) * 0.20;
+      else if (income <= 2400000) return 200000 + (income - 2000000) * 0.25;
+      else return 300000 + (income - 2400000) * 0.30;
+    }
+    
+    function getNormalTaxDetails(income) {
+      let details = [];
+      
+      if (income <= 400000) {
+        details.push(`<span class="slab">Income up to ₹4,00,000:</span> <span class="amount">No tax</span>`);
+      } else if (income <= 800000) {
+        details.push(`<span class="slab">First ₹4,00,000:</span> <span class="amount">No tax</span>`);
+        details.push(`<span class="slab">₹4,00,001 to ₹8,00,000 (${formatNumber(income - 400000)}):</span> 5% = <span class="amount">₹${formatNumber((income - 400000) * 0.05)}</span>`);
+      } else if (income <= 1200000) {
+        details.push(`<span class="slab">First ₹4,00,000:</span> <span class="amount">No tax</span>`);
+        details.push(`<span class="slab">₹4,00,001 to ₹8,00,000 (4,00,000):</span> 5% = <span class="amount">₹20,000</span>`);
+        details.push(`<span class="slab">₹8,00,001 to ₹12,00,000 (${formatNumber(income - 800000)}):</span> 10% = <span class="amount">₹${formatNumber((income - 800000) * 0.10)}</span>`);
+      } else if (income <= 1600000) {
+        details.push(`<span class="slab">First ₹4,00,000:</span> <span class="amount">No tax</span>`);
+        details.push(`<span class="slab">₹4,00,001 to ₹8,00,000 (4,00,000):</span> 5% = <span class="amount">₹20,000</span>`);
+        details.push(`<span class="slab">₹8,00,001 to ₹12,00,000 (4,00,000):</span> 10% = <span class="amount">₹40,000</span>`);
+        details.push(`<span class="slab">₹12,00,001 to ₹16,00,000 (${formatNumber(income - 1200000)}):</span> 15% = <span class="amount">₹${formatNumber((income - 1200000) * 0.15)}</span>`);
+      } else if (income <= 2000000) {
+        details.push(`<span class="slab">First ₹4,00,000:</span> <span class="amount">No tax</span>`);
+        details.push(`<span class="slab">₹4,00,001 to ₹8,00,000 (4,00,000):</span> 5% = <span class="amount">₹20,000</span>`);
+        details.push(`<span class="slab">₹8,00,001 to ₹12,00,000 (4,00,000):</span> 10% = <span class="amount">₹40,000</span>`);
+        details.push(`<span class="slab">₹12,00,001 to ₹16,00,000 (4,00,000):</span> 15% = <span class="amount">₹60,000</span>`);
+        details.push(`<span class="slab">₹16,00,001 to ₹20,00,000 (${formatNumber(income - 1600000)}):</span> 20% = <span class="amount">₹${formatNumber((income - 1600000) * 0.20)}</span>`);
+      } else if (income <= 2400000) {
+        details.push(`<span class="slab">First ₹4,00,000:</span> <span class="amount">No tax</span>`);
+        details.push(`<span class="slab">₹4,00,001 to ₹8,00,000 (4,00,000):</span> 5% = <span class="amount">₹20,000</span>`);
+        details.push(`<span class="slab">₹8,00,001 to ₹12,00,000 (4,00,000):</span> 10% = <span class="amount">₹40,000</span>`);
+        details.push(`<span class="slab">₹12,00,001 to ₹16,00,000 (4,00,000):</span> 15% = <span class="amount">₹60,000</span>`);
+        details.push(`<span class="slab">₹16,00,001 to ₹20,00,000 (4,00,000):</span> 20% = <span class="amount">₹80,000</span>`);
+        details.push(`<span class="slab">₹20,00,001 to ₹24,00,000 (${formatNumber(income - 2000000)}):</span> 25% = <span class="amount">₹${formatNumber((income - 2000000) * 0.25)}</span>`);
+      } else {
+        details.push(`<span class="slab">First ₹4,00,000:</span> <span class="amount">No tax</span>`);
+        details.push(`<span class="slab">₹4,00,001 to ₹8,00,000 (4,00,000):</span> 5% = <span class="amount">₹20,000</span>`);
+        details.push(`<span class="slab">₹8,00,001 to ₹12,00,000 (4,00,000):</span> 10% = <span class="amount">₹40,000</span>`);
+        details.push(`<span class="slab">₹12,00,001 to ₹16,00,000 (4,00,000):</span> 15% = <span class="amount">₹60,000</span>`);
+        details.push(`<span class="slab">₹16,00,001 to ₹20,00,000 (4,00,000):</span> 20% = <span class="amount">₹80,000</span>`);
+        details.push(`<span class="slab">₹20,00,001 to ₹24,00,000 (4,00,000):</span> 25% = <span class="amount">₹1,00,000</span>`);
+        details.push(`<span class="slab">Above ₹24,00,000 (${formatNumber(income - 2400000)}):</span> 30% = <span class="amount">₹${formatNumber((income - 2400000) * 0.30)}</span>`);
+      }
+      
+      return details;
+    }
+    
+    function formatNumber(num) {
+      return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+    
+    function toggleDetails() {
+      const detailsDiv = document.getElementById('details');
+      if (detailsDiv.style.display === 'block') {
+        detailsDiv.style.display = 'none';
+      } else {
+        detailsDiv.style.display = 'block';
+        detailsDiv.scrollIntoView({behavior: 'smooth'});
+      }
+    }
+  </script>
+
 </body>
 </html>
