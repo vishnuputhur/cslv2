@@ -10,7 +10,7 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSL Calculations</title>
+    <title>CSL Calculations - Merry Christmas</title>
     <style>
         html {
             -webkit-text-size-adjust: 100%;
@@ -20,8 +20,8 @@
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
             padding: 0;
-            /* Premium Blue Gradient Background */
-            background: linear-gradient(135deg, #052af1 0%, #00105c 100%);
+            /* Christmas Theme Gradient */
+            background: linear-gradient(135deg, #0a4d2e 0%, #1a1a1a 100%);
             color: #ffffff;
             display: flex;
             flex-direction: column;
@@ -31,13 +31,24 @@
             background-attachment: fixed;
         }
 
-        /* --- Header (Restored Original Font) --- */
+        /* --- Snowfall Effect --- */
+        #snow-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* --- Header --- */
         header {
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 0 15px;
-            background: rgba(0, 16, 92, 0.95);
+            background: rgba(139, 0, 0, 0.95); /* Festive Red */
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
             position: fixed;
             top: 0;
@@ -46,6 +57,7 @@
             height: 50px;
             backdrop-filter: blur(8px);
             box-sizing: border-box;
+            border-bottom: 2px solid #ffd700; /* Gold trim */
         }
         
         .menu-container {
@@ -56,14 +68,6 @@
             z-index: 1001;
         }
 
-        .menu-icon {
-            width: 24px;
-            height: 18px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
         .menu-icon div {
             width: 100%;
             height: 2px;
@@ -71,21 +75,19 @@
             border-radius: 2px;
         }
 
-        /* Original Fonts Restored */
         .header-title {
             font-size: 1.2rem;
             font-weight: bold;
-            font-family: "Times New Roman", Times, serif; /* Restored Font */
+            font-family: "Times New Roman", Times, serif;
             text-align: center;
             margin: 0;
             color: #ffffff;
-            letter-spacing: normal;
-            text-transform: none; 
+            text-shadow: 1px 1px 2px #000;
         }
         
         .header-subtitle {
             font-size: 0.6rem;
-            color: rgba(255, 255, 255, 0.75);
+            color: #ffd700; /* Festive Gold */
             font-weight: bold;
             text-align: center;
             margin: 0;
@@ -98,7 +100,7 @@
             left: -280px;
             width: 280px;
             height: 100vh;
-            background: linear-gradient(to bottom, #00105c, #052af1);
+            background: linear-gradient(to bottom, #8b0000, #4d0000);
             box-shadow: 5px 0 20px rgba(0, 0, 0, 0.4);
             display: flex;
             flex-direction: column;
@@ -106,7 +108,6 @@
             transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 999;
             overflow-y: auto;
-            scrollbar-width: thin;
         }
 
         .menu-drawer.open { left: 0; }
@@ -116,16 +117,13 @@
             text-decoration: none;
             color: rgba(255, 255, 255, 0.9);
             font-size: 0.9rem;
-            border-left: 3px solid transparent;
-            transition: all 0.2s;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .menu-drawer a:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-left: 3px solid #00d2ff;
-            padding-left: 25px;
-            color: #fff;
+            background: rgba(255, 215, 0, 0.1);
+            border-left: 3px solid #ffd700;
+            color: #ffd700;
         }
 
         .menu-overlay {
@@ -141,7 +139,7 @@
         /* --- Main Content --- */
         section {
             flex: 1;
-            padding: 70px 15px 60px; /* Bottom padding increased for fixed footer */
+            padding: 70px 15px 60px;
             max-width: 600px;
             margin: 0 auto;
             width: 100%;
@@ -154,9 +152,9 @@
             margin: 10px 0 8px;
             font-weight: 600;
             text-align: left;
-            opacity: 0.8;
+            opacity: 0.9;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            color: #ffd700;
         }
 
         .quick-links-container {
@@ -177,98 +175,57 @@
             padding: 10px 5px;
             text-decoration: none;
             color: #fff;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            transition: transform 0.2s, background 0.2s;
+            border: 1px solid rgba(255, 215, 0, 0.3);
             height: 65px;
         }
 
-        .quick-link-button:active {
-            transform: scale(0.96);
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .quick-link-icon { font-size: 1.4rem; margin-bottom: 4px; }
-        .quick-link-label { font-size: 0.65rem; font-weight: 500; text-align: center; line-height: 1.1; }
-
-        /* Stylish Content Cards */
+        /* Content Cards */
         .content-box {
-            background: rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 12px;
             padding: 15px;
             margin-bottom: 12px;
-            color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(10px);
-            text-align: left;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .content-box::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
         }
 
         .content-box h2 {
             font-size: 1rem;
             margin: 0 0 5px 0;
-            color: #4dcfff;
-            font-weight: 700;
-        }
-
-        .content-box p {
-            margin: 0;
-            font-size: 0.8rem;
-            line-height: 1.5;
-            color: rgba(255, 255, 255, 0.85);
+            color: #ffd700;
         }
 
         .content-box a {
-            color: #ffcc00;
+            color: #ffeb3b;
             text-decoration: none;
             font-weight: 600;
             font-size: 0.75rem;
-            display: inline-block;
-            margin-top: 5px;
         }
 
-        /* --- Gapless Scrolling Text --- */
+        /* Marquee Updates */
         .whats-new {
-            background: rgba(0, 0, 0, 0.25);
+            background: rgba(139, 0, 0, 0.3);
             border-radius: 12px;
             padding: 10px 15px;
             margin-bottom: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 215, 0, 0.3);
             height: 30px;
             display: flex;
             align-items: center;
             overflow: hidden;
-            white-space: nowrap;
         }
 
         .whats-new-label {
             font-size: 0.7rem;
             font-weight: bold;
-            color: #4dcfff;
+            color: #ffd700;
             margin-right: 15px;
-            z-index: 2;
-            background: rgba(0,0,0,0.1); /* Slight bg to separate */
-        }
-
-        .marquee-wrapper {
-            display: flex;
-            overflow: hidden;
-            width: 100%;
         }
 
         .marquee-content {
             display: inline-block;
             animation: scroll 20s linear infinite;
             font-size: 0.8rem;
-            padding-right: 50px; /* Space between loops */
         }
 
         @keyframes scroll {
@@ -276,169 +233,183 @@
             100% { transform: translateX(-100%); }
         }
 
-        /* --- Fixed Footer --- */
+        /* Snow Animation Style */
+        .snowflake {
+            color: #fff;
+            font-size: 1.2em;
+            position: fixed;
+            top: -10%;
+            z-index: 9999;
+            user-select: none;
+            cursor: default;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% { top: -10%; }
+            100% { top: 100%; }
+        }
+
+        /* Footer */
         footer {
             text-align: center;
             padding: 10px;
-            background: rgba(0, 16, 92, 0.98);
-            color: rgba(255, 255, 255, 0.6);
+            background: #4d0000;
+            color: rgba(255, 255, 255, 0.7);
             font-size: 0.65rem;
-            position: fixed; /* Fixed position */
+            position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
-            z-index: 1000;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
-            backdrop-filter: blur(5px);
         }
-        
-        .blink { animation: blinker 1.5s linear infinite; color: #ffeb3b; }
-        @keyframes blinker { 50% { opacity: 0; } }
 
-        /* Ad Section */
         .vtsoft-section {
             background: rgba(255, 255, 255, 0.95);
-            color: #00105c;
+            color: #8b0000;
             padding: 15px;
             border-radius: 12px;
             margin-top: 25px;
             text-align: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border: 2px solid #ffd700;
         }
-        .vtsoft-section h2 { margin: 0 0 5px; font-size: 1rem; }
-        .vtsoft-section p { margin: 2px 0; font-size: 0.75rem; }
         .vtsoft-section a {
-            background: #00105c; color: #fff; padding: 6px 15px;
-            border-radius: 20px; font-size: 0.75rem; margin-top: 8px;
-            display: inline-block; text-decoration: none;
+            background: #8b0000; color: #fff; padding: 6px 15px;
+            border-radius: 20px; text-decoration: none;
         }
 
     </style>
 </head>
 <body>
 
+    <div id="snow-container"></div>
     <div class="menu-overlay" id="menu-overlay"></div>
 
     <header>
         <div class="menu-container" id="menu-toggle-btn">
-            <div class="menu-icon">
+            <div class="menu-icon" style="width: 24px; height: 18px; display: flex; flex-direction: column; justify-content: space-between;">
                 <div></div>
                 <div></div>
                 <div></div>
             </div>
         </div>
         <div>
-            <h1 class="header-title">CSL Calculations</h1>
-            <p class="header-subtitle">Efficient Tools for Financial Planning</p>
+            <h1 class="header-title">🎄 CSL Calculations 🎅</h1>
+            <p class="header-subtitle">Season's Greetings & Financial Planning</p>
         </div>
     </header>
 
     <div class="menu-drawer" id="menu-drawer">
-        <div style="padding: 20px 20px 10px; opacity: 0.6; font-size: 0.7rem; letter-spacing: 1px;">MENU</div>
-        <a href="bonus.html">Performance Payment</a>
-        <a href="di.html">Ship Theory Dictionary</a>
-        <a href="atn.html">Attendance Register</a>
-        <a href="calender.html">CSL Calendar</a>
-        <a href="csl.html">Salary Calculator</a>
-        <a href="kg.html">Weight Calculator</a>
-        <a href="tax.html">Tax Calculator</a>
-        <a href="emi.html">EMI Calculator</a>
-        <a href="pf.html">PF Calculator</a>
-        <a href="tri.html">Trigonometric Calculator</a>
-        <a href="wl.html">Water Level Calculator</a>
-        <a href="bmi.html">BMI & Age Calculator</a>
-        <a href="exp.html">Expense Diary</a>
-        <a href="#" onclick="openCSLIDInChrome()">ID Card Photo Resize</a>
-        <a href="contact.html">Contact Us</a>
-        <a href="about.html">About</a>
+        <div style="padding: 20px 20px 10px; color: #ffd700; font-size: 0.7rem; letter-spacing: 1px; font-weight: bold;">HOLIDAY MENU</div>
+        <a href="bonus.html">🎁 Performance Payment</a>
+        <a href="di.html">📖 Ship Theory Dictionary</a>
+        <a href="atn.html">📅 Attendance Register</a>
+        <a href="calender.html">🗓️ CSL Calendar 2026</a>
+        <a href="csl.html">💰 Salary Calculator</a>
+        <a href="kg.html">⚖️ Weight Calculator</a>
+        <a href="tax.html">🧾 Tax Calculator</a>
+        <a href="emi.html">🏦 EMI Calculator</a>
+        <a href="pf.html">🏦 PF Calculator</a>
+        <a href="tri.html">📐 Trigonometric Calculator</a>
+        <a href="wl.html">🌊 Water Level Calculator</a>
+        <a href="bmi.html">🏃 BMI & Age Calculator</a>
+        <a href="exp.html">📔 Expense Diary</a>
+        <a href="#" onclick="openCSLIDInChrome()">🖼️ ID Card Photo Resize</a>
+        <a href="contact.html">📞 Contact Us</a>
+        <a href="about.html">ℹ️ About</a>
         <br><br>
     </div>
 
     <section>
         <div class="whats-new">
-            <div class="whats-new-label">UPDATES:</div>
-            <div class="marquee-wrapper">
-                <div class="marquee-content">
-                    2026 calender updated • New Version APK (V2) • Water Level Calc with PDF • 2025-26 Tax Calc Coming Soon • Expense Diary Added • ID Photo Resize Tool Available in Menu &nbsp;&nbsp;&nbsp;&nbsp;
-                </div>
-                <div class="marquee-content">
-                    Bonus/Performance calculation Added • New Version APK (V2) • Water Level Calc with PDF • 2025-26 Tax Calc Coming Soon • Expense Diary Added • ID Photo Resize Tool Available in Menu &nbsp;&nbsp;&nbsp;&nbsp;
+            <div class="whats-new-label">🔔 UPDATES:</div>
+            <div class="marquee-wrapper" style="display: flex; overflow: hidden; width: 100%;">
+                <div class="marquee-content" style="white-space: nowrap; padding-right: 50px;">
+                    Merry Christmas & Happy New Year 2026! 🎄 2026 calender updated • New Version APK (V2) • Water Level Calc with PDF • 2025-26 Tax Calc Coming Soon &nbsp;&nbsp;&nbsp;&nbsp;
                 </div>
             </div>
         </div>
 
-        <h3 class="quick-links-header">Quick Access</h3>
+        <h3 class="quick-links-header">⭐ Fast Access</h3>
         <div class="quick-links-container">
             <a href="calender.html" class="quick-link-button">
-                <span class="quick-link-icon">📆</span>
-                <span class="quick-link-label">Calendar 2026</span>
+                <span style="font-size: 1.4rem;">🗓️</span>
+                <span class="quick-link-label" style="font-size: 0.65rem;">Calendar</span>
             </a>
             <a href="csl.html" class="quick-link-button">
-                <span class="quick-link-icon">💵</span>
-                <span class="quick-link-label">Salary</span>
+                <span style="font-size: 1.4rem;">💰</span>
+                <span class="quick-link-label" style="font-size: 0.65rem;">Salary</span>
             </a>
             <a href="atn.html" class="quick-link-button">
-                <span class="quick-link-icon">📝</span>
-                <span class="quick-link-label">Attendance</span>
+                <span style="font-size: 1.4rem;">📝</span>
+                <span class="quick-link-label" style="font-size: 0.65rem;">Attendance</span>
             </a>
             <a href="kg.html" class="quick-link-button">
-                <span class="quick-link-icon">⚖️</span>
-                <span class="quick-link-label">Weight</span>
+                <span style="font-size: 1.4rem;">⚖️</span>
+                <span class="quick-link-label" style="font-size: 0.65rem;">Weight</span>
             </a>
         </div>
 
-        <div class="content-box">
-            <h2>Google Analytics Data</h2>
+        <div class="content-box" style="border-left: 4px solid #ffd700;">
+            <h2>📊 Analytics Data</h2>
             <p>
                 Total Views: <strong>20.3K</strong><br>
-                Total Calculation Done: <strong>51.5K</strong><br>
-                Total User: <strong>653</strong><br>
+                Calculations Done: <strong>51.5K</strong><br>
+                Total Users: <strong>653</strong><br>
                 <span style="font-size: 0.6rem; opacity: 0.7;">Last update 25-10-2025</span>
             </p>
         </div>
 
         <div class="content-box">
-            <h2>Attendance Register</h2>
-            <p>
-                Effortlessly record leaves and save punching times with ease!
-                Accurately calculate OT and manage Your Leave.<br>
+            <h2>📝 Attendance Register</h2>
+            <p>Record leaves, punching times, and calculate OT easily this holiday season!<br>
                 <a href="atn.html">Open Register &rarr;</a>
             </p>
         </div>
 
         <div class="content-box">
-            <h2>PF Calculator</h2>
-            <p>
-                Calculate your PF withdrawal amount, balance after opting for a higher pension, or estimated pension amount.<br>
+            <h2>🏦 PF Calculator</h2>
+            <p>Check your PF balance and pension estimation for a secure future.<br>
                 <a href="pf.html">Calculate PF &rarr;</a>
             </p>
         </div>
 
-        <div class="content-box">
-            <h2>Ship Theory Dictionary</h2>
-            <p>
-                Explore 300+ essential ship theory definitions clear, Simple, and easy to find when you need them.<br>
-                <a href="di.html">Open Dictionary &rarr;</a>
-            </p>
-        </div>
-
-        <button id="waShareBtn" type="button" class="wa-share-btn" style="background: linear-gradient(90deg, #25D366, #128C7E); color: #fff; border: none; width: 100%; border-radius: 10px; padding: 12px; font-size: 0.9rem; font-weight: bold; margin-top: 10px; cursor: pointer;">
-            📤 Share App on WhatsApp
+        <button id="waShareBtn" type="button" style="background: linear-gradient(90deg, #d4af37, #8b0000); color: #fff; border: 1px solid #ffd700; width: 100%; border-radius: 10px; padding: 12px; font-size: 0.9rem; font-weight: bold; margin-top: 10px; cursor: pointer;">
+            🎉 Share App with Friends
         </button>
 
         <div class="vtsoft-section">
-            <h2>📱 VTsoft Mobile Apps</h2>
-            <p>For Funds, small financial institutions & societies</p>
-            <p>Custom mobile apps at very low cost</p>
+            <h2>📱 VTsoft Holiday Special</h2>
+            <p>Custom mobile apps for societies & small businesses</p>
             <a href="https://wa.me/919037383927" onclick="goToWhatsApp(event)">Chat on WhatsApp</a>
         </div>
     </section>
 
     <footer>
-        © 2025 CSL Calculations | VTSoft | All Rights Reserved
+        ❄️ 2025 CSL Calculations | VTSoft | Merry Christmas ❄️
     </footer>
 
     <script>
+        // --- Snowfall Logic ---
+        function createSnowflake() {
+            const snowContainer = document.getElementById('snow-container');
+            const snowflake = document.createElement('div');
+            const size = Math.random() * 10 + 5 + 'px';
+            
+            snowflake.innerHTML = '❄';
+            snowflake.classList.add('snowflake');
+            snowflake.style.left = Math.random() * 100 + 'vw';
+            snowflake.style.fontSize = size;
+            snowflake.style.opacity = Math.random();
+            snowflake.style.animationDuration = Math.random() * 3 + 2 + 's';
+            
+            snowContainer.appendChild(snowflake);
+            
+            setTimeout(() => {
+                snowflake.remove();
+            }, 5000);
+        }
+        setInterval(createSnowflake, 200);
+
         // Menu Logic
         const menuBtn = document.getElementById('menu-toggle-btn');
         const menuDrawer = document.getElementById('menu-drawer');
@@ -456,10 +427,9 @@
 
         menuBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleMenu(); });
         menuOverlay.addEventListener('click', closeMenu);
-        document.querySelectorAll('.menu-drawer a').forEach(link => link.addEventListener('click', closeMenu));
 
         // Share Logic
-        const shareMessage = `CSL Calculations App Download Link: https://cslcalculations.netlify.app/csl2.apk`;
+        const shareMessage = `CSL Calculations App: https://cslcalculations.netlify.app/csl2.apk`;
         document.getElementById("waShareBtn").addEventListener("click", function(){
             if (navigator.share) {
                 navigator.share({ title: 'CSL Calculations', text: shareMessage, url: 'https://cslcalculations.netlify.app/csl2.apk' }).catch(console.error);
@@ -468,7 +438,6 @@
             }
         });
 
-        // External Links
         function openCSLIDInChrome() {
             window.open('https://vishnuputhur.github.io/cslv2/cslid.html', '_system'); 
             return false;
