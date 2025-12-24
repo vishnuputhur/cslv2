@@ -10,7 +10,7 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSL Calculations - Merry Christmas</title>
+    <title>CSL Calculations</title>
     <style>
         html {
             -webkit-text-size-adjust: 100%;
@@ -20,8 +20,8 @@
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
             padding: 0;
-            /* Christmas Theme Gradient */
-            background: linear-gradient(135deg, #0a4d2e 0%, #1a1a1a 100%);
+            /* Christmas Color Background */
+            background: linear-gradient(135deg, #0a2e15 0%, #001f0a 100%);
             color: #ffffff;
             display: flex;
             flex-direction: column;
@@ -29,35 +29,75 @@
             overflow-x: hidden;
             font-size: 0.85rem;
             background-attachment: fixed;
+            position: relative;
         }
 
-        /* --- Snowfall Effect --- */
-        #snow-container {
+        /* Snowfall Animation */
+        .snowflakes {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: 9999;
+            z-index: 1;
         }
 
-        /* --- Header --- */
+        .snowflake {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            opacity: 0.8;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-10px) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(360deg); }
+        }
+
+        /* Christmas Lights */
+        .christmas-lights {
+            position: fixed;
+            top: 50px;
+            left: 0;
+            width: 100%;
+            height: 15px;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .light {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            animation: twinkle 2s infinite alternate;
+            top: 0;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* --- Header (Christmas Theme) --- */
         header {
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 0 15px;
-            background: rgba(139, 0, 0, 0.95); /* Festive Red */
+            background: linear-gradient(to right, #b22222, #228b22, #b22222);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
             position: fixed;
             top: 0;
             width: 100%;
-            z-index: 1000;
+            z-index: 1001;
             height: 50px;
             backdrop-filter: blur(8px);
             box-sizing: border-box;
-            border-bottom: 2px solid #ffd700; /* Gold trim */
+            border-bottom: 2px solid #ffd700;
         }
         
         .menu-container {
@@ -65,42 +105,68 @@
             left: 15px;
             padding: 5px;
             cursor: pointer;
-            z-index: 1001;
+            z-index: 1002;
+        }
+
+        .menu-icon {
+            width: 24px;
+            height: 18px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .menu-icon div {
             width: 100%;
             height: 2px;
-            background-color: #ffffff;
+            background-color: #ffd700;
             border-radius: 2px;
         }
 
+        /* Header Font */
         .header-title {
             font-size: 1.2rem;
             font-weight: bold;
-            font-family: "Times New Roman", Times, serif;
+            font-family: "Georgia", "Times New Roman", serif;
             text-align: center;
             margin: 0;
             color: #ffffff;
-            text-shadow: 1px 1px 2px #000;
+            letter-spacing: normal;
+            text-transform: none;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
         }
         
         .header-subtitle {
             font-size: 0.6rem;
-            color: #ffd700; /* Festive Gold */
+            color: rgba(255, 255, 255, 0.9);
             font-weight: bold;
             text-align: center;
             margin: 0;
+            font-style: italic;
         }
 
-        /* --- Menu Drawer --- */
+        /* Christmas Star */
+        .christmas-star {
+            position: absolute;
+            right: 15px;
+            font-size: 1.5rem;
+            color: #ffd700;
+            animation: spin 4s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* --- Menu Drawer (Christmas) --- */
         .menu-drawer {
             position: fixed;
             top: 0;
             left: -280px;
             width: 280px;
             height: 100vh;
-            background: linear-gradient(to bottom, #8b0000, #4d0000);
+            background: linear-gradient(to bottom, #b22222, #228b22);
             box-shadow: 5px 0 20px rgba(0, 0, 0, 0.4);
             display: flex;
             flex-direction: column;
@@ -108,6 +174,8 @@
             transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 999;
             overflow-y: auto;
+            scrollbar-width: thin;
+            border-right: 3px solid #ffd700;
         }
 
         .menu-drawer.open { left: 0; }
@@ -117,13 +185,23 @@
             text-decoration: none;
             color: rgba(255, 255, 255, 0.9);
             font-size: 0.9rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
         }
 
         .menu-drawer a:hover {
-            background: rgba(255, 215, 0, 0.1);
+            background: rgba(255, 215, 0, 0.2);
             border-left: 3px solid #ffd700;
-            color: #ffd700;
+            padding-left: 25px;
+            color: #fff;
+        }
+
+        .menu-drawer a::before {
+            content: "🎅";
+            margin-right: 10px;
+            font-size: 0.8rem;
         }
 
         .menu-overlay {
@@ -139,22 +217,31 @@
         /* --- Main Content --- */
         section {
             flex: 1;
-            padding: 70px 15px 60px;
+            padding: 70px 15px 80px; /* Increased bottom padding for two-line footer */
             max-width: 600px;
             margin: 0 auto;
             width: 100%;
             box-sizing: border-box;
+            position: relative;
+            z-index: 2;
         }
 
-        /* Compact Quick Links */
+        /* Quick Links */
         .quick-links-header {
             font-size: 0.85rem;
             margin: 10px 0 8px;
             font-weight: 600;
             text-align: left;
-            opacity: 0.9;
-            text-transform: uppercase;
             color: #ffd700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+        }
+
+        .quick-links-header::before {
+            content: "🎄";
+            margin-right: 8px;
         }
 
         .quick-links-container {
@@ -170,41 +257,129 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(178, 34, 34, 0.8);
             border-radius: 12px;
             padding: 10px 5px;
             text-decoration: none;
             color: #fff;
             border: 1px solid rgba(255, 215, 0, 0.3);
+            transition: transform 0.2s, background 0.2s;
             height: 65px;
+            position: relative;
+            overflow: hidden;
         }
 
-        /* Content Cards */
+        .quick-link-button:nth-child(2n) {
+            background: rgba(34, 139, 34, 0.8);
+        }
+
+        .quick-link-button::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s;
+            opacity: 0;
+        }
+
+        .quick-link-button:hover::before {
+            opacity: 1;
+            transform: rotate(45deg) translate(50%, 50%);
+        }
+
+        .quick-link-button:active {
+            transform: scale(0.96);
+            background: rgba(178, 34, 34, 0.9);
+        }
+
+        .quick-link-button:nth-child(2n):active {
+            background: rgba(34, 139, 34, 0.9);
+        }
+
+        .quick-link-icon { 
+            font-size: 1.4rem; 
+            margin-bottom: 4px; 
+            filter: drop-shadow(0 0 3px rgba(255, 215, 0, 0.5));
+        }
+        .quick-link-label { 
+            font-size: 0.65rem; 
+            font-weight: 500; 
+            text-align: center; 
+            line-height: 1.1; 
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        /* Christmas Content Cards */
         .content-box {
-            background: rgba(255, 255, 255, 0.1);
+            background: linear-gradient(145deg, rgba(178, 34, 34, 0.8), rgba(34, 139, 34, 0.8));
             border-radius: 12px;
             padding: 15px;
             margin-bottom: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            border: 1px solid rgba(255, 215, 0, 0.3);
             backdrop-filter: blur(10px);
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .content-box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ffd700, transparent);
+        }
+
+        .content-box::after {
+            content: '❄️';
+            position: absolute;
+            bottom: 5px;
+            right: 10px;
+            font-size: 0.8rem;
+            opacity: 0.3;
         }
 
         .content-box h2 {
             font-size: 1rem;
             margin: 0 0 5px 0;
             color: #ffd700;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+
+        .content-box h2::before {
+            content: '✨';
+            margin-right: 8px;
+            font-size: 0.9rem;
+        }
+
+        .content-box p {
+            margin: 0;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.9);
         }
 
         .content-box a {
-            color: #ffeb3b;
+            color: #ffd700;
             text-decoration: none;
             font-weight: 600;
             font-size: 0.75rem;
+            display: inline-block;
+            margin-top: 5px;
+            border-bottom: 1px dashed #ffd700;
         }
 
-        /* Marquee Updates */
+        /* --- Scrolling Text --- */
         .whats-new {
-            background: rgba(139, 0, 0, 0.3);
+            background: linear-gradient(90deg, rgba(178, 34, 34, 0.9), rgba(34, 139, 34, 0.9));
             border-radius: 12px;
             padding: 10px 15px;
             margin-bottom: 20px;
@@ -213,6 +388,8 @@
             display: flex;
             align-items: center;
             overflow: hidden;
+            white-space: nowrap;
+            position: relative;
         }
 
         .whats-new-label {
@@ -220,12 +397,24 @@
             font-weight: bold;
             color: #ffd700;
             margin-right: 15px;
+            z-index: 2;
+            background: rgba(178, 34, 34, 0.7);
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .marquee-wrapper {
+            display: flex;
+            overflow: hidden;
+            width: 100%;
         }
 
         .marquee-content {
             display: inline-block;
             animation: scroll 20s linear infinite;
             font-size: 0.8rem;
+            padding-right: 50px;
+            color: #fff;
         }
 
         @keyframes scroll {
@@ -233,182 +422,337 @@
             100% { transform: translateX(-100%); }
         }
 
-        /* Snow Animation Style */
-        .snowflake {
-            color: #fff;
-            font-size: 1.2em;
-            position: fixed;
-            top: -10%;
-            z-index: 9999;
-            user-select: none;
-            cursor: default;
-            animation: fall linear infinite;
-        }
-
-        @keyframes fall {
-            0% { top: -10%; }
-            100% { top: 100%; }
-        }
-
-        /* Footer */
+        /* --- Fixed Footer (Christmas - Two Lines) --- */
         footer {
             text-align: center;
-            padding: 10px;
-            background: #4d0000;
-            color: rgba(255, 255, 255, 0.7);
+            padding: 8px 10px;
+            background: linear-gradient(to right, #b22222, #228b22);
+            color: rgba(255, 255, 255, 0.9);
             font-size: 0.65rem;
             position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
+            z-index: 1000;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
+            backdrop-filter: blur(5px);
+            border-top: 2px solid #ffd700;
+            line-height: 1.3;
+            min-height: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .footer-line1 {
+            font-weight: bold;
+            color: #ffffff;
+        }
+        
+        .footer-line2 {
+            color: #ffd700;
+            font-style: italic;
+            margin-top: 2px;
+        }
+        
+        .blink { 
+            animation: blinker 1.5s linear infinite; 
+            color: #ffd700; 
+        }
+        
+        @keyframes blinker { 
+            50% { opacity: 0; } 
         }
 
+        /* Christmas Ad Section */
         .vtsoft-section {
-            background: rgba(255, 255, 255, 0.95);
-            color: #8b0000;
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(240, 248, 255, 0.95));
+            color: #228b22;
             padding: 15px;
             border-radius: 12px;
             margin-top: 25px;
             text-align: center;
-            border: 2px solid #ffd700;
-        }
-        .vtsoft-section a {
-            background: #8b0000; color: #fff; padding: 6px 15px;
-            border-radius: 20px; text-decoration: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border: 1px solid #b22222;
+            position: relative;
+            overflow: hidden;
         }
 
+        .vtsoft-section::before {
+            content: "🎅";
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 1.2rem;
+            opacity: 0.2;
+        }
+
+        .vtsoft-section::after {
+            content: "🦌";
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 1.2rem;
+            opacity: 0.2;
+        }
+
+        .vtsoft-section h2 { 
+            margin: 0 0 5px; 
+            font-size: 1rem; 
+            color: #b22222;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .vtsoft-section h2::before {
+            content: "📱";
+            margin-right: 8px;
+        }
+
+        .vtsoft-section p { 
+            margin: 2px 0; 
+            font-size: 0.75rem; 
+            color: #228b22;
+        }
+
+        .vtsoft-section a {
+            background: linear-gradient(to right, #b22222, #228b22); 
+            color: #ffd700; 
+            padding: 6px 15px;
+            border-radius: 20px; 
+            font-size: 0.75rem; 
+            margin-top: 8px;
+            display: inline-block; 
+            text-decoration: none;
+            font-weight: bold;
+            border: 1px solid #ffd700;
+            transition: transform 0.2s;
+        }
+
+        .vtsoft-section a:hover {
+            transform: scale(1.05);
+        }
+
+        /* Share Button */
+        .wa-share-btn {
+            background: linear-gradient(90deg, #b22222, #228b22);
+            color: #fff;
+            border: none;
+            width: 100%;
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-top: 10px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+
+        .wa-share-btn::before {
+            content: '🎄';
+            position: absolute;
+            right: 15px;
+            font-size: 1.2rem;
+        }
+
+        .wa-share-btn:active {
+            transform: scale(0.98);
+        }
     </style>
 </head>
 <body>
 
-    <div id="snow-container"></div>
+    <!-- Snowfall Effect -->
+    <div class="snowflakes" id="snowflakes"></div>
+
+    <!-- Christmas Lights -->
+    <div class="christmas-lights" id="christmas-lights"></div>
+
     <div class="menu-overlay" id="menu-overlay"></div>
 
     <header>
         <div class="menu-container" id="menu-toggle-btn">
-            <div class="menu-icon" style="width: 24px; height: 18px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div class="menu-icon">
                 <div></div>
                 <div></div>
                 <div></div>
             </div>
         </div>
         <div>
-            <h1 class="header-title">🎄 CSL Calculations 🎅</h1>
-            <p class="header-subtitle">Season's Greetings & Financial Planning</p>
+            <h1 class="header-title">CSL Calculations</h1>
+            <p class="header-subtitle">Merry Christmas!</p>
         </div>
+        <div class="christmas-star">⭐</div>
     </header>
 
     <div class="menu-drawer" id="menu-drawer">
-        <div style="padding: 20px 20px 10px; color: #ffd700; font-size: 0.7rem; letter-spacing: 1px; font-weight: bold;">HOLIDAY MENU</div>
-        <a href="bonus.html">🎁 Performance Payment</a>
-        <a href="di.html">📖 Ship Theory Dictionary</a>
-        <a href="atn.html">📅 Attendance Register</a>
-        <a href="calender.html">🗓️ CSL Calendar 2026</a>
-        <a href="csl.html">💰 Salary Calculator</a>
-        <a href="kg.html">⚖️ Weight Calculator</a>
-        <a href="tax.html">🧾 Tax Calculator</a>
-        <a href="emi.html">🏦 EMI Calculator</a>
-        <a href="pf.html">🏦 PF Calculator</a>
-        <a href="tri.html">📐 Trigonometric Calculator</a>
-        <a href="wl.html">🌊 Water Level Calculator</a>
-        <a href="bmi.html">🏃 BMI & Age Calculator</a>
-        <a href="exp.html">📔 Expense Diary</a>
-        <a href="#" onclick="openCSLIDInChrome()">🖼️ ID Card Photo Resize</a>
-        <a href="contact.html">📞 Contact Us</a>
-        <a href="about.html">ℹ️ About</a>
-        <br><br>
+        <div style="padding: 20px 20px 10px; opacity: 0.9; font-size: 0.7rem; letter-spacing: 1px; color: #ffd700; text-align: center; border-bottom: 1px solid rgba(255, 215, 0, 0.3);">
+            🎄 MERRY CHRISTMAS 🎄
+        </div>
+        <a href="bonus.html">Performance Payment</a>
+        <a href="di.html">Ship Theory Dictionary</a>
+        <a href="atn.html">Attendance Register</a>
+        <a href="calender.html">CSL Calendar</a>
+        <a href="csl.html">Salary Calculator</a>
+        <a href="kg.html">Weight Calculator</a>
+        <a href="tax.html">Tax Calculator</a>
+        <a href="emi.html">EMI Calculator</a>
+        <a href="pf.html">PF Calculator</a>
+        <a href="tri.html">Trigonometric Calculator</a>
+        <a href="wl.html">Water Level Calculator</a>
+        <a href="bmi.html">BMI & Age Calculator</a>
+        <a href="exp.html">Expense Diary</a>
+        <a href="#" onclick="openCSLIDInChrome()">ID Card Photo Resize</a>
+        <a href="contact.html">Contact Us</a>
+        <a href="about.html">About</a>
+        <div style="padding: 20px; text-align: center; margin-top: auto; color: rgba(255, 255, 255, 0.8); font-size: 0.7rem; border-top: 1px solid rgba(255, 215, 0, 0.3);">
+            🎅 Wishing You<br>✨ A Merry Christmas!
+        </div>
     </div>
 
     <section>
         <div class="whats-new">
-            <div class="whats-new-label">🔔 UPDATES:</div>
-            <div class="marquee-wrapper" style="display: flex; overflow: hidden; width: 100%;">
-                <div class="marquee-content" style="white-space: nowrap; padding-right: 50px;">
-                    Merry Christmas & Happy New Year 2026! 🎄 2026 calender updated • New Version APK (V2) • Water Level Calc with PDF • 2025-26 Tax Calc Coming Soon &nbsp;&nbsp;&nbsp;&nbsp;
+            <div class="whats-new-label">UPDATES:</div>
+            <div class="marquee-wrapper">
+                <div class="marquee-content">
+                    🎄 Merry Christmas! • 2026 calendar updated • New Version APK (V2) • Water Level Calc with PDF • 2025-26 Tax Calc Coming Soon • Expense Diary Added • ID Photo Resize Tool Available in Menu 🎅 &nbsp;&nbsp;&nbsp;&nbsp;
+                </div>
+                <div class="marquee-content">
+                    🎁 Bonus/Performance calculation Added • New Version APK (V2) • Water Level Calc with PDF • 2025-26 Tax Calc Coming Soon • Happy Holidays! 🎉 &nbsp;&nbsp;&nbsp;&nbsp;
                 </div>
             </div>
         </div>
 
-        <h3 class="quick-links-header">⭐ Fast Access</h3>
+        <h3 class="quick-links-header">Quick Access</h3>
         <div class="quick-links-container">
             <a href="calender.html" class="quick-link-button">
-                <span style="font-size: 1.4rem;">🗓️</span>
-                <span class="quick-link-label" style="font-size: 0.65rem;">Calendar</span>
+                <span class="quick-link-icon">📅</span>
+                <span class="quick-link-label">Calendar 2026</span>
             </a>
             <a href="csl.html" class="quick-link-button">
-                <span style="font-size: 1.4rem;">💰</span>
-                <span class="quick-link-label" style="font-size: 0.65rem;">Salary</span>
+                <span class="quick-link-icon">💰</span>
+                <span class="quick-link-label">Salary</span>
             </a>
             <a href="atn.html" class="quick-link-button">
-                <span style="font-size: 1.4rem;">📝</span>
-                <span class="quick-link-label" style="font-size: 0.65rem;">Attendance</span>
+                <span class="quick-link-icon">✏️</span>
+                <span class="quick-link-label">Attendance</span>
             </a>
             <a href="kg.html" class="quick-link-button">
-                <span style="font-size: 1.4rem;">⚖️</span>
-                <span class="quick-link-label" style="font-size: 0.65rem;">Weight</span>
+                <span class="quick-link-icon">⚖️</span>
+                <span class="quick-link-label">Weight</span>
             </a>
         </div>
 
-        <div class="content-box" style="border-left: 4px solid #ffd700;">
-            <h2>📊 Analytics Data</h2>
+        <div class="content-box">
+            <h2>Google Analytics Data</h2>
             <p>
-                Total Views: <strong>20.3K</strong><br>
-                Calculations Done: <strong>51.5K</strong><br>
-                Total Users: <strong>653</strong><br>
-                <span style="font-size: 0.6rem; opacity: 0.7;">Last update 25-10-2025</span>
+                Total Views: <strong style="color: #ffd700;">20.3K</strong><br>
+                Total Calculation Done: <strong style="color: #ffd700;">51.5K</strong><br>
+                Total User: <strong style="color: #ffd700;">653</strong><br>
+                <span style="font-size: 0.6rem; opacity: 0.7;">Last update 25-12-2025 🎄</span>
             </p>
         </div>
 
         <div class="content-box">
-            <h2>📝 Attendance Register</h2>
-            <p>Record leaves, punching times, and calculate OT easily this holiday season!<br>
-                <a href="atn.html">Open Register &rarr;</a>
+            <h2>Attendance Register</h2>
+            <p>
+                Effortlessly record leaves and save punching times with ease!
+                Accurately calculate OT and manage Your Leave.<br>
+                <a href="atn.html">Open Register 🎄</a>
             </p>
         </div>
 
         <div class="content-box">
-            <h2>🏦 PF Calculator</h2>
-            <p>Check your PF balance and pension estimation for a secure future.<br>
-                <a href="pf.html">Calculate PF &rarr;</a>
+            <h2>PF Calculator</h2>
+            <p>
+                Calculate your PF withdrawal amount, balance after opting for a higher pension, or estimated pension amount.<br>
+                <a href="pf.html">Calculate PF ✨</a>
             </p>
         </div>
 
-        <button id="waShareBtn" type="button" style="background: linear-gradient(90deg, #d4af37, #8b0000); color: #fff; border: 1px solid #ffd700; width: 100%; border-radius: 10px; padding: 12px; font-size: 0.9rem; font-weight: bold; margin-top: 10px; cursor: pointer;">
-            🎉 Share App with Friends
+        <div class="content-box">
+            <h2>Ship Theory Dictionary</h2>
+            <p>
+                Explore 300+ essential ship theory definitions clear, Simple, and easy to find when you need them.<br>
+                <a href="di.html">Open Dictionary 🎁</a>
+            </p>
+        </div>
+
+        <button id="waShareBtn" type="button" class="wa-share-btn">
+            📤 Share App on WhatsApp
         </button>
 
         <div class="vtsoft-section">
-            <h2>📱 VTsoft Holiday Special</h2>
-            <p>Custom mobile apps for societies & small businesses</p>
+            <h2>📱 VTsoft Mobile Apps</h2>
+            <p>For Funds, small financial institutions & societies</p>
+            <p>Custom mobile apps at very low cost</p>
             <a href="https://wa.me/919037383927" onclick="goToWhatsApp(event)">Chat on WhatsApp</a>
         </div>
     </section>
 
     <footer>
-        ❄️ 2025 CSL Calculations | VTSoft | Merry Christmas ❄️
+        <div class="footer-line1">© 2025 CSL Calculations | VTSoft | All Rights Reserved</div>
+        <div class="footer-line2"><span class="blink">🎄</span> Merry Christmas & Happy Holidays! <span class="blink">🎅</span></div>
     </footer>
 
     <script>
-        // --- Snowfall Logic ---
-        function createSnowflake() {
-            const snowContainer = document.getElementById('snow-container');
-            const snowflake = document.createElement('div');
-            const size = Math.random() * 10 + 5 + 'px';
+        // Create Snowfall Effect
+        function createSnowflakes() {
+            const snowflakesContainer = document.getElementById('snowflakes');
+            const snowflakeCount = 50;
             
-            snowflake.innerHTML = '❄';
-            snowflake.classList.add('snowflake');
-            snowflake.style.left = Math.random() * 100 + 'vw';
-            snowflake.style.fontSize = size;
-            snowflake.style.opacity = Math.random();
-            snowflake.style.animationDuration = Math.random() * 3 + 2 + 's';
-            
-            snowContainer.appendChild(snowflake);
-            
-            setTimeout(() => {
-                snowflake.remove();
-            }, 5000);
+            for (let i = 0; i < snowflakeCount; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.classList.add('snowflake');
+                
+                // Random size between 2px and 6px
+                const size = Math.random() * 4 + 2;
+                snowflake.style.width = `${size}px`;
+                snowflake.style.height = `${size}px`;
+                
+                // Random starting position
+                snowflake.style.left = `${Math.random() * 100}%`;
+                
+                // Random animation duration between 5s and 15s
+                const duration = Math.random() * 10 + 5;
+                snowflake.style.animationDuration = `${duration}s`;
+                
+                // Random opacity
+                snowflake.style.opacity = Math.random() * 0.7 + 0.3;
+                
+                // Random animation delay
+                snowflake.style.animationDelay = `${Math.random() * 5}s`;
+                
+                snowflakesContainer.appendChild(snowflake);
+            }
         }
-        setInterval(createSnowflake, 200);
+
+        // Create Christmas Lights
+        function createChristmasLights() {
+            const lightsContainer = document.getElementById('christmas-lights');
+            const lightCount = 20;
+            const colors = ['#b22222', '#228b22', '#b22222', '#228b22', '#b22222', '#228b22'];
+            
+            for (let i = 0; i < lightCount; i++) {
+                const light = document.createElement('div');
+                light.classList.add('light');
+                
+                // Position evenly across the top
+                light.style.left = `${(i / lightCount) * 100}%`;
+                
+                // Alternating red and green colors
+                light.style.backgroundColor = colors[i % colors.length];
+                
+                // Random animation delay
+                light.style.animationDelay = `${Math.random() * 2}s`;
+                
+                lightsContainer.appendChild(light);
+            }
+        }
 
         // Menu Logic
         const menuBtn = document.getElementById('menu-toggle-btn');
@@ -427,25 +771,43 @@
 
         menuBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleMenu(); });
         menuOverlay.addEventListener('click', closeMenu);
+        document.querySelectorAll('.menu-drawer a').forEach(link => link.addEventListener('click', closeMenu));
 
         // Share Logic
-        const shareMessage = `CSL Calculations App: https://cslcalculations.netlify.app/csl2.apk`;
+        const shareMessage = `CSL Calculations App Download Link: https://cslcalculations.netlify.app/csl2.apk\n\n🎄 Merry Christmas! 🎅`;
+        
         document.getElementById("waShareBtn").addEventListener("click", function(){
             if (navigator.share) {
-                navigator.share({ title: 'CSL Calculations', text: shareMessage, url: 'https://cslcalculations.netlify.app/csl2.apk' }).catch(console.error);
+                navigator.share({ 
+                    title: 'CSL Calculations', 
+                    text: shareMessage, 
+                    url: 'https://cslcalculations.netlify.app/csl2.apk' 
+                }).catch(console.error);
             } else {
                 window.open("https://wa.me/?text=" + encodeURIComponent(shareMessage), "_blank");
             }
         });
 
+        // External Links
         function openCSLIDInChrome() {
             window.open('https://vishnuputhur.github.io/cslv2/cslid.html', '_system'); 
             return false;
         }
+        
         function goToWhatsApp(e) {
             e.preventDefault();
             window.open("https://wa.me/919037383927", "_blank");
         }
+
+        // Initialize festive effects when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            createSnowflakes();
+            createChristmasLights();
+            
+            // Add festive console message
+            console.log('%c🎄 Merry Christmas from CSL Calculations! 🎅', 'color: #ffd700; font-size: 16px; font-weight: bold;');
+            console.log('%cWishing you a joyful holiday season! ✨', 'color: #228b22; font-size: 14px;');
+        });
     </script>
 </body>
 </html>
