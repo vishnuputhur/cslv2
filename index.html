@@ -10,92 +10,42 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSL Calculations - Happy New Year</title>
+    <title>CSL Calculations - Efficient Financial Tools</title>
     <style>
         html {
             -webkit-text-size-adjust: 100%;
             text-size-adjust: 100%;
         }
         body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             margin: 0;
             padding: 0;
-            /* New Year Color Background */
-            background: linear-gradient(135deg, #0a1a3a 0%, #1a0033 100%);
-            color: #ffffff;
+            background: linear-gradient(135deg, #f0f7ff 0%, #e6f0ff 100%);
+            color: #1a365d;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
             overflow-x: hidden;
             font-size: 0.85rem;
             background-attachment: fixed;
-            position: relative;
         }
 
-        /* Snowfall Animation */
-        .snowflakes {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        .snowflake {
-            position: absolute;
-            background-color: white;
-            border-radius: 50%;
-            opacity: 0.8;
-            animation: fall linear infinite;
-        }
-
-        @keyframes fall {
-            0% { transform: translateY(-10px) rotate(0deg); }
-            100% { transform: translateY(100vh) rotate(360deg); }
-        }
-
-        /* New Year Confetti */
-        .confetti {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        .confetti-piece {
-            position: absolute;
-            width: 8px;
-            height: 16px;
-            opacity: 0.8;
-            animation: confetti-fall linear infinite;
-        }
-
-        @keyframes confetti-fall {
-            0% { transform: translateY(-100px) rotate(0deg); }
-            100% { transform: translateY(100vh) rotate(360deg); }
-        }
-
-        /* --- Header (New Year Theme) --- */
+        /* --- Header (Reduced height by 25%) --- */
         header {
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 0 15px;
-            background: linear-gradient(to right, #003366, #660066, #003366);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(to right, #1e3a8a, #2563eb, #1e3a8a);
+            box-shadow: 0 2px 10px rgba(30, 58, 138, 0.2);
             position: fixed;
             top: 0;
             width: 100%;
             z-index: 1001;
-            height: 50px;
+            height: 45px; /* Reduced by 25% from 60px */
             backdrop-filter: blur(8px);
             box-sizing: border-box;
-            border-bottom: 2px solid #ffcc00;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         }
         
         .menu-container {
@@ -117,20 +67,22 @@
         .menu-icon div {
             width: 100%;
             height: 2px;
-            background-color: #ffcc00;
+            background-color: white;
             border-radius: 2px;
         }
 
-        /* Header Font */
-        .header-title {
-            font-size: 1.2rem;
-            font-weight: bold;
-            font-family: "Georgia", "Times New Roman", serif;
+        /* Header Styling - Keeping the same style from your code */
+        .header-content {
             text-align: center;
+        }
+
+        .header-title {
+            font-size: 1.2rem; /* Slightly reduced to match header height */
+            font-weight: bold;
+            font-family: 'Georgia', 'Times New Roman', serif;
             margin: 0;
-            color: #ffffff;
+            color: white;
             letter-spacing: normal;
-            text-transform: none;
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
         }
         
@@ -138,102 +90,95 @@
             font-size: 0.6rem;
             color: rgba(255, 255, 255, 0.9);
             font-weight: bold;
-            text-align: center;
-            margin: 0;
+            margin: 1px 0 0 0;
             font-style: italic;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        /* New Year Badge */
-        .newyear-badge {
-            position: absolute;
-            right: 15px;
-            background: linear-gradient(45deg, #ffcc00, #ff9900);
-            color: #003366;
-            padding: 3px 10px;
-            border-radius: 15px;
-            font-size: 0.7rem;
-            font-weight: bold;
-            animation: bounce 2s infinite;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        /* --- Menu Drawer (New Year) - FIXED: Made smaller and scrollable --- */
+        /* --- Menu Drawer --- */
         .menu-drawer {
             position: fixed;
             top: 0;
-            left: -260px; /* Reduced width from 280px */
-            width: 260px; /* Reduced width */
+            left: -260px;
+            width: 260px;
             height: 100vh;
-            background: linear-gradient(to bottom, #003366, #660066);
-            box-shadow: 5px 0 20px rgba(0, 0, 0, 0.4);
+            background: linear-gradient(to bottom, #ffffff, #f8fafc);
+            box-shadow: 5px 0 20px rgba(0, 0, 0, 0.08);
             display: flex;
             flex-direction: column;
-            padding-top: 60px;
+            padding-top: 45px; /* Adjusted for reduced header */
             transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 999;
-            overflow-y: auto; /* Made scrollable */
+            overflow-y: auto;
             scrollbar-width: thin;
-            border-right: 3px solid #ffcc00;
+            scrollbar-color: #2563eb #f1f1f1;
+            border-right: 1px solid #e5e7eb;
+        }
+
+        /* Custom scrollbar for menu */
+        .menu-drawer::-webkit-scrollbar {
+            width: 6px;
+        }
+        .menu-drawer::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .menu-drawer::-webkit-scrollbar-thumb {
+            background: #2563eb;
+            border-radius: 3px;
         }
 
         .menu-drawer.open { left: 0; }
 
         .menu-drawer a {
-            padding: 10px 15px; /* Reduced padding */
+            padding: 12px 15px;
             text-decoration: none;
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 0.85rem; /* Slightly smaller font */
+            color: #374151;
+            font-size: 0.85rem;
             border-left: 3px solid transparent;
             transition: all 0.2s;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid #f3f4f6;
             position: relative;
+            display: flex;
+            align-items: center;
         }
 
         .menu-drawer a:hover {
-            background: rgba(255, 204, 0, 0.2);
-            border-left: 3px solid #ffcc00;
+            background: rgba(37, 99, 235, 0.05);
+            border-left: 3px solid #2563eb;
             padding-left: 18px;
-            color: #fff;
+            color: #1e3a8a;
         }
 
         .menu-drawer a::before {
-            content: "🎉";
-            margin-right: 8px;
-            font-size: 0.8rem;
+            content: "";
+            width: 18px;
+            height: 18px;
+            margin-right: 10px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            opacity: 0.7;
         }
 
-        /* Reduced height for menu header */
-        .menu-header {
-            padding: 10px 15px 5px; /* Reduced padding */
-            opacity: 0.9;
-            font-size: 0.65rem; /* Smaller font */
-            letter-spacing: 1px;
-            color: #ffcc00;
-            text-align: center;
-            border-bottom: 1px solid rgba(255, 204, 0, 0.3);
-            background: rgba(0, 0, 0, 0.2);
-        }
+        /* Icons for menu items */
+        .menu-drawer a[href="bonus.html"]::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563eb'%3E%3Cpath d='M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z'%3E%3C/path%3E%3C/svg%3E"); }
+        .menu-drawer a[href="csl.html"]::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563eb'%3E%3Cpath d='M12 1L3 5V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V5L12 1ZM12 11.99H19C18.47 16.11 15.72 19.78 12 20.93V12H5V6.3L12 3.19V11.99Z'%3E%3C/path%3E%3C/svg%3E"); }
+        .menu-drawer a[href="tax.html"]::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563eb'%3E%3Cpath d='M20 4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4ZM8.5 15H7.3L5.9 9H7.1L8.1 13.3L9.9 9H11L12.4 15H11.2L10.2 10.7L8.5 15ZM16 15H13V9H14.5V13.5H16V15ZM19.5 13.5H17.5V15H19.5V16.5H17.5C17.2 16.5 17 16.3 17 16V9C17 8.7 17.2 8.5 17.5 8.5H20C20.3 8.5 20.5 8.7 20.5 9V16C20.5 16.3 20.3 16.5 20 16.5H19.5V13.5Z'%3E%3C/path%3E%3C/svg%3E"); }
 
-        /* Reduced footer in menu */
         .menu-footer {
-            padding: 10px; /* Reduced padding */
+            padding: 10px;
             text-align: center;
             margin-top: auto;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 0.65rem; /* Smaller font */
-            border-top: 1px solid rgba(255, 204, 0, 0.3);
-            background: rgba(0, 0, 0, 0.2);
+            color: #6b7280;
+            font-size: 0.7rem;
+            border-top: 1px solid #e5e7eb;
+            background: #f8fafc;
         }
 
         .menu-overlay {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6);
+            background: rgba(0,0,0,0.5);
             backdrop-filter: blur(2px);
             z-index: 998;
         }
@@ -242,7 +187,7 @@
         /* --- Main Content --- */
         section {
             flex: 1;
-            padding: 70px 15px 60px; /* Reduced bottom padding for smaller footer */
+            padding: 55px 15px 40px; /* Adjusted for reduced header and footer */
             max-width: 600px;
             margin: 0 auto;
             width: 100%;
@@ -254,26 +199,26 @@
         /* Quick Links */
         .quick-links-header {
             font-size: 0.85rem;
-            margin: 10px 0 8px;
+            margin: 10px 0 12px;
             font-weight: 600;
             text-align: left;
-            color: #ffcc00;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            color: #1e3a8a;
+            letter-spacing: 0.5px;
             display: flex;
             align-items: center;
         }
 
         .quick-links-header::before {
-            content: "✨";
+            content: "⚡";
             margin-right: 8px;
+            font-size: 0.9rem;
         }
 
         .quick-links-container {
             display: flex;
             justify-content: space-between;
             gap: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .quick-link-button {
@@ -282,174 +227,200 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: rgba(0, 51, 102, 0.8);
-            border-radius: 12px;
-            padding: 10px 5px;
+            background: white;
+            border-radius: 10px;
+            padding: 12px 5px;
             text-decoration: none;
-            color: #fff;
-            border: 1px solid rgba(255, 204, 0, 0.3);
-            transition: transform 0.2s, background 0.2s;
-            height: 65px;
+            color: #1a365d;
+            border: 1px solid #d1d5db;
+            transition: transform 0.2s, box-shadow 0.2s;
+            height: 70px;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
-        /* 4th button is Income Tax - Added special styling */
-        .quick-link-button:nth-child(4) {
-            background: linear-gradient(145deg, rgba(0, 102, 51, 0.9), rgba(0, 51, 102, 0.9));
-        }
-
-        .quick-link-button:nth-child(2) {
-            background: rgba(102, 0, 102, 0.8);
-        }
-
-        .quick-link-button:nth-child(3) {
-            background: rgba(0, 51, 102, 0.8);
-        }
-
-        .quick-link-button::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-            transform: rotate(45deg);
-            transition: all 0.5s;
-            opacity: 0;
-        }
-
-        .quick-link-button:hover::before {
-            opacity: 1;
-            transform: rotate(45deg) translate(50%, 50%);
+        .quick-link-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+            border-color: #2563eb;
         }
 
         .quick-link-button:active {
-            transform: scale(0.96);
-            background: rgba(0, 51, 102, 0.9);
+            transform: scale(0.98);
         }
 
-        .quick-link-button:nth-child(4):active {
-            background: rgba(0, 102, 51, 0.9);
+        .quick-link-button:nth-child(1) {
+            border-top: 3px solid #2563eb;
         }
 
-        .quick-link-button:nth-child(2):active {
-            background: rgba(102, 0, 102, 0.9);
+        .quick-link-button:nth-child(2) {
+            border-top: 3px solid #10b981;
+        }
+
+        .quick-link-button:nth-child(3) {
+            border-top: 3px solid #8b5cf6;
+        }
+
+        .quick-link-button:nth-child(4) {
+            border-top: 3px solid #ef4444;
         }
 
         .quick-link-icon { 
-            font-size: 1.4rem; 
-            margin-bottom: 4px; 
-            filter: drop-shadow(0 0 3px rgba(255, 204, 0, 0.5));
+            font-size: 1.5rem; 
+            margin-bottom: 5px; 
         }
         .quick-link-label { 
-            font-size: 0.65rem; 
+            font-size: 0.7rem; 
             font-weight: 500; 
             text-align: center; 
-            line-height: 1.1; 
-            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            line-height: 1.2; 
         }
 
-        /* New Year Content Cards */
+        /* Content Cards */
         .content-box {
-            background: linear-gradient(145deg, rgba(0, 51, 102, 0.8), rgba(102, 0, 102, 0.8));
-            border-radius: 12px;
+            background: white;
+            border-radius: 10px;
             padding: 15px;
-            margin-bottom: 12px;
-            color: #ffffff;
-            border: 1px solid rgba(255, 204, 0, 0.3);
-            backdrop-filter: blur(10px);
+            margin-bottom: 15px;
+            color: #1a365d;
+            border: 1px solid #d1d5db;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
             text-align: left;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .content-box::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, #ffcc00, transparent);
-        }
-
-        .content-box::after {
-            content: '🎊';
-            position: absolute;
-            bottom: 5px;
-            right: 10px;
-            font-size: 0.8rem;
-            opacity: 0.3;
+            border-left: 4px solid #2563eb;
         }
 
         .content-box h2 {
             font-size: 1rem;
-            margin: 0 0 5px 0;
-            color: #ffcc00;
-            font-weight: 700;
+            margin: 0 0 8px 0;
+            color: #1e3a8a;
+            font-weight: 600;
             display: flex;
             align-items: center;
         }
 
         .content-box h2::before {
-            content: '⭐';
+            content: "";
+            width: 20px;
+            height: 20px;
             margin-right: 8px;
-            font-size: 0.9rem;
+            background-size: contain;
+            background-repeat: no-repeat;
+            opacity: 0.8;
         }
 
         .content-box p {
             margin: 0;
             font-size: 0.8rem;
             line-height: 1.5;
-            color: rgba(255, 255, 255, 0.9);
+            color: #4a5568;
         }
 
         .content-box a {
-            color: #ffcc00;
+            color: #2563eb;
             text-decoration: none;
             font-weight: 600;
             font-size: 0.75rem;
             display: inline-block;
-            margin-top: 5px;
-            border-bottom: 1px dashed #ffcc00;
+            margin-top: 8px;
+            padding: 5px 10px;
+            border-radius: 6px;
+            background: rgba(37, 99, 235, 0.1);
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            transition: all 0.2s;
         }
 
-        /* New: Income Tax Calculator Box */
-        .tax-box {
-            background: linear-gradient(145deg, rgba(0, 102, 51, 0.9), rgba(0, 51, 102, 0.9));
-            border-radius: 12px;
+        .content-box a:hover {
+            background: rgba(37, 99, 235, 0.2);
+        }
+
+        /* Specific icons for boxes */
+        .content-box:nth-child(4) h2::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231e3a8a'%3E%3Cpath d='M9 4C9 2.9 9.9 2 11 2H13C14.1 2 15 2.9 15 4V5H9V4ZM7 7C6.45 7 6 7.45 6 8C6 8.55 6.45 9 7 9H17C17.55 9 18 8.55 18 8C18 7.45 17.55 7 17 7H7ZM18 20C18 21.1 17.1 22 16 22H8C6.9 22 6 21.1 6 20V10H18V20Z'%3E%3C/path%3E%3C/svg%3E"); }
+        .content-box:nth-child(5) h2::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231e3a8a'%3E%3Cpath d='M9 4C9 2.9 9.9 2 11 2H13C14.1 2 15 2.9 15 4V5H9V4ZM7 7C6.45 7 6 7.45 6 8C6 8.55 6.45 9 7 9H17C17.55 9 18 8.55 18 8C18 7.45 17.55 7 17 7H7ZM18 20C18 21.1 17.1 22 16 22H8C6.9 22 6 21.1 6 20V10H18V20Z'%3E%3C/path%3E%3C/svg%3E"); }
+
+        /* Expense Diary Box - English only as requested */
+        .expense-box {
+            background: white;
+            border-radius: 10px;
             padding: 15px;
-            margin-bottom: 12px;
-            color: #ffffff;
-            border: 1px solid rgba(255, 204, 0, 0.3);
-            backdrop-filter: blur(10px);
+            margin-bottom: 15px;
+            color: #1a365d;
+            border: 1px solid #d1d5db;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
             text-align: left;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            border-left: 4px solid #ffcc00;
+            border-left: 4px solid #10b981;
         }
 
-        .tax-box::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, #00ff88, transparent);
+        .expense-box h2 {
+            font-size: 1rem;
+            margin: 0 0 8px 0;
+            color: #047857;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        .expense-box h2::before {
+            content: "📒";
+            margin-right: 8px;
+            font-size: 0.9rem;
+        }
+
+        .expense-box p {
+            margin: 0;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            color: #4a5568;
+        }
+
+        .expense-box a {
+            color: #10b981;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.75rem;
+            display: inline-block;
+            margin-top: 8px;
+            padding: 5px 10px;
+            border-radius: 6px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            transition: all 0.2s;
+        }
+
+        .expense-box a:hover {
+            background: rgba(16, 185, 129, 0.2);
+        }
+
+        /* Tax Calculator Box */
+        .tax-box {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            color: #1a365d;
+            border: 1px solid #d1d5db;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+            border-left: 4px solid #10b981;
         }
 
         .tax-box h2 {
             font-size: 1rem;
-            margin: 0 0 5px 0;
-            color: #00ff88;
-            font-weight: 700;
+            margin: 0 0 8px 0;
+            color: #047857;
+            font-weight: 600;
             display: flex;
             align-items: center;
         }
 
         .tax-box h2::before {
-            content: '💰';
+            content: "💰";
             margin-right: 8px;
             font-size: 0.9rem;
         }
@@ -458,46 +429,92 @@
             margin: 0;
             font-size: 0.8rem;
             line-height: 1.5;
-            color: rgba(255, 255, 255, 0.9);
+            color: #4a5568;
         }
 
         .tax-box a {
-            color: #00ff88;
+            color: #10b981;
             text-decoration: none;
             font-weight: 600;
             font-size: 0.75rem;
             display: inline-block;
-            margin-top: 5px;
-            border-bottom: 1px dashed #00ff88;
-            background: rgba(0, 255, 136, 0.1);
+            margin-top: 8px;
             padding: 5px 10px;
-            border-radius: 8px;
+            border-radius: 6px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            transition: all 0.2s;
         }
 
-        /* --- Scrolling Text --- */
+        .tax-box a:hover {
+            background: rgba(16, 185, 129, 0.2);
+        }
+
+        /* Stats Box */
+        .stats-box {
+            background: rgba(37, 99, 235, 0.1);
+            border-radius: 10px;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            color: #1a365d;
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stats-box h2 {
+            font-size: 0.9rem;
+            margin: 0 0 8px 0;
+            color: #1e3a8a;
+            font-weight: 600;
+        }
+
+        .stats-box p {
+            margin: 5px 0;
+            font-size: 0.75rem;
+            line-height: 1.4;
+            color: #4a5568;
+        }
+
+        .stats-box strong {
+            color: #1e3a8a;
+            font-weight: 700;
+        }
+
+        .stats-update {
+            font-size: 0.65rem;
+            opacity: 0.7;
+            margin-top: 5px;
+            color: #4a5568;
+        }
+
+        /* --- Updates Bar --- */
         .whats-new {
-            background: linear-gradient(90deg, rgba(0, 51, 102, 0.9), rgba(102, 0, 102, 0.9));
-            border-radius: 12px;
+            background: white;
+            border-radius: 10px;
             padding: 10px 15px;
             margin-bottom: 20px;
-            border: 1px solid rgba(255, 204, 0, 0.3);
-            height: 30px;
+            border: 1px solid #d1d5db;
+            height: 35px;
             display: flex;
             align-items: center;
             overflow: hidden;
             white-space: nowrap;
             position: relative;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
         .whats-new-label {
             font-size: 0.7rem;
-            font-weight: bold;
-            color: #ffcc00;
+            font-weight: 600;
+            color: #1e3a8a;
             margin-right: 15px;
             z-index: 2;
-            background: rgba(0, 51, 102, 0.7);
-            padding: 2px 8px;
+            background: rgba(37, 99, 235, 0.1);
+            padding: 3px 10px;
             border-radius: 10px;
+            white-space: nowrap;
         }
 
         .marquee-wrapper {
@@ -508,10 +525,10 @@
 
         .marquee-content {
             display: inline-block;
-            animation: scroll 20s linear infinite;
+            animation: scroll 25s linear infinite;
             font-size: 0.8rem;
             padding-right: 50px;
-            color: #fff;
+            color: #4a5568;
         }
 
         @keyframes scroll {
@@ -519,84 +536,54 @@
             100% { transform: translateX(-100%); }
         }
 
-        /* --- Fixed Footer (New Year - Two Lines) - FIXED: Reduced height --- */
+        /* --- Fixed Footer (Reduced height by 25%) --- */
         footer {
             text-align: center;
-            padding: 6px 10px; /* Reduced padding */
-            background: linear-gradient(to right, #003366, #660066);
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 0.6rem; /* Smaller font */
+            padding: 5px 10px;
+            background: linear-gradient(to right, #1e3a8a, #2563eb);
+            color: white;
+            font-size: 0.65rem;
             position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
             z-index: 1000;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
-            backdrop-filter: blur(5px);
-            border-top: 2px solid #ffcc00;
-            line-height: 1.2; /* Reduced line height */
-            min-height: 32px; /* Reduced minimum height */
+            box-shadow: 0 -1px 5px rgba(0,0,0,0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            line-height: 1;
+            height: 30px; /* Reduced by 25% from 40px */
             display: flex;
-            flex-direction: column;
+            align-items: center;
             justify-content: center;
         }
         
-        .footer-line1 {
-            font-weight: bold;
-            color: #ffffff;
-        }
-        
-        .footer-line2 {
-            color: #ffcc00;
-            font-style: italic;
-            margin-top: 1px; /* Reduced margin */
-        }
-        
-        .blink { 
-            animation: blinker 1.5s linear infinite; 
-            color: #ffcc00; 
-        }
-        
-        @keyframes blinker { 
-            50% { opacity: 0; } 
+        .footer-content {
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 95%;
         }
 
-        /* New Year Ad Section */
+        /* VTSoft Section */
         .vtsoft-section {
-            background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(240, 248, 255, 0.95));
-            color: #003366;
+            background: white;
+            color: #1a365d;
             padding: 15px;
-            border-radius: 12px;
+            border-radius: 10px;
             margin-top: 25px;
             text-align: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            border: 1px solid #660066;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border: 1px solid #d1d5db;
             position: relative;
             overflow: hidden;
-        }
-
-        .vtsoft-section::before {
-            content: "🎉";
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            font-size: 1.2rem;
-            opacity: 0.2;
-        }
-
-        .vtsoft-section::after {
-            content: "✨";
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            font-size: 1.2rem;
-            opacity: 0.2;
+            border-top: 3px solid #2563eb;
         }
 
         .vtsoft-section h2 { 
-            margin: 0 0 5px; 
+            margin: 0 0 8px; 
             font-size: 1rem; 
-            color: #660066;
+            color: #1e3a8a;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -608,52 +595,58 @@
         }
 
         .vtsoft-section p { 
-            margin: 2px 0; 
+            margin: 4px 0; 
             font-size: 0.75rem; 
-            color: #003366;
+            color: #4a5568;
         }
 
         .vtsoft-section a {
-            background: linear-gradient(to right, #003366, #660066); 
-            color: #ffcc00; 
+            background: linear-gradient(to right, #1e3a8a, #2563eb); 
+            color: white; 
             padding: 6px 15px;
             border-radius: 20px; 
             font-size: 0.75rem; 
             margin-top: 8px;
             display: inline-block; 
             text-decoration: none;
-            font-weight: bold;
-            border: 1px solid #ffcc00;
-            transition: transform 0.2s;
+            font-weight: 600;
+            border: 1px solid #1e3a8a;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
         .vtsoft-section a:hover {
-            transform: scale(1.05);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
         }
 
         /* Share Button */
         .wa-share-btn {
-            background: linear-gradient(90deg, #003366, #660066);
-            color: #fff;
+            background: linear-gradient(90deg, #10b981, #059669);
+            color: white;
             border: none;
             width: 100%;
             border-radius: 10px;
             padding: 12px;
             font-size: 0.9rem;
-            font-weight: bold;
-            margin-top: 10px;
+            font-weight: 600;
+            margin-top: 15px;
             cursor: pointer;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);
             transition: transform 0.2s;
         }
 
         .wa-share-btn::before {
-            content: '🎊';
+            content: '📤';
             position: absolute;
             right: 15px;
             font-size: 1.2rem;
+        }
+
+        .wa-share-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(16, 185, 129, 0.3);
         }
 
         .wa-share-btn:active {
@@ -662,12 +655,6 @@
     </style>
 </head>
 <body>
-
-    <!-- Snowfall Effect -->
-    <div class="snowflakes" id="snowflakes"></div>
-    
-    <!-- Confetti Effect -->
-    <div class="confetti" id="confetti"></div>
 
     <div class="menu-overlay" id="menu-overlay"></div>
 
@@ -679,17 +666,13 @@
                 <div></div>
             </div>
         </div>
-        <div>
+        <div class="header-content">
             <h1 class="header-title">CSL Calculations</h1>
-            <p class="header-subtitle">Happy New Year 2026!</p>
+            <p class="header-subtitle">Efficient tools for financial planning</p>
         </div>
-        <div class="newyear-badge">2026</div>
     </header>
 
     <div class="menu-drawer" id="menu-drawer">
-        <div class="menu-header">
-            🎊 HAPPY NEW YEAR 🎊
-        </div>
         <a href="bonus.html">Performance Payment</a>
         <a href="di.html">Ship Theory Dictionary</a>
         <a href="atn.html">Attendance Register</a>
@@ -707,19 +690,19 @@
         <a href="contact.html">Contact Us</a>
         <a href="about.html">About</a>
         <div class="menu-footer">
-            🎉 Wishing You<br>✨ A Prosperous 2026!
+            © 2026 CSL Calculations
         </div>
     </div>
 
     <section>
         <div class="whats-new">
-            <div class="whats-new-label">NEW YEAR UPDATES:</div>
+            <div class="whats-new-label">UPDATES:</div>
             <div class="marquee-wrapper">
                 <div class="marquee-content">
-                    🎊 Happy New Year 2026! • 2026 calendar updated • New Version APK (V2) • Water Level Calc with PDF • 2025-26 Tax Calculator Now Available • Expense Diary Added • ID Photo Resize Tool Available in Menu 🎉 &nbsp;&nbsp;&nbsp;&nbsp;
+                    • 2026 Calendar Updated • Performance Payment Calculator • Water Level Calc with PDF Export • 2025-26 Tax Calculator • Expense Diary Added • ID Photo Resize Tool • New Version APK Available •
                 </div>
                 <div class="marquee-content">
-                    🎁 Bonus/Performance calculation Added • New Year Special • Water Level Calc with PDF • Tax Calculator Updated for 2025-26 • Happy New Year! ✨ &nbsp;&nbsp;&nbsp;&nbsp;
+                    • 2026 Calendar Updated • Performance Payment Calculator • Water Level Calc with PDF Export • 2025-26 Tax Calculator • Expense Diary Added • ID Photo Resize Tool • New Version APK Available •
                 </div>
             </div>
         </div>
@@ -738,24 +721,13 @@
                 <span class="quick-link-icon">✏️</span>
                 <span class="quick-link-label">Attendance</span>
             </a>
-            <!-- 4th button is Income Tax Calculator -->
             <a href="tax.html" class="quick-link-button">
                 <span class="quick-link-icon">📊</span>
                 <span class="quick-link-label">Income Tax</span>
             </a>
         </div>
 
-        <div class="content-box">
-            <h2>Google Analytics Data</h2>
-            <p>
-                Total Views: <strong style="color: #ffcc00;">26,907</strong><br>
-                Total Calculation Done: <strong style="color: #ffcc00;">73,443</strong><br>
-                Total User: <strong style="color: #ffcc00;">808</strong><br>
-                <span style="font-size: 0.6rem; opacity: 0.7;">Last update 26-12-2025 🎊</span>
-            </p>
-        </div>
-
-        <!-- New: Income Tax Calculator Box -->
+        <!-- Income Tax Calculator Box -->
         <div class="tax-box">
             <h2>Income Tax Calculator</h2>
             <p>
@@ -770,7 +742,7 @@
             <p>
                 Effortlessly record leaves and save punching times with ease!
                 Accurately calculate OT and manage Your Leave.<br>
-                <a href="atn.html">Open Register 🎊</a>
+                <a href="atn.html">Open Register</a>
             </p>
         </div>
 
@@ -778,16 +750,28 @@
             <h2>PF Calculator</h2>
             <p>
                 Calculate your PF withdrawal amount, balance after opting for a higher pension, or estimated pension amount.<br>
-                <a href="pf.html">Calculate PF ✨</a>
+                <a href="pf.html">Calculate PF</a>
             </p>
         </div>
 
-        <div class="content-box">
-            <h2>Ship Theory Dictionary</h2>
+        <!-- Expense Diary Box - English only -->
+        <div class="expense-box">
+            <h2>Expense Diary</h2>
             <p>
-                Explore 300+ essential ship theory definitions clear, Simple, and easy to find when you need them.<br>
-                <a href="di.html">Open Dictionary 🎁</a>
+                Track your income and expenses to help with financial planning.<br>
+                <a href="exp.html">Open Expense Diary →</a>
             </p>
+        </div>
+
+        <!-- Application Statistics -->
+        <div class="stats-box">
+            <h2>Application Statistics</h2>
+            <p>
+                Total Views: <strong>26,907</strong> • 
+                Calculations: <strong>73,443</strong> • 
+                Users: <strong>808</strong>
+            </p>
+            <p class="stats-update">Last updated: 26-12-2025</p>
         </div>
 
         <button id="waShareBtn" type="button" class="wa-share-btn">
@@ -798,82 +782,17 @@
             <h2>📱 VTsoft Mobile Apps</h2>
             <p>For Funds, small financial institutions & societies</p>
             <p>Custom mobile apps at very low cost</p>
-            <p style="color: #660066; font-weight: bold;">🎊 New Year Special Offers Available! 🎊</p>
+            <p style="color: #1e3a8a; font-weight: 600;">Professional Solutions Available</p>
             <a href="https://wa.me/919037383927" onclick="goToWhatsApp(event)">Chat on WhatsApp</a>
         </div>
     </section>
 
     <footer>
-        <div class="footer-line1">© 2025 CSL Calculations | VTSoft | All Rights Reserved</div>
-        <div class="footer-line2"><span class="blink">🎉</span> Happy New Year 2026! <span class="blink">✨</span></div>
+        <div class="footer-content">© 2026 CSL Calculations | VT Soft | All Rights Reserved</div>
     </footer>
 
     <script>
-        // Create Snowfall Effect
-        function createSnowflakes() {
-            const snowflakesContainer = document.getElementById('snowflakes');
-            const snowflakeCount = 50;
-            
-            for (let i = 0; i < snowflakeCount; i++) {
-                const snowflake = document.createElement('div');
-                snowflake.classList.add('snowflake');
-                
-                // Random size between 2px and 6px
-                const size = Math.random() * 4 + 2;
-                snowflake.style.width = `${size}px`;
-                snowflake.style.height = `${size}px`;
-                
-                // Random starting position
-                snowflake.style.left = `${Math.random() * 100}%`;
-                
-                // Random animation duration between 5s and 15s
-                const duration = Math.random() * 10 + 5;
-                snowflake.style.animationDuration = `${duration}s`;
-                
-                // Random opacity
-                snowflake.style.opacity = Math.random() * 0.7 + 0.3;
-                
-                // Random animation delay
-                snowflake.style.animationDelay = `${Math.random() * 5}s`;
-                
-                snowflakesContainer.appendChild(snowflake);
-            }
-        }
-
-        // Create Confetti Effect
-        function createConfetti() {
-            const confettiContainer = document.getElementById('confetti');
-            const confettiCount = 30;
-            const colors = ['#ffcc00', '#ff0066', '#00ccff', '#00ff88', '#9966ff'];
-            
-            for (let i = 0; i < confettiCount; i++) {
-                const confetti = document.createElement('div');
-                confetti.classList.add('confetti-piece');
-                
-                // Random color
-                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                
-                // Random starting position
-                confetti.style.left = `${Math.random() * 100}%`;
-                
-                // Random width and height
-                const width = Math.random() * 6 + 4;
-                const height = Math.random() * 10 + 6;
-                confetti.style.width = `${width}px`;
-                confetti.style.height = `${height}px`;
-                
-                // Random animation duration between 3s and 8s
-                const duration = Math.random() * 5 + 3;
-                confetti.style.animationDuration = `${duration}s`;
-                
-                // Random animation delay
-                confetti.style.animationDelay = `${Math.random() * 3}s`;
-                
-                confettiContainer.appendChild(confetti);
-            }
-        }
-
-        // Menu Logic - FIXED: Prevent body scrolling when menu is open
+        // Menu Logic
         const menuBtn = document.getElementById('menu-toggle-btn');
         const menuDrawer = document.getElementById('menu-drawer');
         const menuOverlay = document.getElementById('menu-overlay');
@@ -883,7 +802,6 @@
             menuDrawer.classList.toggle('open');
             menuOverlay.classList.toggle('active');
             
-            // Prevent body scrolling when menu is open
             if (menuDrawer.classList.contains('open')) {
                 body.style.overflow = 'hidden';
             } else {
@@ -906,7 +824,6 @@
         
         document.querySelectorAll('.menu-drawer a').forEach(link => {
             link.addEventListener('click', function(e) {
-                // Only close menu if it's not an external link
                 if (!this.getAttribute('onclick') || !this.getAttribute('onclick').includes('openCSLIDInChrome')) {
                     closeMenu();
                 }
@@ -914,12 +831,12 @@
         });
 
         // Share Logic
-        const shareMessage = `CSL Calculations App - Happy New Year 2026!\n\nDownload now: https://cslcalculations.netlify.app/csl2.apk\n\nStart the new year with smart financial planning tools! ✨`;
+        const shareMessage = `CSL Calculations App - Efficient Financial Tools\n\nDownload now: https://cslcalculations.netlify.app/csl2.apk\n\nTools for salary calculation, tax planning, attendance tracking and more!`;
         
         document.getElementById("waShareBtn").addEventListener("click", function(){
             if (navigator.share) {
                 navigator.share({ 
-                    title: 'CSL Calculations - Happy New Year', 
+                    title: 'CSL Calculations - Financial Tools', 
                     text: shareMessage, 
                     url: 'https://cslcalculations.netlify.app/csl2.apk' 
                 }).catch(console.error);
@@ -939,14 +856,9 @@
             window.open("https://wa.me/919037383927", "_blank");
         }
 
-        // Initialize effects when page loads
+        // Initialize when page loads
         document.addEventListener('DOMContentLoaded', function() {
-            createSnowflakes();
-            createConfetti();
-            
-            // Add festive console message
-            console.log('%c🎊 Happy New Year 2026 from CSL Calculations! ✨', 'color: #ffcc00; font-size: 16px; font-weight: bold;');
-            console.log('%cWishing you a year of success and prosperity! 🌟', 'color: #00ccff; font-size: 14px;');
+            console.log('%cCSL Calculations - Efficient Financial Tools', 'color: #1e3a8a; font-size: 16px; font-weight: bold; font-family: Times New Roman;');
         });
     </script>
 </body>
