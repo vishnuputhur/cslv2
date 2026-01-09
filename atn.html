@@ -362,6 +362,54 @@
             cursor: pointer;
             margin: 2px;
         }
+
+        /* Custom Message Modal */
+        .custom-message-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .message-content {
+            background: #F5E6C4;
+            color: #1E3A5F;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 300px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        .message-buttons {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+        }
+
+        .ok-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .cancel-btn {
+            background-color: #f44336;
+            color: white;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body onload="initApp()">
@@ -414,8 +462,8 @@
                     <button type="reset" class="btn clear-btn">Clear</button>
                 </div>
                 <div style="margin-top:15px;">
-                    <button type="button" class="cloud-btn" onclick="loadFromCloud()">Load from Cloud</button>
-                    <button type="button" class="cloud-btn" onclick="saveToCloud()">Save to Cloud</button>
+                    <button type="button" class="cloud-btn" onclick="showConfirm('loadCloud')">Load from Cloud</button>
+                    <button type="button" class="cloud-btn" onclick="showConfirm('saveCloud')">Save to Cloud</button>
                 </div>
             </form>
         </div>
@@ -441,8 +489,29 @@
         </div>
     </div>
 
+    <div class="custom-message-modal" id="confirmModal">
+        <div class="message-content">
+            <div class="modal-header" id="confirmTitle">Confirm</div>
+            <p id="confirmMessage">Are you sure?</p>
+            <div class="message-buttons">
+                <button class="ok-btn" id="confirmOkBtn">OK</button>
+                <button class="cancel-btn" onclick="closeConfirmModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="custom-message-modal" id="alertModal">
+        <div class="message-content">
+            <div class="modal-header" id="alertTitle">Message</div>
+            <p id="alertMessage"></p>
+            <div class="message-buttons">
+                <button class="ok-btn" onclick="closeAlertModal()">OK</button>
+            </div>
+        </div>
+    </div>
+
     <div class="sync-container">
-        <button class="sync-btn" id="syncBtn" onclick="forceSync()">Sync Cloud</button>
+        <button class="sync-btn" id="syncBtn" onclick="showConfirm('sync')">Sync Cloud</button>
         <div class="sync-status" id="syncStatus">Offline</div>
     </div>
 
@@ -513,6 +582,63 @@
         
         let syncInProgress = false;
         let lastSyncTime = parseInt(localStorage.getItem('lastSyncTime')) || 0;
+        let pendingAction = null;
+
+        // Custom Alert Function
+        function showAlert(message, title = "Message") {
+            document.getElementById('alertTitle').textContent = title;
+            document.getElementById('alertMessage').textContent = message;
+            document.getElementById('alertModal').style.display = 'flex';
+        }
+
+        function closeAlertModal() {
+            document.getElementById('alertModal').style.display = 'none';
+        }
+
+        // Custom Confirm Function
+        function showConfirm(action) {
+            pendingAction = action;
+            
+            if (action === 'loadCloud') {
+                document.getElementById('confirmTitle').textContent = "Load from Cloud";
+                document.getElementById('confirmMessage').textContent = "Load all data from cloud? This will replace your local data.";
+            } else if (action === 'saveCloud') {
+                document.getElementById('confirmTitle').textContent = "Save to Cloud";
+                document.getElementById('confirmMessage').textContent = "Save all data to cloud? This will overwrite your cloud data.";
+            } else if (action === 'sync') {
+                document.getElementById('confirmTitle').textContent = "Sync Cloud";
+                document.getElementById('confirmMessage').textContent = "Sync current month data to cloud?";
+            } else if (action === 'saveSettings') {
+                document.getElementById('confirmTitle').textContent = "Save Settings";
+                document.getElementById('confirmMessage').textContent = "Save settings changes?";
+            }
+            
+            document.getElementById('confirmModal').style.display = 'flex';
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').style.display = 'none';
+            pendingAction = null;
+        }
+
+        function confirmAction() {
+            closeConfirmModal();
+            
+            if (pendingAction === 'loadCloud') {
+                loadFromCloud();
+            } else if (pendingAction === 'saveCloud') {
+                saveToCloud();
+            } else if (pendingAction === 'sync') {
+                forceSync();
+            } else if (pendingAction === 'saveSettings') {
+                saveSettingsConfirmed();
+            }
+            
+            pendingAction = null;
+        }
+
+        // Set up the confirm button
+        document.getElementById('confirmOkBtn').onclick = confirmAction;
 
         function packDayData(dayData) {
             if (!dayData) return "";
@@ -595,7 +721,7 @@
             const code = document.getElementById('regCode').value.trim();
             
             if (!name || !code) {
-                alert("Please enter both name and code");
+                showAlert("Please enter both name and code", "Registration Error");
                 return;
             }
             
@@ -714,11 +840,7 @@
 
         async function loadFromCloud() {
             if (!db || !employeeData.userId) {
-                alert("Firebase not ready");
-                return;
-            }
-            
-            if (!confirm("Load all data from cloud? This will replace your local data.")) {
+                showAlert("Firebase not ready", "Cloud Error");
                 return;
             }
             
@@ -733,7 +855,7 @@
                 
                 if (snapshot.empty) {
                     updateSyncStatus('No cloud data');
-                    alert("No data found in cloud");
+                    showAlert("No data found in cloud", "Cloud Error");
                     return;
                 }
                 
@@ -763,21 +885,17 @@
                 showMonth(currentMonth);
                 updateSyncStatus(`Loaded ${loadedCount} months`);
                 setTimeout(() => updateSyncStatus('Ready'), 2000);
-                alert(`Successfully loaded ${loadedCount} months from cloud`);
+                showAlert(`Successfully loaded ${loadedCount} months from cloud`, "Cloud Success");
                 
             } catch (error) {
                 updateSyncStatus('Load failed');
-                alert("Failed to load from cloud: " + error.message);
+                showAlert("Failed to load from cloud: " + error.message, "Cloud Error");
             }
         }
 
         async function saveToCloud() {
             if (!db || !employeeData.userId) {
-                alert("Firebase not ready");
-                return;
-            }
-            
-            if (!confirm("Save all data to cloud? This will overwrite your cloud data.")) {
+                showAlert("Firebase not ready", "Cloud Error");
                 return;
             }
             
@@ -827,11 +945,11 @@
                 
                 updateSyncStatus(`Saved ${savedCount} months`);
                 setTimeout(() => updateSyncStatus('Synced'), 2000);
-                alert(`Successfully saved ${savedCount} months to cloud`);
+                showAlert(`Successfully saved ${savedCount} months to cloud`, "Cloud Success");
                 
             } catch (error) {
                 updateSyncStatus('Save failed');
-                alert("Failed to save to cloud: " + error.message);
+                showAlert("Failed to save to cloud: " + error.message, "Cloud Error");
             } finally {
                 syncInProgress = false;
                 if (syncBtn) syncBtn.disabled = false;
@@ -1237,6 +1355,10 @@
         }
 
         function saveSettings() {
+            showConfirm('saveSettings');
+        }
+
+        function saveSettingsConfirmed() {
             employeeData.name = document.getElementById('empName').value;
             employeeData.code = document.getElementById('empCode').value;
             employeeData.cl = parseFloat(document.getElementById('clBalance').value);
@@ -1251,7 +1373,7 @@
             }
             
             localStorage.setItem('employeeData', JSON.stringify(employeeData));
-            alert('Settings saved!');
+            showAlert('Settings saved successfully!', "Success");
             loadSettings();
             
             updateSyncStatus('Changes pending');
@@ -1316,12 +1438,15 @@
                 
                 window.location.href = redirectUrl;
             } catch (error) {
-                alert('Failed to generate PDF: ' + error.message);
+                showAlert('Failed to generate PDF: ' + error.message, "PDF Error");
             }
         }
 
         document.addEventListener('click', function (e) {
             if (e.target.classList.contains('custom-modal')) {
+                e.target.style.display = 'none';
+            }
+            if (e.target.classList.contains('custom-message-modal')) {
                 e.target.style.display = 'none';
             }
         });
