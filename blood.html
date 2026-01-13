@@ -6,6 +6,14 @@
     <title>CSL Blood Donation</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-21G1BS7S3S"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-21G1BS7S3S');
+    </script>
     <style>
         :root {
             --primary-red: #ff3b30;
@@ -18,6 +26,7 @@
             --border-color: #e8e8e8;
             --shadow-soft: 0 4px 12px rgba(0,0,0,0.08);
             --gradient-primary: linear-gradient(135deg, #ff3b30, #d70015);
+            --dark-green: #2E7D32;
         }
         
         * {
@@ -194,6 +203,7 @@
             padding: 15px;
             box-shadow: var(--shadow-soft);
             border-left: 4px solid var(--primary-red);
+            position: relative;
         }
         
         .dimmed-card {
@@ -254,6 +264,7 @@
             color: var(--primary-red);
             text-decoration: none;
             font-weight: 500;
+            cursor: pointer;
         }
         
         .dimmed-card .mobile-link {
@@ -271,6 +282,15 @@
         
         .dimmed-card .last-donation {
             color: #999;
+        }
+        
+        .days-left {
+            position: absolute;
+            top: 40px; /* Changed from 15px to 40px to move down */
+            right: 15px;
+            font-size: 0.7rem;
+            color: #ff3b30;
+            font-weight: 600;
         }
         
         .actions {
@@ -402,9 +422,25 @@
             position: fixed;
             bottom: 0;
             width: 100%;
-            font-size: 0.75rem;
+            font-size: 0.65rem;
             border-top: 1px solid rgba(0,0,0,0.1);
             backdrop-filter: blur(5px);
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .footer-separator {
+            opacity: 0.5;
+        }
+        
+        .available-donors {
+            color: var(--dark-green);
+            font-weight: 600;
         }
         
         .footer a {
@@ -536,7 +572,11 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="footer-content">
-            Powered by <a href="https://vtsoft.netlify.app" target="_blank">VTSoft</a> © 2026
+            <span>Total donars <span id="totalDonors">0</span>/<span id="availableDonors" class="available-donors">0</span></span>
+            <span class="footer-separator">|</span>
+            <a href="https://vtsoft.netlify.app" target="_blank">VTSoft</a>
+            <span class="footer-separator">|</span>
+            <span>2026</span>
         </div>
     </footer>
     
@@ -745,6 +785,8 @@
             logoutBtn: document.getElementById('logoutBtn'),
             recentDonors: document.getElementById('recentDonors'),
             recentText: document.getElementById('recentDonorsText'),
+            totalDonors: document.getElementById('totalDonors'),
+            availableDonors: document.getElementById('availableDonors'),
             addModal: document.getElementById('addModal'),
             editModal: document.getElementById('editModal'),
             loginModal: document.getElementById('loginModal'),
@@ -793,6 +835,7 @@
             isAdmin = false;
             localStorage.removeItem('cslAdmin');
             updateUI();
+            renderDonors(); // Re-render to update admin buttons
             showConfirm('Logged out successfully!');
         });
         
@@ -857,6 +900,7 @@
                 elems.loginModal.style.display = 'none';
                 elems.loginForm.reset();
                 updateUI();
+                renderDonors(); // Re-render to show admin buttons
                 showConfirm('Admin login successful!');
             } else {
                 showConfirm('Wrong password!');
@@ -933,6 +977,67 @@
             return `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()} (${days} days ago)`;
         }
         
+        function updateDonorStats() {
+            const totalDonors = donors.length;
+            const readyToDonate = donors.filter(d => {
+                if (!d.lastDonation) return true;
+                const lastDate = new Date(d.lastDonation);
+                const daysSince = Math.floor((new Date() - lastDate) / (1000 * 60 * 60 * 24));
+                return daysSince >= 90;
+            }).length;
+            
+            elems.totalDonors.textContent = totalDonors;
+            elems.availableDonors.textContent = readyToDonate;
+        }
+        
+        // Function to copy mobile number to clipboard (improved version)
+        function copyToClipboard(text) {
+            // Create a temporary textarea element
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.left = '-999999px';
+            textarea.style.top = '-999999px';
+            document.body.appendChild(textarea);
+            
+            try {
+                textarea.select();
+                textarea.setSelectionRange(0, textarea.value.length);
+                
+                // Try using modern clipboard API first
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(text).then(() => {
+                        showConfirm('Mobile number copied to clipboard!');
+                    }).catch(err => {
+                        // Fallback to execCommand
+                        fallbackCopy(text);
+                    });
+                } else {
+                    // Fallback for older browsers
+                    fallbackCopy(text);
+                }
+            } catch (err) {
+                console.error('Failed to copy: ', err);
+                showConfirm('Failed to copy number. Please select and copy manually.');
+            } finally {
+                document.body.removeChild(textarea);
+            }
+        }
+        
+        function fallbackCopy(text) {
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showConfirm('Mobile number copied to clipboard!');
+                } else {
+                    showConfirm('Failed to copy number. Please select and copy manually.');
+                }
+            } catch (err) {
+                console.error('Fallback copy failed: ', err);
+                showConfirm('Failed to copy number. Please select and copy manually.');
+            }
+        }
+        
         function renderDonors() {
             const filtered = selectedGroup === 'all' ? donors : donors.filter(d => d.bloodGroup === selectedGroup);
             const sorted = filtered.sort((a,b) => new Date(a.lastDonation || 0) - new Date(b.lastDonation || 0));
@@ -949,9 +1054,11 @@
                 const daysSince = Math.floor((new Date() - lastDate) / (1000 * 60 * 60 * 24));
                 const canDonate = daysSince >= 90;
                 const cardClass = canDonate ? '' : 'dimmed-card';
+                const daysLeft = 90 - daysSince;
                 
                 html += `
                     <div class="donor-card ${cardClass}">
+                        ${!canDonate ? `<div class="days-left">${daysLeft} days left</div>` : ''}
                         <div class="donor-header">
                             <div class="donor-name">${d.name}</div>
                             <div class="blood-badge">${d.bloodGroup}</div>
@@ -963,12 +1070,12 @@
                             </div>
                             <div class="detail-row">
                                 <i class="fas fa-phone"></i>
-                                <a href="tel:${d.mobile1}" class="mobile-link">${d.mobile1}</a>
+                                <span class="mobile-link" onclick="copyToClipboard('${d.mobile1}')">${d.mobile1}</span>
                             </div>
                             ${d.mobile2 ? `
                             <div class="detail-row">
                                 <i class="fas fa-phone-alt"></i>
-                                <a href="tel:${d.mobile2}" class="mobile-link">${d.mobile2}</a>
+                                <span class="mobile-link" onclick="copyToClipboard('${d.mobile2}')">${d.mobile2}</span>
                             </div>` : ''}
                             <div class="last-donation">
                                 <i class="fas fa-calendar"></i>
@@ -993,6 +1100,7 @@
             html += '</div>';
             elems.donorList.innerHTML = html;
             updateRecentBanner();
+            updateDonorStats();
         }
         
         function updateDate(id) {
