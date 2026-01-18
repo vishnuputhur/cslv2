@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+<!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-21G1BS7S3S"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-21G1BS7S3S');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Solar Plant Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background-color: #f1f5f9; font-family: 'Segoe UI', sans-serif; font-size: 13px; }
+        .glass-card { background: white; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; padding: 10px; }
+        header { position: fixed; top: 0; width: 100%; z-index: 50; background: #dcfce7; color: #166534; height: 50px; display: flex; align-items: center; justify-content: center; font-weight: bold; border-bottom: 1px solid #bbf7d0; }
+        footer { position: fixed; bottom: 0; width: 100%; font-size: 0.6rem; background: #fff; height: 25px; display: flex; align-items: center; justify-content: center; color: #94a3b8; border-top: 1px solid #eee; }
+        .main-content { margin-top: 60px; margin-bottom: 80px; }
+        .input-box { border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px; width: 100%; height: 38px; outline: none; font-size: 14px; }
+        .input-box:focus { border-color: #22c55e; }
+        .stat-val { font-size: 1.1rem; font-weight: 800; color: #1e293b; line-height: 1; }
+        .stat-avg { font-size: 0.7rem; color: #64748b; font-weight: 500; margin-top: 2px; }
+        #resetModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(2px); }
+        .legend-item { display: flex; align-items: center; font-size: 10px; font-weight: bold; }
+        .legend-color { width: 12px; height: 3px; border-radius: 2px; margin-right: 5px; }
+    </style>
+</head>
+<body>
+
+    <header class="shadow-sm uppercase tracking-wider">
+        My Solar Plant <i class="fas fa-leaf text-green-600 ml-2"></i>
+    </header>
+
+    <div class="main-content p-3 space-y-3">
+        
+        <div class="grid grid-cols-2 gap-2">
+            <div class="glass-card border-l-4 border-blue-500">
+                <p class="text-[9px] font-bold text-gray-400 uppercase">Latest Production</p>
+                <p id="totalProd" class="stat-val">0.0</p>
+                <p id="avgProd" class="stat-avg">Avg: 0.0/day</p>
+            </div>
+            <div class="glass-card border-l-4 border-orange-500">
+                <p class="text-[9px] font-bold text-gray-400 uppercase">Home Usage (Net)</p>
+                <p id="totalUse" class="stat-val">0.0</p>
+                <p id="avgUse" class="stat-avg">Avg: 0.0/day</p>
+            </div>
+            <div class="glass-card">
+                <p class="text-[9px] font-bold text-gray-400 uppercase">Self Sufficiency</p>
+                <p id="effPercent" class="stat-val text-green-600">0%</p>
+                <p class="stat-avg">Utilization</p>
+            </div>
+            <div class="glass-card">
+                <p class="text-[9px] font-bold text-gray-400 uppercase">CO2 Offset</p>
+                <p id="co2Stat" class="stat-val text-blue-600">0.0 <span class="text-[10px]">kg</span></p>
+                <p class="stat-avg">Carbon Saved</p>
+            </div>
+        </div>
+
+        <div class="glass-card bg-green-50 border-green-200 py-3">
+            <div class="flex justify-between items-center">
+                <div>
+                    <p class="text-[10px] text-green-700 font-bold uppercase">Banking Balance (Export-Import)</p>
+                    <p id="statBanking" class="text-2xl font-black text-green-800">0.0 <span class="text-xs">Units</span></p>
+                </div>
+                <div class="text-right">
+                    <p class="text-[10px] text-green-700 font-bold uppercase">Estimated Value</p>
+                    <p id="statAmount" class="text-lg font-bold text-green-600">₹ 0.00</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-card">
+            <p class="text-[10px] font-bold text-gray-400 mb-2 uppercase">Performance History</p>
+            <div style="height: 180px;"><canvas id="lineChart"></canvas></div>
+            <div class="flex justify-center gap-6 mt-3 border-t pt-2">
+                <div class="legend-item"><div class="legend-color bg-blue-500"></div><span class="text-blue-600 uppercase">Production</span></div>
+                <div class="legend-item"><div class="legend-color bg-orange-500"></div><span class="text-orange-600 uppercase">Usage</span></div>
+            </div>
+        </div>
+
+        <div class="glass-card border-t-4 border-green-500">
+            <p class="text-[11px] font-bold text-gray-700 mb-3 uppercase tracking-wider">Meter Reading Input</p>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 ml-1 uppercase">Date</label>
+                    <input type="date" id="inputDate" class="input-box">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 ml-1 uppercase">Production Meter Reading</label>
+                    <input type="number" id="prodReading" class="input-box" placeholder="0.0">
+                    <p id="prevProd" class="text-[9px] text-blue-500 mt-1">Prev: --</p>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-500 ml-1 uppercase">KSEB Export Meter</label>
+                        <input type="number" id="exportReading" class="input-box" placeholder="0.0">
+                        <p id="prevExport" class="text-[9px] text-green-600 mt-1">Prev: --</p>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-500 ml-1 uppercase">KSEB Import Meter</label>
+                        <input type="number" id="importReading" class="input-box" placeholder="0.0">
+                        <p id="prevImport" class="text-[9px] text-red-500 mt-1">Prev: --</p>
+                    </div>
+                </div>
+            </div>
+            <button onclick="saveData()" class="w-full bg-green-600 text-white font-bold py-3 mt-4 rounded-lg shadow-md active:scale-95 transition uppercase text-xs">
+                Save Reading
+            </button>
+        </div>
+
+        <div class="flex justify-center pb-4">
+            <button onclick="showModal()" class="text-[9px] text-red-300 font-bold uppercase tracking-widest">
+                <i class="fas fa-trash mr-1"></i> Reset All Data
+            </button>
+        </div>
+    </div>
+
+    <div id="resetModal">
+        <div class="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-[280px] text-center">
+            <h3 class="font-bold text-gray-800 text-base mb-2">ഡാറ്റ മുഴുവൻ കളയണോ?</h3>
+            <p class="text-[11px] text-gray-500 mb-6">സേവ് ചെയ്ത വിവരങ്ങൾ എല്ലാം മാഞ്ഞുപോകും.</p>
+            <div class="flex gap-2">
+                <button onclick="hideModal()" class="flex-1 bg-gray-100 py-2.5 rounded-xl font-bold text-xs uppercase">No</button>
+                <button onclick="resetData()" class="flex-1 bg-red-500 text-white py-2.5 rounded-xl font-bold text-xs uppercase">Yes</button>
+            </div>
+        </div>
+    </div>
+
+    <footer> POWERED BY VTSOFT 2026 </footer>
+
+    <script>
+        document.getElementById('inputDate').valueAsDate = new Date();
+        let solarData = JSON.parse(localStorage.getItem('solarData')) || [];
+        let myChart = null;
+
+        function init() {
+            displayPrevious();
+            calculateAll();
+            renderCharts();
+        }
+
+        function displayPrevious() {
+            if (solarData.length > 0) {
+                const last = solarData[solarData.length - 1];
+                document.getElementById('prevProd').innerText = "Prev: " + last.prod;
+                document.getElementById('prevExport').innerText = "Prev: " + last.exp;
+                document.getElementById('prevImport').innerText = "Prev: " + last.imp;
+            }
+        }
+
+        function saveData() {
+            const entry = {
+                date: document.getElementById('inputDate').value,
+                prod: parseFloat(document.getElementById('prodReading').value) || 0,
+                exp: parseFloat(document.getElementById('exportReading').value) || 0,
+                imp: parseFloat(document.getElementById('importReading').value) || 0
+            };
+            if(!entry.prod) return alert("റീഡിംഗ് നൽകുക!");
+
+            const index = solarData.findIndex(d => d.date === entry.date);
+            if (index > -1) solarData[index] = entry;
+            else solarData.push(entry);
+
+            solarData.sort((a, b) => new Date(a.date) - new Date(b.date));
+            localStorage.setItem('solarData', JSON.stringify(solarData));
+            location.reload(); 
+        }
+
+        function getDiffDays(d1, d2) {
+            const dt1 = new Date(d1);
+            const dt2 = new Date(d2);
+            const diff = Math.ceil(Math.abs(dt2 - dt1) / (1000 * 60 * 60 * 24));
+            return diff === 0 ? 0 : diff;
+        }
+
+        function calculateAll() {
+            if (solarData.length < 1) return;
+            const last = solarData[solarData.length - 1];
+            document.getElementById('totalProd').innerText = last.prod.toFixed(1);
+            document.getElementById('statBanking').innerText = (last.exp - last.imp).toFixed(1);
+            document.getElementById('statAmount').innerText = "₹ " + ((last.exp - last.imp) * 3.15).toFixed(2);
+
+            if (solarData.length >= 2) {
+                const first = solarData[0];
+                const totalDays = getDiffDays(first.date, last.date);
+                if (totalDays > 0) {
+                    const diffProd = last.prod - first.prod;
+                    const diffExp = last.exp - first.exp;
+                    const diffImp = last.imp - first.imp;
+                    const totalUsage = diffProd - diffExp + diffImp;
+                    document.getElementById('avgProd').innerText = "Avg: " + (diffProd / totalDays).toFixed(1) + "/day";
+                    document.getElementById('totalUse').innerText = totalUsage.toFixed(1);
+                    document.getElementById('avgUse').innerText = "Avg: " + (totalUsage / totalDays).toFixed(1) + "/day";
+                    document.getElementById('effPercent').innerText = Math.max(0, ((diffProd - diffExp) / diffProd) * 100).toFixed(0) + "%";
+                    document.getElementById('co2Stat').innerText = (diffProd * 0.7).toFixed(1);
+                }
+            }
+        }
+
+        function renderCharts() {
+            const ctx = document.getElementById('lineChart').getContext('2d');
+            if (solarData.length < 2) return;
+            
+            let labels = []; let pData = []; let uData = [];
+
+            for (let i = 1; i < solarData.length; i++) {
+                let d1 = new Date(solarData[i-1].date);
+                let daysSpan = getDiffDays(solarData[i-1].date, solarData[i].date);
+                if(daysSpan === 0) continue;
+
+                let dp = (solarData[i].prod - solarData[i-1].prod) / daysSpan;
+                let du = ((solarData[i].prod - solarData[i-1].prod) - (solarData[i].exp - solarData[i-1].exp) + (solarData[i].imp - solarData[i-1].imp)) / daysSpan;
+
+                for (let j = 1; j <= daysSpan; j++) {
+                    let nextDate = new Date(d1);
+                    nextDate.setDate(d1.getDate() + j);
+                    labels.push(nextDate.toLocaleDateString('en-GB', {day:'2-digit', month:'2-digit'}));
+                    pData.push(dp.toFixed(2));
+                    uData.push(du.toFixed(2));
+                }
+            }
+
+            if(myChart) myChart.destroy();
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels.slice(-15),
+                    datasets: [
+                        { label: 'Prod', data: pData.slice(-15), borderColor: '#3b82f6', tension: 0.3, borderWidth: 2, pointRadius: 2, fill: false },
+                        { label: 'Use', data: uData.slice(-15), borderColor: '#f97316', tension: 0.3, borderWidth: 2, pointRadius: 2, fill: false }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+        }
+
+        function showModal() { document.getElementById('resetModal').style.display = 'flex'; }
+        function hideModal() { document.getElementById('resetModal').style.display = 'none'; }
+        function resetData() { localStorage.clear(); location.reload(); }
+
+        init();
+    </script>
+</body>
+</html>
