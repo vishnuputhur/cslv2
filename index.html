@@ -345,6 +345,61 @@
         .content-box:nth-child(4) h2::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231e3a8a'%3E%3Cpath d='M9 4C9 2.9 9.9 2 11 2H13C14.1 2 15 2.9 15 4V5H9V4ZM7 7C6.45 7 6 7.45 6 8C6 8.55 6.45 9 7 9H17C17.55 9 18 8.55 18 8C18 7.45 17.55 7 17 7H7ZM18 20C18 21.1 17.1 22 16 22H8C6.9 22 6 21.1 6 20V10H18V20Z'%3E%3C/path%3E%3C/svg%3E"); }
         .content-box:nth-child(5) h2::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231e3a8a'%3E%3Cpath d='M9 4C9 2.9 9.9 2 11 2H13C14.1 2 15 2.9 15 4V5H9V4ZM7 7C6.45 7 6 7.45 6 8C6 8.55 6.45 9 7 9H17C17.55 9 18 8.55 18 8C18 7.45 17.55 7 17 7H7ZM18 20C18 21.1 17.1 22 16 22H8C6.9 22 6 21.1 6 20V10H18V20Z'%3E%3C/path%3E%3C/svg%3E"); }
 
+/* Solar Calculator Box */
+.solar-box {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    color: #1a365d;
+    border: 1px solid #d1d5db;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    text-align: left;
+    position: relative;
+    overflow: hidden;
+    border-left: 4px solid #f59e0b;
+    background: linear-gradient(to right, #fffaf0, #ffffff);
+}
+
+.solar-box h2 {
+    font-size: 1rem;
+    margin: 0 0 8px 0;
+    color: #d97706;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+}
+
+.solar-box h2::before {
+    content: "☀️";
+    margin-right: 8px;
+    font-size: 0.9rem;
+}
+
+.solar-box p {
+    margin: 0;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: #4a5568;
+}
+
+.solar-box a {
+    color: #d97706;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.75rem;
+    display: inline-block;
+    margin-top: 8px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    transition: all 0.2s;
+}
+
+.solar-box a:hover {
+    background: rgba(245, 158, 11, 0.2);
+}
         /* Blood Donation Box - NEW - Placed at top */
         .blood-box {
             background: white;
@@ -734,7 +789,7 @@
     </header>
 
     <div class="menu-drawer" id="menu-drawer">
-        <a href="bonus.html">Performance Payment</a>
+<a href="solar.html">Solar Calculator</a>
         <a href="di.html">Ship Theory Dictionary</a>
         <a href="atn.html">Attendance Register</a>
         <a href="calender.html">CSL Calendar</a>
@@ -763,7 +818,7 @@
                     • CSL Blood Donation Page Added • 2026 Calendar Updated • Performance Payment Calculator • Water Level Calc with PDF Export • 2025-26 Tax Calculator • Expense Diary Added • New DA (53.6) updated • New Income Tax Calculator added •
                 </div>
                 <div class="marquee-content">
-                    • CSL Blood Donation Page Added • 2026 Calendar Updated • Performance Payment Calculator • Water Level Calc with PDF Export • 2025-26 Tax Calculator • Expense Diary Added • New DA (53.6) updated • New Income Tax Calculator Added•
+                    • CSL Blood Donation Page Added •Solar Calculator Added • 2026 Calendar Updated • Performance Payment Calculator • Water Level Calc with PDF Export • 2025-26 Tax Calculator • Expense Diary Added • New DA (53.6) updated • New Income Tax Calculator Added•
                 </div>
             </div>
         </div>
@@ -797,7 +852,14 @@
                 <a href="blood.html">View Blood Donors List →</a>
             </p>
         </div>
-        
+        <div class="solar-box">
+    <h2>Solar Power Calculator</h2>
+    <p>
+        Enter your KSEB meter values daily to measure your solar plant performance. 
+        Track production, usage, exports, and calculate savings with this easy-to-use tool.<br>
+        <a href="solar.html">Open Solar Calculator →</a>
+    </p>
+</div>
         <div class="tax-box">
             <h2>Income Tax Calculator</h2>
             <p>
