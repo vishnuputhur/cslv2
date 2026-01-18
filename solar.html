@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ml">
 <head>
-<!-- Google tag (gtag.js) -->
+ <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-21G1BS7S3S"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -16,24 +16,27 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background-color: #f1f5f9; font-family: 'Segoe UI', sans-serif; font-size: 13px; }
+        body { background-color: #f1f5f9; font-family: 'Segoe UI', sans-serif; font-size: 13px; scroll-behavior: smooth; }
         .glass-card { background: white; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; padding: 10px; }
-        header { position: fixed; top: 0; width: 100%; z-index: 50; background: #dcfce7; color: #166534; height: 50px; display: flex; align-items: center; justify-content: center; font-weight: bold; border-bottom: 1px solid #bbf7d0; }
+        header { position: fixed; top: 0; width: 100%; z-index: 50; background: #dcfce7; color: #166534; height: 60px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-bottom: 1px solid #bbf7d0; }
         footer { position: fixed; bottom: 0; width: 100%; font-size: 0.6rem; background: #fff; height: 25px; display: flex; align-items: center; justify-content: center; color: #94a3b8; border-top: 1px solid #eee; }
-        .main-content { margin-top: 60px; margin-bottom: 80px; }
+        .main-content { margin-top: 70px; margin-bottom: 80px; }
         .input-box { border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px; width: 100%; height: 38px; outline: none; font-size: 14px; }
         .input-box:focus { border-color: #22c55e; }
         .stat-val { font-size: 1.1rem; font-weight: 800; color: #1e293b; line-height: 1; }
         .stat-avg { font-size: 0.7rem; color: #64748b; font-weight: 500; margin-top: 2px; }
         #resetModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(2px); }
-        .legend-item { display: flex; align-items: center; font-size: 10px; font-weight: bold; }
-        .legend-color { width: 12px; height: 3px; border-radius: 2px; margin-right: 5px; }
+        .legend-item { display: flex; align-items: center; font-size: 9px; font-weight: bold; }
+        .legend-color { width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; }
+        /* Floating Button */
+        .fab { position: fixed; bottom: 40px; right: 20px; background: #22c55e; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 40; border: none; }
     </style>
 </head>
 <body>
 
-    <header class="shadow-sm uppercase tracking-wider">
-        My Solar Plant <i class="fas fa-leaf text-green-600 ml-2"></i>
+    <header class="shadow-sm">
+        <div class="font-bold uppercase tracking-wider text-sm">My Solar Plant <i class="fas fa-leaf text-green-600 ml-1"></i></div>
+        <div id="lastUpdateText" class="text-[9px] text-green-700 opacity-70 mt-0.5">Last Updated: --</div>
     </header>
 
     <div class="main-content p-3 space-y-3">
@@ -76,14 +79,28 @@
 
         <div class="glass-card">
             <p class="text-[10px] font-bold text-gray-400 mb-2 uppercase">Performance History</p>
-            <div style="height: 180px;"><canvas id="lineChart"></canvas></div>
-            <div class="flex justify-center gap-6 mt-3 border-t pt-2">
-                <div class="legend-item"><div class="legend-color bg-blue-500"></div><span class="text-blue-600 uppercase">Production</span></div>
+            <div style="height: 160px;"><canvas id="lineChart"></canvas></div>
+            <div class="flex justify-center gap-4 mt-3 border-t pt-2">
+                <div class="legend-item"><div class="legend-color bg-blue-500"></div><span class="text-blue-600 uppercase">Prod</span></div>
                 <div class="legend-item"><div class="legend-color bg-orange-500"></div><span class="text-orange-600 uppercase">Usage</span></div>
             </div>
         </div>
 
-        <div class="glass-card border-t-4 border-green-500">
+        <div class="glass-card">
+            <p class="text-[10px] font-bold text-gray-400 mb-2 uppercase">Today's Split (Units)</p>
+            <div class="flex items-center justify-around py-1">
+                <div style="width: 100px; height: 100px;">
+                    <canvas id="roundChart"></canvas>
+                </div>
+                <div class="space-y-1.5">
+                    <div class="legend-item"><div class="legend-color bg-blue-400"></div><span>PROD: <span id="splitProd" class="font-bold">0</span></span></div>
+                    <div class="legend-item"><div class="legend-color bg-orange-400"></div><span>USE: <span id="splitUse" class="font-bold">0</span></span></div>
+                    <div class="legend-item"><div class="legend-color bg-red-400"></div><span>IMP: <span id="splitImp" class="font-bold">0</span></span></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="inputSection" class="glass-card border-t-4 border-green-500">
             <p class="text-[11px] font-bold text-gray-700 mb-3 uppercase tracking-wider">Meter Reading Input</p>
             <div class="space-y-3">
                 <div>
@@ -93,18 +110,18 @@
                 <div>
                     <label class="text-[10px] font-bold text-gray-500 ml-1 uppercase">Production Meter Reading</label>
                     <input type="number" id="prodReading" class="input-box" placeholder="0.0">
-                    <p id="prevProd" class="text-[9px] text-blue-500 mt-1">Prev: --</p>
+                    <p id="prevProd" class="text-[9px] text-blue-500 mt-1 font-medium">Prev: --</p>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="text-[10px] font-bold text-gray-500 ml-1 uppercase">KSEB Export Meter</label>
                         <input type="number" id="exportReading" class="input-box" placeholder="0.0">
-                        <p id="prevExport" class="text-[9px] text-green-600 mt-1">Prev: --</p>
+                        <p id="prevExport" class="text-[9px] text-green-600 mt-1 font-medium">Prev: --</p>
                     </div>
                     <div>
                         <label class="text-[10px] font-bold text-gray-500 ml-1 uppercase">KSEB Import Meter</label>
                         <input type="number" id="importReading" class="input-box" placeholder="0.0">
-                        <p id="prevImport" class="text-[9px] text-red-500 mt-1">Prev: --</p>
+                        <p id="prevImport" class="text-[9px] text-red-500 mt-1 font-medium">Prev: --</p>
                     </div>
                 </div>
             </div>
@@ -113,12 +130,16 @@
             </button>
         </div>
 
-        <div class="flex justify-center pb-4">
+        <div class="flex justify-center pb-6">
             <button onclick="showModal()" class="text-[9px] text-red-300 font-bold uppercase tracking-widest">
                 <i class="fas fa-trash mr-1"></i> Reset All Data
             </button>
         </div>
     </div>
+
+    <button onclick="document.getElementById('inputSection').scrollIntoView()" class="fab">
+        <i class="fas fa-plus"></i>
+    </button>
 
     <div id="resetModal">
         <div class="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-[280px] text-center">
@@ -136,7 +157,8 @@
     <script>
         document.getElementById('inputDate').valueAsDate = new Date();
         let solarData = JSON.parse(localStorage.getItem('solarData')) || [];
-        let myChart = null;
+        let lineChart = null;
+        let roundChart = null;
 
         function init() {
             displayPrevious();
@@ -150,6 +172,10 @@
                 document.getElementById('prevProd').innerText = "Prev: " + last.prod;
                 document.getElementById('prevExport').innerText = "Prev: " + last.exp;
                 document.getElementById('prevImport').innerText = "Prev: " + last.imp;
+                
+                // Set Last Updated Date in Header
+                const d = new Date(last.date);
+                document.getElementById('lastUpdateText').innerText = "Last Updated: " + d.toLocaleDateString('en-GB');
             }
         }
 
@@ -174,8 +200,7 @@
         function getDiffDays(d1, d2) {
             const dt1 = new Date(d1);
             const dt2 = new Date(d2);
-            const diff = Math.ceil(Math.abs(dt2 - dt1) / (1000 * 60 * 60 * 24));
-            return diff === 0 ? 0 : diff;
+            return Math.ceil(Math.abs(dt2 - dt1) / (1000 * 60 * 60 * 24));
         }
 
         function calculateAll() {
@@ -193,6 +218,7 @@
                     const diffExp = last.exp - first.exp;
                     const diffImp = last.imp - first.imp;
                     const totalUsage = diffProd - diffExp + diffImp;
+                    
                     document.getElementById('avgProd').innerText = "Avg: " + (diffProd / totalDays).toFixed(1) + "/day";
                     document.getElementById('totalUse').innerText = totalUsage.toFixed(1);
                     document.getElementById('avgUse').innerText = "Avg: " + (totalUsage / totalDays).toFixed(1) + "/day";
@@ -203,11 +229,10 @@
         }
 
         function renderCharts() {
-            const ctx = document.getElementById('lineChart').getContext('2d');
             if (solarData.length < 2) return;
             
+            // --- Line Chart Logic (with Gap Filling) ---
             let labels = []; let pData = []; let uData = [];
-
             for (let i = 1; i < solarData.length; i++) {
                 let d1 = new Date(solarData[i-1].date);
                 let daysSpan = getDiffDays(solarData[i-1].date, solarData[i].date);
@@ -217,16 +242,13 @@
                 let du = ((solarData[i].prod - solarData[i-1].prod) - (solarData[i].exp - solarData[i-1].exp) + (solarData[i].imp - solarData[i-1].imp)) / daysSpan;
 
                 for (let j = 1; j <= daysSpan; j++) {
-                    let nextDate = new Date(d1);
-                    nextDate.setDate(d1.getDate() + j);
+                    let nextDate = new Date(d1); nextDate.setDate(d1.getDate() + j);
                     labels.push(nextDate.toLocaleDateString('en-GB', {day:'2-digit', month:'2-digit'}));
-                    pData.push(dp.toFixed(2));
-                    uData.push(du.toFixed(2));
+                    pData.push(dp.toFixed(2)); uData.push(du.toFixed(2));
                 }
             }
-
-            if(myChart) myChart.destroy();
-            myChart = new Chart(ctx, {
+            const ctxLine = document.getElementById('lineChart').getContext('2d');
+            lineChart = new Chart(ctxLine, {
                 type: 'line',
                 data: {
                     labels: labels.slice(-15),
@@ -236,6 +258,34 @@
                     ]
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+
+            // --- Round Chart (Today's Split) Logic ---
+            const last = solarData[solarData.length-1];
+            const prev = solarData[solarData.length-2];
+            const dSpan = getDiffDays(prev.date, last.date);
+            
+            const dp = (last.prod - prev.prod) / dSpan;
+            const de = (last.exp - prev.exp) / dSpan;
+            const di = (last.imp - prev.imp) / dSpan;
+            const du = dp - de + di;
+
+            document.getElementById('splitProd').innerText = dp.toFixed(1);
+            document.getElementById('splitUse').innerText = du.toFixed(1);
+            document.getElementById('splitImp').innerText = di.toFixed(1);
+
+            const ctxRound = document.getElementById('roundChart').getContext('2d');
+            roundChart = new Chart(ctxRound, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Prod', 'Use', 'Imp'],
+                    datasets: [{
+                        data: [dp.toFixed(1), du.toFixed(1), di.toFixed(1)],
+                        backgroundColor: ['#60a5fa', '#fb923c', '#f87171'],
+                        borderWidth: 1
+                    }]
+                },
+                options: { cutout: '65%', plugins: { legend: { display: false } } }
             });
         }
 
