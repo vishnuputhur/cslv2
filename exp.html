@@ -407,8 +407,8 @@
                     incomeSources = data.incomeSources || incomeSources;
                     expenses = data.expenses || {};
                     income = data.income || {};
-                    currentMonth = data.currentMonth || currentMonth;
-                    currentYear = data.currentYear || currentYear;
+                    if (typeof data.currentMonth === "number") currentMonth = data.currentMonth;
+if (typeof data.currentYear === "number") currentYear = data.currentYear;
                     recurringExpenses = data.recurringExpenses || [];
                     console.log('Data loaded:', data);
                 }
@@ -420,6 +420,9 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Initializing app...');
             loadData();
+const now = new Date();
+currentMonth = now.getMonth();
+currentYear = now.getFullYear();
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('expense-date').value = today;
             document.getElementById('income-date').value = today;
@@ -503,7 +506,8 @@
             }
 
             const expense = { date, account, description, amount };
-            const monthYear = `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}`;
+            const d = new Date(date);
+const monthYear = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}`;
             if (!expenses[monthYear]) expenses[monthYear] = [];
             expenses[monthYear].push(expense);
             accounts[account].balance -= amount;
@@ -530,7 +534,8 @@
             }
 
             const incomeEntry = { date, account, source, amount, description };
-            const monthYear = `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}`;
+            const d = new Date(date);
+const monthYear = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}`;
             if (!income[monthYear]) income[monthYear] = [];
             income[monthYear].push(incomeEntry);
             accounts[account].balance += amount;
@@ -814,7 +819,7 @@
 
         function processRecurringExpenses() {
             const today = new Date();
-            const monthYear = `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}`;
+            const monthYear = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}`;
             if (!expenses[monthYear]) expenses[monthYear] = [];
 
             recurringExpenses.forEach(expense => {
