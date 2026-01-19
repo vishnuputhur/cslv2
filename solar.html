@@ -187,6 +187,12 @@
                 imp: parseFloat(document.getElementById('importReading').value) || 0
             };
             if(!entry.prod) return alert("റീഡിംഗ് നൽകുക!");
+if (solarData.length > 0) {
+    const last = solarData[solarData.length - 1];
+    if (entry.prod < last.prod || entry.exp < last.exp || entry.imp < last.imp) {
+        return alert("New reading must be greater than or equal to previous reading!");
+    }
+}
 
             const index = solarData.findIndex(d => d.date === entry.date);
             if (index > -1) solarData[index] = entry;
@@ -222,7 +228,11 @@
                     document.getElementById('avgProd').innerText = "Avg: " + (diffProd / totalDays).toFixed(1) + "/day";
                     document.getElementById('totalUse').innerText = totalUsage.toFixed(1);
                     document.getElementById('avgUse').innerText = "Avg: " + (totalUsage / totalDays).toFixed(1) + "/day";
-                    document.getElementById('effPercent').innerText = Math.max(0, ((diffProd - diffExp) / diffProd) * 100).toFixed(0) + "%";
+                    if (diffProd > 0) {
+    document.getElementById('effPercent').innerText = Math.max(0, ((diffProd - diffExp) / diffProd) * 100).toFixed(0) + "%";
+} else {
+    document.getElementById('effPercent').innerText = "0%";
+}
                     document.getElementById('co2Stat').innerText = (diffProd * 0.7).toFixed(1);
                 }
             }
@@ -264,6 +274,7 @@
             const last = solarData[solarData.length-1];
             const prev = solarData[solarData.length-2];
             const dSpan = getDiffDays(prev.date, last.date);
+            if (dSpan <= 0) return;
             
             const dp = (last.prod - prev.prod) / dSpan;
             const de = (last.exp - prev.exp) / dSpan;
@@ -291,7 +302,10 @@
 
         function showModal() { document.getElementById('resetModal').style.display = 'flex'; }
         function hideModal() { document.getElementById('resetModal').style.display = 'none'; }
-        function resetData() { localStorage.clear(); location.reload(); }
+        function resetData() { 
+    localStorage.removeItem("solarData"); 
+    location.reload(); 
+}
 
         init();
     </script>
