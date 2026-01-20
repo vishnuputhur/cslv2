@@ -511,7 +511,7 @@
     </div>
 
     <div class="sync-container">
-        <button class="sync-btn" id="syncBtn" onclick="showConfirm('sync')">Sync Cloud</button>
+        <button class="sync-btn" id="syncBtn" onclick="autoSync()">Auto Sync</button>
         <div class="sync-status" id="syncStatus">Offline</div>
     </div>
 
@@ -576,13 +576,92 @@
         
         let attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || {};
         let employeeData = JSON.parse(localStorage.getItem('employeeData')) || {
-            name: '', code: '', cl: 0, el: 0, hpl: 0, special: 3, elBaseMonth: today.getMonth(), 
+            name: '', code: '', 
+            clTotal: 0, elTotal: 0, hplTotal: 0, specialTotal: 3, 
+            lastUpdate: "2025-12-01", // NEW: Store last update date
             settingsUpdated: false, userId: '', lastSync: 0
         };
+        
+        // 🔥 FIX 1 — Backward compatibility patch (VERY IMPORTANT)
+        // Migration for old users
+        if (employeeData.cl !== undefined) {
+            employeeData.clTotal = employeeData.cl || 0;
+            delete employeeData.cl;
+        }
+        if (employeeData.el !== undefined) {
+            employeeData.elTotal = employeeData.el || 0;
+            delete employeeData.el;
+        }
+        if (employeeData.hpl !== undefined) {
+            employeeData.hplTotal = employeeData.hpl || 0;
+            delete employeeData.hpl;
+        }
+        if (employeeData.special !== undefined) {
+            employeeData.specialTotal = employeeData.special || 0;
+            delete employeeData.special;
+        }
+
+        // Safety defaults
+        employeeData.clTotal = employeeData.clTotal || 0;
+        employeeData.elTotal = employeeData.elTotal || 0;
+        employeeData.hplTotal = employeeData.hplTotal || 0;
+        employeeData.specialTotal = employeeData.specialTotal || 0;
+        employeeData.lastUpdate = employeeData.lastUpdate || "2025-12-01";
+
+        // Save migrated data back
+        localStorage.setItem('employeeData', JSON.stringify(employeeData));
         
         let syncInProgress = false;
         let lastSyncTime = parseInt(localStorage.getItem('lastSyncTime')) || 0;
         let pendingAction = null;
+
+        // ✅ STEP 1 & 2: Calculate USED leaves from attendanceData
+        function calculateUsedLeaves() {
+            let used = { cl: 0, el: 0, hpl: 0, special: 0 };
+
+            for (let dateStr in attendanceData) {
+                const d = attendanceData[dateStr];
+                if (!d.leave) continue;
+
+                const deduction = d.halfDay === 'Yes' ? 0.5 : 1;
+
+                // ✅ FIX 3 — Normalize leave name
+                const lt = (d.leave || '').toUpperCase().trim();
+                
+                if (lt === 'CL') used.cl += deduction;
+                else if (lt === 'EL') used.el += deduction;
+                else if (lt === 'HPL') used.hpl += deduction * 2;
+                else if (lt === 'SPECIAL' || lt === 'SPL' || lt === 'SPECIAL LEAVE') used.special += deduction;
+                else {
+                    // Default fallback for unknown leave types
+                    console.warn("Unknown leave type:", d.leave);
+                }
+            }
+            return used;
+        }
+
+        // ✅ STEP 3: Get REAL balance dynamically
+        function getLeaveBalance() {
+            const used = calculateUsedLeaves();
+
+            // Ensure numbers are valid
+            const clTotal = parseFloat(employeeData.clTotal) || 0;
+            const elTotal = parseFloat(employeeData.elTotal) || 0;
+            const hplTotal = parseFloat(employeeData.hplTotal) || 0;
+            const specialTotal = parseInt(employeeData.specialTotal) || 0;
+
+            const clUsed = parseFloat(used.cl) || 0;
+            const elUsed = parseFloat(used.el) || 0;
+            const hplUsed = parseFloat(used.hpl) || 0;
+            const specialUsed = parseInt(used.special) || 0;
+
+            return {
+                cl: Math.max(0, clTotal - clUsed),
+                el: Math.max(0, elTotal - elUsed),
+                hpl: Math.max(0, hplTotal - hplUsed),
+                special: Math.max(0, specialTotal - specialUsed)
+            };
+        }
 
         // Custom Alert Function
         function showAlert(message, title = "Message") {
@@ -605,9 +684,6 @@
             } else if (action === 'saveCloud') {
                 document.getElementById('confirmTitle').textContent = "Save to Cloud";
                 document.getElementById('confirmMessage').textContent = "Save all data to cloud? This will overwrite your cloud data.";
-            } else if (action === 'sync') {
-                document.getElementById('confirmTitle').textContent = "Sync Cloud";
-                document.getElementById('confirmMessage').textContent = "Sync current month data to cloud?";
             } else if (action === 'saveSettings') {
                 document.getElementById('confirmTitle').textContent = "Save Settings";
                 document.getElementById('confirmMessage').textContent = "Save settings changes?";
@@ -628,8 +704,6 @@
                 loadFromCloud();
             } else if (pendingAction === 'saveCloud') {
                 saveToCloud();
-            } else if (pendingAction === 'sync') {
-                forceSync();
             } else if (pendingAction === 'saveSettings') {
                 saveSettingsConfirmed();
             }
@@ -638,7 +712,9 @@
         }
 
         // Set up the confirm button
-        document.getElementById('confirmOkBtn').onclick = confirmAction;
+
+// NEW (ശരി):
+document.getElementById('confirmOkBtn').onclick = handleConfirmAction;
 
         function packDayData(dayData) {
             if (!dayData) return "";
@@ -689,6 +765,90 @@
             return unpacked;
         }
 
+// ⬇️ ഇത് ചേർക്കുക (രേഖ 580-ന് ശേഷം):
+function handleConfirmAction() {
+    if (pendingAction === 'loadCloud') {
+        loadFromCloud();
+    } else if (pendingAction === 'saveCloud') {
+        saveToCloud();
+    } else if (pendingAction === 'saveSettings') {
+        saveSettingsConfirmed();
+    }
+    closeConfirmModal();
+    pendingAction = null;
+}
+        // AUTO SYNC FUNCTION
+        async function autoSyncCurrentMonth() {
+            if (!db || !employeeData.userId) {
+                updateSyncStatus('Firebase not ready');
+                return false;
+            }
+            
+            const monthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+            const lastAutoSync = localStorage.getItem(`lastAutoSync_${monthKey}`);
+            const now = Date.now();
+            const oneHour = 60 * 60 * 1000;
+            
+            // 1 മണിക്കൂറിൽ ഒരിക്കൽ മാത്രം auto-sync
+            if (lastAutoSync && (now - parseInt(lastAutoSync) < oneHour)) {
+                return false;
+            }
+            
+            try {
+                updateSyncStatus('Auto-syncing...');
+                
+                // Cloud ൽ നിന്ന് ഡാറ്റ ലോഡ് ചെയ്യുക
+                const docRef = db.collection("attendance_records")
+                    .doc(employeeData.userId)
+                    .collection("months")
+                    .doc(monthKey);
+                    
+                const doc = await docRef.get();
+                
+                let cloudDataLoaded = false;
+                
+                if (doc.exists) {
+                    const remoteData = doc.data();
+                    const remoteTimestamp = remoteData.lastUpdated || 0;
+                    
+                    // Local timestamp കണ്ടെത്തുക
+                    let localTimestamp = 0;
+                    for (const dateStr in attendanceData) {
+                        if (dateStr.startsWith(monthKey)) {
+                            localTimestamp = Math.max(localTimestamp, remoteTimestamp);
+                        }
+                    }
+                    
+                    // Cloud ൽ പുതിയതാണെങ്കിൽ മാത്രം update ചെയ്യുക
+                    if (remoteTimestamp > localTimestamp) {
+                        const packedMonthData = remoteData.monthData || {};
+                        const unpackedData = unpackMonthData(packedMonthData);
+                        
+                        for (const dateStr in unpackedData) {
+                            attendanceData[dateStr] = unpackedData[dateStr];
+                        }
+                        
+                        localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
+                        cloudDataLoaded = true;
+                    }
+                }
+                
+                // Local changes cloud ൽ save ചെയ്യുക
+                await saveCurrentMonthToCloud();
+                localStorage.setItem(`lastAutoSync_${monthKey}`, now.toString());
+                
+                updateSyncStatus('Auto-synced');
+                if (cloudDataLoaded) {
+                    showMonth(currentMonth); // കലണ്ടർ refresh ചെയ്യുക
+                }
+                
+                return true;
+            } catch (error) {
+                updateSyncStatus('Auto-sync failed');
+                return false;
+            }
+        }
+
         async function initApp() {
             if (!employeeData.name || !employeeData.code) {
                 showUserRegisterModal();
@@ -700,15 +860,27 @@
                 localStorage.setItem('employeeData', JSON.stringify(employeeData));
             }
 
-            const now = Date.now();
-            const oneWeek = 7 * 24 * 60 * 60 * 1000;
-            if (now - lastSyncTime > oneWeek && employeeData.userId) {
-                await loadCurrentMonthFromCloud();
+            // ✅ FIX 1: EL auto increment - 2025 ലും 2026 ലും പ്രവർത്തിക്കും (Updated)
+            const currentDate = new Date();
+            const lastUpdateDate = new Date(employeeData.lastUpdate || "2025-12-01");
+            const monthsElapsed = (currentDate.getFullYear() - lastUpdateDate.getFullYear()) * 12 + 
+                                  (currentDate.getMonth() - lastUpdateDate.getMonth());
+
+            if (monthsElapsed > 0) {
+                employeeData.elTotal += (monthsElapsed * 2.5);
+                employeeData.lastUpdate = currentDate.toISOString().split('T')[0]; // Store date only
+                localStorage.setItem('employeeData', JSON.stringify(employeeData));
+            }
+
+            // Auto-sync ചെയ്യുക
+            try {
+                await autoSyncCurrentMonth();
+            } catch (err) {
+                console.log("Auto-sync failed on init:", err);
             }
             
             loadSettings();
             showMonth(currentMonth);
-            
             updateSyncStatus('Ready');
         }
 
@@ -742,50 +914,6 @@
             const firstThreeLetters = name.substring(0, 3).toLowerCase().replace(/\s/g, '');
             const cleanCode = code.replace(/\s/g, '');
             return `${firstThreeLetters}_${cleanCode}`;
-        }
-
-        async function loadCurrentMonthFromCloud() {
-            if (!db || !employeeData.userId) {
-                updateSyncStatus('Firebase not ready');
-                return;
-            }
-            
-            try {
-                updateSyncStatus('Syncing...');
-                const monthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
-                
-                const docRef = db.collection("attendance_records")
-                    .doc(employeeData.userId)
-                    .collection("months")
-                    .doc(monthKey);
-                    
-                const doc = await docRef.get();
-                
-                if (doc.exists) {
-                    const remoteData = doc.data();
-                    const remoteTimestamp = remoteData.lastUpdated || 0;
-                    
-                    if (remoteTimestamp > lastSyncTime) {
-                        const packedMonthData = remoteData.monthData || {};
-                        const unpackedData = unpackMonthData(packedMonthData);
-                        
-                        for (const dateStr in unpackedData) {
-                            attendanceData[dateStr] = unpackedData[dateStr];
-                        }
-                        
-                        localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
-                        lastSyncTime = remoteTimestamp;
-                        localStorage.setItem('lastSyncTime', remoteTimestamp);
-                        
-                        showMonth(currentMonth);
-                        updateSyncStatus('Auto-synced');
-                        setTimeout(() => updateSyncStatus('Ready'), 2000);
-                    }
-                }
-                
-            } catch (error) {
-                updateSyncStatus('Auto-sync failed');
-            }
         }
 
         async function saveCurrentMonthToCloud() {
@@ -826,7 +954,7 @@
                 localStorage.setItem('lastSyncTime', timestamp);
                 
                 updateSyncStatus('Saved to cloud');
-                setTimeout(() => updateSyncStatus('Synced'), 2000);
+                setTimeout(() => updateSyncStatus('Ready'), 2000);
                 
             } catch (error) {
                 let errorMsg = 'Save failed';
@@ -944,7 +1072,7 @@
                 localStorage.setItem('lastSyncTime', timestamp);
                 
                 updateSyncStatus(`Saved ${savedCount} months`);
-                setTimeout(() => updateSyncStatus('Synced'), 2000);
+                setTimeout(() => updateSyncStatus('Ready'), 2000);
                 showAlert(`Successfully saved ${savedCount} months to cloud`, "Cloud Success");
                 
             } catch (error) {
@@ -956,8 +1084,30 @@
             }
         }
 
-        function forceSync() {
-            saveCurrentMonthToCloud();
+        async function autoSync() {
+            if (!db || !employeeData.userId) {
+                showAlert("Cloud sync not available", "Sync Error");
+                return;
+            }
+            
+            if (syncInProgress) return;
+            
+            syncInProgress = true;
+            updateSyncStatus('Syncing...');
+            
+            try {
+                // Current month മാത്രം sync ചെയ്യുക
+                await autoSyncCurrentMonth();
+                
+                updateSyncStatus('Synced successfully');
+                setTimeout(() => updateSyncStatus('Ready'), 2000);
+                
+            } catch (error) {
+                updateSyncStatus('Sync failed');
+                showAlert("Sync failed: " + error.message, "Sync Error");
+            } finally {
+                syncInProgress = false;
+            }
         }
 
         function updateSyncStatus(status) {
@@ -965,9 +1115,9 @@
             if (statusElem) {
                 statusElem.textContent = status || 'Offline';
                 
-                if (status === 'Synced' || status === 'Saved to cloud' || status.includes('Saved') || status.includes('Loaded')) {
+                if (status === 'Ready' || status === 'Synced successfully' || status === 'Auto-synced') {
                     statusElem.style.color = '#4CAF50';
-                } else if (status.includes('...')) {
+                } else if (status.includes('...') || status === 'Syncing...' || status === 'Auto-syncing...') {
                     statusElem.style.color = '#FF9800';
                 } else if (status.includes('failed') || status.includes('Failed')) {
                     statusElem.style.color = '#f44336';
@@ -1023,7 +1173,7 @@
         }
 
         function formatTimeFromHours(decimalHours) {
-            if (!decimalHours) return '';
+            if (!decimalHours || isNaN(decimalHours)) return '';
             const hours = Math.floor(decimalHours);
             const minutes = Math.round((decimalHours - hours) * 60);
             return `${hours}.${String(minutes).padStart(2, '0')}`;
@@ -1033,6 +1183,7 @@
             if (!timeStr) return 0;
             timeStr = timeStr.replace(':', '.');
             const [hours, minutes] = timeStr.split('.').map(Number);
+            if (isNaN(hours) || isNaN(minutes)) return 0;
             return hours + (minutes / 60 || 0);
         }
 
@@ -1055,16 +1206,6 @@
             
             currentYear = newYear;
             currentMonth = newMonth;
-            
-            if (currentYear === 2025) {
-                const monthsElapsed = currentMonth - employeeData.elBaseMonth;
-                if (monthsElapsed > 0) {
-                    employeeData.el = (employeeData.el || 0) + (monthsElapsed * 2.5);
-                    employeeData.elBaseMonth = currentMonth;
-                    localStorage.setItem('employeeData', JSON.stringify(employeeData));
-                    loadSettings();
-                }
-            }
             
             let calendarHTML = '';
             const firstDay = new Date(currentYear, currentMonth, 1).getDay();
@@ -1127,7 +1268,7 @@
 
         function updateSummaryBox() {
             let totalOT = 0, quarterlyOT = 0, nextMonthTotalOT = 0;
-            let clTaken = 0, elTaken = 0, hplTaken = 0, specialTaken = 0, presentDays = 0, leaves = [];
+            let presentDays = 0, leaves = [];
             
             const prevMonth = (currentMonth === 0 ? 11 : currentMonth - 1);
             const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
@@ -1150,33 +1291,32 @@
                 const date = new Date(dateStr);
                 
                 if (date >= otStartDate && date < otEndDate) {
-                    if (attendanceData[dateStr].ot) totalOT += parseFloat(attendanceData[dateStr].ot);
+                    if (attendanceData[dateStr].ot) totalOT += parseFloat(attendanceData[dateStr].ot) || 0;
                 }
                 
                 if (date >= quarterStart && date < quarterEnd) {
-                    if (attendanceData[dateStr].ot) quarterlyOT += parseFloat(attendanceData[dateStr].ot);
+                    if (attendanceData[dateStr].ot) quarterlyOT += parseFloat(attendanceData[dateStr].ot) || 0;
                 }
                 
                 if (date >= nextMonthStart && date < nextMonthEnd) {
                     if (attendanceData[dateStr].ot) {
-                        nextMonthTotalOT += parseFloat(attendanceData[dateStr].ot);
+                        nextMonthTotalOT += parseFloat(attendanceData[dateStr].ot) || 0;
                         hasNextMonthEntries = true;
                     }
                 }
                 
                 if (date.getFullYear() === currentYear && date.getMonth() === currentMonth) {
                     if (attendanceData[dateStr].leave) {
-                        const deduction = attendanceData[dateStr].halfDay === 'Yes' ? 0.5 : 1;
-                        if (attendanceData[dateStr].leave === 'CL') clTaken += deduction;
-                        else if (attendanceData[dateStr].leave === 'EL') elTaken += deduction;
-                        else if (attendanceData[dateStr].leave === 'HPL') hplTaken += deduction * 2;
-                        else if (attendanceData[dateStr].leave === 'Special') specialTaken += deduction;
                         leaves.push(`${dateStr}: ${attendanceData[dateStr].leave}${attendanceData[dateStr].halfDay === 'Yes' ? ' (Half)' : ''}`);
                     } else if (attendanceData[dateStr].inPunch && attendanceData[dateStr].outPunch) {
                         presentDays += 1;
                     }
                 }
             }
+            
+            // ✅ STEP 5: Summary box fix
+            const used = calculateUsedLeaves();
+            const bal = getLeaveBalance();
             
             const otRemaining = 75 - quarterlyOT;
             const otRemainingDisplay = otRemaining >= 0 ? `(-${otRemaining.toFixed(2)}hr)` : `(+${Math.abs(otRemaining).toFixed(2)}hr)`;
@@ -1190,12 +1330,23 @@
                 summaryHTML += `<p>Next Month Total OT: ${formatTimeFromHours(nextMonthTotalOT)} hrs</p>`;
             }
             
+            // FIX NaN issue by ensuring numbers
+            const clBalance = isNaN(bal.cl) ? 0 : bal.cl;
+            const elBalance = isNaN(bal.el) ? 0 : bal.el;
+            const hplBalance = isNaN(bal.hpl) ? 0 : bal.hpl;
+            const specialBalance = isNaN(bal.special) ? 0 : bal.special;
+            
+            const clUsed = isNaN(used.cl) ? 0 : used.cl;
+            const elUsed = isNaN(used.el) ? 0 : used.el;
+            const hplUsed = isNaN(used.hpl) ? 0 : used.hpl;
+            const specialUsed = isNaN(used.special) ? 0 : used.special;
+            
             summaryHTML += `
                 <p>Leaves: ${leaves.length ? leaves.join(', ') : 'None'}</p>
-                <p>CL: ${employeeData.cl.toFixed(1)} (${clTaken.toFixed(1)})</p>
-                <p>EL: ${employeeData.el.toFixed(1)} (${elTaken.toFixed(1)})</p>
-                <p>HPL: ${employeeData.hpl.toFixed(1)} (${hplTaken.toFixed(1)})</p>
-                <p>Special: ${employeeData.special} (${specialTaken})</p>
+                <p>CL: ${clBalance.toFixed(1)} (${clUsed.toFixed(1)})</p>
+                <p>EL: ${elBalance.toFixed(1)} (${elUsed.toFixed(1)})</p>
+                <p>HPL: ${hplBalance.toFixed(1)} (${hplUsed.toFixed(1)})</p>
+                <p>Special: ${specialBalance} (${specialUsed})</p>
                 <p>Total Present Days: ${presentDays}</p>
             `;
             
@@ -1225,6 +1376,28 @@
         function showAttendancePopup(dateStr) {
             const data = attendanceData[dateStr] || {};
             const defaultTimes = shiftTimes[data.shift] || { start: '', end: '' };
+            
+            // ✅ FIX 2 — Always use dynamic balance
+            const bal = getLeaveBalance();
+            
+           // ✅ TEMPORARILY restore balance if editing an existing leave
+if (data.leave) {
+    const lt = data.leave.toUpperCase();
+    let restore = data.halfDay === 'Yes' ? 0.5 : 1;
+
+    if (lt === 'HPL') restore *= 2;
+
+    if (lt === 'CL') bal.cl += restore;
+    else if (lt === 'EL') bal.el += restore;
+    else if (lt === 'HPL') bal.hpl += restore;
+    else if (lt === 'SPECIAL') bal.special += restore;
+}
+            // Ensure numbers are valid
+            const clBalance = isNaN(bal.cl) ? 0 : bal.cl;
+            const elBalance = isNaN(bal.el) ? 0 : bal.el;
+            const hplBalance = isNaN(bal.hpl) ? 0 : bal.hpl;
+            const specialBalance = isNaN(bal.special) ? 0 : bal.special;
+            
             let popupHTML = `
                 <div class="modal-content">
                     <h3 style="font-size: 14px; margin: 5px 0;">${dateStr}</h3>
@@ -1254,10 +1427,10 @@
                         <label for="leave">Leave:</label>
                         <select id="leave" onchange="updateHalfDayOptions()">
                             <option value="" ${!data.leave ? 'selected' : ''}>None</option>
-                            <option value="CL" ${data.leave === 'CL' ? 'selected' : ''} ${employeeData.cl <= 0 ? 'disabled' : ''}>CL</option>
-                            <option value="EL" ${data.leave === 'EL' ? 'selected' : ''} ${employeeData.el <= 0 ? 'disabled' : ''}>EL</option>
-                            <option value="HPL" ${data.leave === 'HPL' ? 'selected' : ''} ${employeeData.hpl <= 0 ? 'disabled' : ''}>HPL</option>
-                            <option value="Special" ${data.leave === 'Special' ? 'selected' : ''} ${employeeData.special <= 0 ? 'disabled' : ''}>Special</option>
+                            <option value="CL" ${data.leave === 'CL' ? 'selected' : ''} ${clBalance <= 0 ? 'disabled' : ''}>CL (${clBalance.toFixed(1)})</option>
+                            <option value="EL" ${data.leave === 'EL' ? 'selected' : ''} ${elBalance <= 0 ? 'disabled' : ''}>EL (${elBalance.toFixed(1)})</option>
+                            <option value="HPL" ${data.leave === 'HPL' ? 'selected' : ''} ${hplBalance <= 0 ? 'disabled' : ''}>HPL (${hplBalance.toFixed(1)})</option>
+                            <option value="Special" ${data.leave === 'Special' ? 'selected' : ''} ${specialBalance <= 0 ? 'disabled' : ''}>Special (${specialBalance})</option>
                         </select>
                     </div>
                     <div class="settings-row">
@@ -1319,39 +1492,57 @@
             const halfDay = document.getElementById('halfDay').value;
             const shift = document.getElementById('shift').value;
 
-            if (attendanceData[dateStr]?.leave) {
-                const prevDeduction = attendanceData[dateStr].halfDay === 'Yes' ? 0.5 : 1;
-                const prevLeave = attendanceData[dateStr].leave;
-                if (prevLeave === 'CL') employeeData.cl += prevDeduction;
-                else if (prevLeave === 'EL') employeeData.el += prevDeduction;
-                else if (prevLeave === 'HPL') employeeData.hpl += prevDeduction * 2;
-                else if (prevLeave === 'Special') employeeData.special += prevDeduction;
-            }
-
-            if (leave && (!attendanceData[dateStr]?.leave || attendanceData[dateStr].leave !== leave || attendanceData[dateStr].halfDay !== halfDay)) {
+            // Balance check using dynamic balance
+            const bal = getLeaveBalance();
+            
+            if (leave && leave !== '') {
                 let deduction = halfDay === 'Yes' ? 0.5 : 1;
                 if (leave === 'HPL') deduction *= 2;
-                if (leave === 'CL' && employeeData.cl >= deduction) employeeData.cl -= deduction;
-                else if (leave === 'EL' && employeeData.el >= deduction) employeeData.el -= deduction;
-                else if (leave === 'HPL' && employeeData.hpl >= deduction) employeeData.hpl -= deduction;
-                else if (leave === 'Special' && employeeData.special >= deduction) employeeData.special -= deduction;
+                
+                // Check if enough balance
+                const checkBalance = (type, required) => {
+                    const balance = type === 'CL' ? bal.cl : 
+                                   type === 'EL' ? bal.el : 
+                                   type === 'HPL' ? bal.hpl : 
+                                   bal.special;
+                    return (balance || 0) >= required;
+                };
+                
+                if (!checkBalance(leave, deduction)) {
+                    showAlert(`Insufficient ${leave} balance!`, "Leave Error");
+                    return;
+                }
             }
 
+            // Save attendance data
             attendanceData[dateStr] = { inPunch, outPunch, ot, leave, halfDay, shift };
+            
+            // Save to local storage
             localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
-            localStorage.setItem('employeeData', JSON.stringify(employeeData));
+            
             closeAttendancePopup();
             applyHolidayLeaveRule();
             showMonth(currentMonth);
             
             updateSyncStatus('Changes pending');
+            
+            // Auto-sync ചെയ്യുക
+            setTimeout(() => {
+                autoSyncCurrentMonth();
+            }, 1000);
         }
 
+        // ✅ FIX 3: ടാബുകൾ മാറുമ്പോൾ ഡാറ്റ പുതുക്കുന്നു
         function showTab(tab) {
             document.getElementById('calendar-tab').style.display = tab === 'calendar' ? 'block' : 'none';
             document.getElementById('settings-tab').style.display = tab === 'settings' ? 'block' : 'none';
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelector(`.tab-btn[onclick="showTab('${tab}')"]`).classList.add('active');
+            
+            // കലണ്ടർ ടാബിലേക്ക് വരുമ്പോൾ വിവരങ്ങൾ പുതുക്കുന്നു
+            if (tab === 'calendar') {
+                updateSummaryBox();
+            }
         }
 
         function saveSettings() {
@@ -1359,13 +1550,13 @@
         }
 
         function saveSettingsConfirmed() {
+            // ✅ STEP 6: Settings Save = Set TOTAL only
             employeeData.name = document.getElementById('empName').value;
             employeeData.code = document.getElementById('empCode').value;
-            employeeData.cl = parseFloat(document.getElementById('clBalance').value);
-            employeeData.el = parseFloat(document.getElementById('elBalance').value);
-            employeeData.hpl = parseFloat(document.getElementById('hplBalance').value);
-            employeeData.special = parseInt(document.getElementById('specialLeave').value);
-            employeeData.elBaseMonth = currentMonth;
+            employeeData.clTotal = parseFloat(document.getElementById('clBalance').value) || 0;
+            employeeData.elTotal = parseFloat(document.getElementById('elBalance').value) || 0;
+            employeeData.hplTotal = parseFloat(document.getElementById('hplBalance').value) || 0;
+            employeeData.specialTotal = parseInt(document.getElementById('specialLeave').value) || 0;
             employeeData.settingsUpdated = true;
             
             if (!employeeData.userId) {
@@ -1376,16 +1567,19 @@
             showAlert('Settings saved successfully!', "Success");
             loadSettings();
             
+            // ✅ FIX 2: സെറ്റിംഗ്സ് സേവ് ചെയ്യുമ്പോൾ കലണ്ടർ പുതുക്കുന്നു
+            updateSummaryBox();
+            
             updateSyncStatus('Changes pending');
         }
 
         function loadSettings() {
             document.getElementById('empName').value = employeeData.name || '';
             document.getElementById('empCode').value = employeeData.code || '';
-            document.getElementById('clBalance').value = (employeeData.cl || 0).toFixed(1);
-            document.getElementById('elBalance').value = (employeeData.el || 0).toFixed(1);
-            document.getElementById('hplBalance').value = (employeeData.hpl || 0).toFixed(1);
-            document.getElementById('specialLeave').value = employeeData.special || 3;
+            document.getElementById('clBalance').value = (employeeData.clTotal || 0).toFixed(1);
+            document.getElementById('elBalance').value = (employeeData.elTotal || 0).toFixed(1);
+            document.getElementById('hplBalance').value = (employeeData.hplTotal || 0).toFixed(1);
+            document.getElementById('specialLeave').value = employeeData.specialTotal || 0;
         }
 
         function generateMonthlyPDF() {
@@ -1409,7 +1603,7 @@
                     } else if (data.inPunch && data.outPunch && !isHol) {
                         totalPresent += 1;
                     }
-                    if (data.ot) totalOT += parseFloat(data.ot);
+                    if (data.ot) totalOT += parseFloat(data.ot) || 0;
 
                     tableData.push({
                         date: dateStr,
