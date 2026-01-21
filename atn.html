@@ -630,7 +630,7 @@
                 
                 if (lt === 'CL') used.cl += deduction;
                 else if (lt === 'EL') used.el += deduction;
-                else if (lt === 'HPL') used.hpl += deduction;
+              else if (lt === 'HPL') used.hpl += (deduction * 2);
                 else if (lt === 'SPECIAL' || lt === 'SPL' || lt === 'SPECIAL LEAVE') used.special += deduction;
             }
             return used;
@@ -646,12 +646,12 @@
                 special: parseInt(employeeData.specialTotal) || 0
             };
 
-            // നിലവിലെ മാസത്തിനും അതിന് മുമ്പുള്ള മാസങ്ങളിലെ ലീവ് കുറയ്ക്കുക
+           
             for (let dateStr in attendanceData) {
                 const date = new Date(dateStr);
                 const recordMonthYear = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
                 
-                // നിലവിലെ മാസത്തിന് മുമ്പുള്ളത് മാത്രം കണക്കാക്കുക
+                
                 if (recordMonthYear < monthKey) {
                     const d = attendanceData[dateStr];
                     if (!d.leave) continue;
