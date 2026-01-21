@@ -18,32 +18,36 @@
     <style>
         body { background-color: #f1f5f9; font-family: 'Segoe UI', sans-serif; font-size: 13px; scroll-behavior: smooth; }
         .glass-card { background: white; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; padding: 10px; }
-        header { position: fixed; top: 0; width: 100%; z-index: 50; background: #dcfce7; color: #166534; height: 60px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-bottom: 1px solid #bbf7d0; }
+        header { position: fixed; top: 0; width: 100%; z-index: 50; background: #dcfce7; color: #166534; height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-bottom: 1px solid #bbf7d0; }
         footer { position: fixed; bottom: 0; width: 100%; font-size: 0.6rem; background: #fff; height: 25px; display: flex; align-items: center; justify-content: center; color: #94a3b8; border-top: 1px solid #eee; }
         .main-content { margin-top: 70px; margin-bottom: 80px; }
         .input-box { border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px; width: 100%; height: 38px; outline: none; font-size: 14px; }
         .input-box:focus { border-color: #22c55e; }
         .stat-val { font-size: 1.1rem; font-weight: 800; color: #1e293b; line-height: 1; }
-        .stat-avg { font-size: 0.7rem; color: #64748b; font-weight: 500; margin-top: 2px; }
+        .stat-sub { font-size: 0.65rem; color: #64748b; font-weight: 500; }
         #resetModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(2px); }
+        #confirmModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(2px); }
         .legend-item { display: flex; align-items: center; font-size: 9px; font-weight: bold; }
         .legend-color { width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; }
         /* Floating Button */
         .fab { position: fixed; bottom: 40px; right: 20px; background: #22c55e; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 40; border: none; }
-        /* Today's Usage Breakdown */
-        .usage-breakdown { font-size: 9px; font-weight: 600; }
+        /* Usage breakdown */
+        .usage-breakdown { font-size: 0.65rem; font-weight: 500; }
         .solar-use { color: #f59e0b; }
         .grid-use { color: #ef4444; }
-        /* Today's Production in blue box */
-        .today-prod { 
-            font-size: 0.7rem; 
-            color: #3b82f6; 
-            font-weight: 600; 
-            margin-top: 3px;
-            padding: 2px 6px;
-            background: #eff6ff;
-            border-radius: 4px;
-            display: inline-block;
+        .last-update-bar { 
+            position: fixed; 
+            top: 50px; 
+            width: 100%; 
+            background: #f0f9ff; 
+            height: 18px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 0.6rem; 
+            color: #0284c7;
+            border-bottom: 1px solid #e0f2fe;
+            z-index: 40;
         }
     </style>
 </head>
@@ -51,37 +55,48 @@
 
     <header class="shadow-sm">
         <div class="font-bold uppercase tracking-wider text-sm">My Solar Plant <i class="fas fa-leaf text-green-600 ml-1"></i></div>
-        <div id="lastUpdateText" class="text-[9px] text-green-700 opacity-70 mt-0.5">Last Updated: --</div>
-        <!-- HEADER-ൽ നിന്ന് today production എടുത്തു മാറ്റി -->
     </header>
+
+    <!-- Last Update Bar -->
+    <div id="lastUpdateBar" class="last-update-bar">
+        Last Updated: --
+    </div>
 
     <div class="main-content p-3 space-y-3">
         
         <div class="grid grid-cols-2 gap-2">
+            <!-- LEFT: Production Box -->
             <div class="glass-card border-l-4 border-blue-500">
                 <p class="text-[9px] font-bold text-gray-400 uppercase">Total Production</p>
                 <p id="totalProd" class="stat-val">0.0</p>
-                <!-- PRODUCTION BOX-ൽ ഇന്നത്തെ production ചേർത്തു -->
-                <div id="todayProdText" class="today-prod">Today: 0.0 units</div>
-                <p id="avgProd" class="stat-avg">Avg: 0.0/day</p>
-            </div>
-            <div class="glass-card border-l-4 border-orange-500">
-                <p class="text-[9px] font-bold text-gray-400 uppercase">Home Usage (Total)</p>
-                <p id="totalUse" class="stat-val">0.0</p>
-                <div id="todayUsageBreakdown" class="usage-breakdown">
-                    <span class="solar-use">Today Solar: 0.0</span> | <span class="grid-use">Today Grid: 0.0</span>
+                <div class="mt-1">
+                    <p id="todayProd" class="stat-sub text-blue-600">Today: 0.0 units</p>
                 </div>
-                <p id="avgUse" class="stat-avg">Avg: 0.0/day</p>
+                <p id="avgProd" class="stat-sub">Avg: 0.0/day</p>
             </div>
+            
+            <!-- RIGHT: Consumption Box -->
+            <div class="glass-card border-l-4 border-orange-500">
+                <p class="text-[9px] font-bold text-gray-400 uppercase">Total Consumption</p>
+                <p id="totalConsumption" class="stat-val">0.0</p>
+                <div class="mt-1">
+                    <p id="todayUsage" class="stat-sub text-orange-600">Today: 0.0 units</p>
+                </div>
+                <div id="usageBreakdown" class="usage-breakdown">
+                    <span class="solar-use">Solar: 0.0</span> | <span class="grid-use">Grid: 0.0</span>
+                </div>
+                <p id="avgUse" class="stat-sub">Avg: 0.0/day</p>
+            </div>
+            
             <div class="glass-card">
                 <p class="text-[9px] font-bold text-gray-400 uppercase">Self Sufficiency</p>
                 <p id="effPercent" class="stat-val text-green-600">0%</p>
-                <p class="stat-avg">Utilization</p>
+                <p class="stat-sub">Utilization</p>
             </div>
             <div class="glass-card">
                 <p class="text-[9px] font-bold text-gray-400 uppercase">CO2 Offset</p>
                 <p id="co2Stat" class="stat-val text-blue-600">0.0 <span class="text-[10px]">kg</span></p>
-                <p class="stat-avg">Carbon Saved</p>
+                <p class="stat-sub">Carbon Saved</p>
             </div>
         </div>
 
@@ -162,6 +177,7 @@
         <i class="fas fa-plus"></i>
     </button>
 
+    <!-- Reset Confirmation Modal -->
     <div id="resetModal">
         <div class="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-[280px] text-center">
             <h3 class="font-bold text-gray-800 text-base mb-2">ഡാറ്റ മുഴുവൻ കളയണോ?</h3>
@@ -173,6 +189,22 @@
         </div>
     </div>
 
+    <!-- Date Overwrite Confirmation Modal -->
+    <div id="confirmModal">
+        <div class="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-[280px] text-center">
+            <h3 class="font-bold text-gray-800 text-base mb-2">Already Exists!</h3>
+            <p class="text-[11px] text-gray-500 mb-4">This date already has data. Do you want to overwrite it?</p>
+            <div class="text-left text-[10px] text-gray-600 mb-4 p-3 bg-gray-50 rounded">
+                <div><strong>Existing:</strong> Prod: <span id="existingProd">0</span>, Exp: <span id="existingExp">0</span>, Imp: <span id="existingImp">0</span></div>
+                <div><strong>New:</strong> Prod: <span id="newProd">0</span>, Exp: <span id="newExp">0</span>, Imp: <span id="newImp">0</span></div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="hideConfirmModal()" class="flex-1 bg-gray-100 py-2.5 rounded-xl font-bold text-xs uppercase">Cancel</button>
+                <button onclick="confirmOverwrite()" class="flex-1 bg-orange-500 text-white py-2.5 rounded-xl font-bold text-xs uppercase">Overwrite</button>
+            </div>
+        </div>
+    </div>
+
     <footer> POWERED BY VTSOFT 2026 </footer>
 
     <script>
@@ -180,6 +212,7 @@
         let solarData = JSON.parse(localStorage.getItem('solarData')) || [];
         let lineChart = null;
         let roundChart = null;
+        let pendingEntry = null; // Store entry while asking for confirmation
 
         function init() {
             displayPrevious();
@@ -194,9 +227,10 @@
                 document.getElementById('prevExport').innerText = "Prev: " + last.exp;
                 document.getElementById('prevImport').innerText = "Prev: " + last.imp;
                 
-                // Set Last Updated Date in Header
+                // Set Last Updated Date in separate bar
                 const d = new Date(last.date);
-                document.getElementById('lastUpdateText').innerText = "Last Updated: " + d.toLocaleDateString('en-GB');
+                document.getElementById('lastUpdateBar').innerText = 
+                    "Last Updated: " + d.toLocaleDateString('en-GB');
             }
         }
 
@@ -210,20 +244,87 @@
             
             if(!entry.prod) return alert("റീഡിംഗ് നൽകുക!");
             
+            // Check if date already exists
+            const existingIndex = solarData.findIndex(d => d.date === entry.date);
+            
+            if (existingIndex > -1) {
+                // Date already exists, show confirmation
+                const existing = solarData[existingIndex];
+                
+                // Show existing and new values
+                document.getElementById('existingProd').textContent = existing.prod;
+                document.getElementById('existingExp').textContent = existing.exp;
+                document.getElementById('existingImp').textContent = existing.imp;
+                
+                document.getElementById('newProd').textContent = entry.prod;
+                document.getElementById('newExp').textContent = entry.exp;
+                document.getElementById('newImp').textContent = entry.imp;
+                
+                // Store entry for later use
+                pendingEntry = {
+                    entry: entry,
+                    index: existingIndex
+                };
+                
+                // Show confirmation modal
+                document.getElementById('confirmModal').style.display = 'flex';
+                return;
+            }
+            
+            // For NEW dates only, check against previous reading
             if (solarData.length > 0) {
                 const last = solarData[solarData.length - 1];
-                if (entry.prod < last.prod || entry.exp < last.exp || entry.imp < last.imp) {
-                    return alert("New reading must be greater than or equal to previous reading!");
+                // Compare dates to check if this is a new date entry
+                const newDate = new Date(entry.date);
+                const lastDate = new Date(last.date);
+                
+                if (newDate > lastDate) {
+                    // This is a new date entry (future date)
+                    if (entry.prod < last.prod || entry.exp < last.exp || entry.imp < last.imp) {
+                        return alert("New reading must be greater than or equal to previous reading!");
+                    }
                 }
             }
-
-            const index = solarData.findIndex(d => d.date === entry.date);
-            if (index > -1) solarData[index] = entry;
-            else solarData.push(entry);
-
+            
+            // New date, just add it
+            solarData.push(entry);
             solarData.sort((a, b) => new Date(a.date) - new Date(b.date));
             localStorage.setItem('solarData', JSON.stringify(solarData));
             location.reload(); 
+        }
+
+        function confirmOverwrite() {
+            if (pendingEntry) {
+                // Check if this overwrite will cause issues with subsequent entries
+                const entry = pendingEntry.entry;
+                const index = pendingEntry.index;
+                
+                // Check next entry (if exists) to ensure new value is not greater than next
+                if (index < solarData.length - 1) {
+                    const next = solarData[index + 1];
+                    if (entry.prod > next.prod || entry.exp > next.exp || entry.imp > next.imp) {
+                        if (!confirm("Warning: This correction may make future readings invalid. Continue?")) {
+                            hideConfirmModal();
+                            return;
+                        }
+                    }
+                }
+                
+                // Overwrite existing entry
+                solarData[index] = entry;
+                
+                // Sort by date (in case date changed)
+                solarData.sort((a, b) => new Date(a.date) - new Date(b.date));
+                
+                localStorage.setItem('solarData', JSON.stringify(solarData));
+                hideConfirmModal();
+                location.reload();
+            }
+        }
+
+        function hideConfirmModal() {
+            document.getElementById('confirmModal').style.display = 'none';
+            pendingEntry = null;
         }
 
         function getDiffDays(d1, d2) {
@@ -246,58 +347,67 @@
 
             if (solarData.length >= 2) {
                 const first = solarData[0];
+                const last = solarData[solarData.length - 1];
                 const totalDays = getDiffDays(first.date, last.date);
                 
-                if (totalDays > 0) {
-                    const diffProd = last.prod - first.prod;
-                    const diffExp = last.exp - first.exp;
-                    const diffImp = last.imp - first.imp;
+                // Calculate total differences from first to last
+                const totalProdDiff = last.prod - first.prod;
+                const totalExpDiff = last.exp - first.exp;
+                const totalImpDiff = last.imp - first.imp;
+                
+                // TOTAL HOME CONSUMPTION = Total Production - Total Export + Total Import
+                const totalHomeUsage = totalProdDiff - totalExpDiff + totalImpDiff;
+                
+                // Calculate averages (even if user skips days)
+                const avgProd = totalDays > 0 ? (totalProdDiff / totalDays) : 0;
+                const avgUsage = totalDays > 0 ? (totalHomeUsage / totalDays) : 0;
+                
+                // Update averages
+                document.getElementById('avgProd').innerText = "Avg: " + avgProd.toFixed(1) + "/day";
+                document.getElementById('avgUse').innerText = "Avg: " + avgUsage.toFixed(1) + "/day";
+                
+                // Display TOTAL HOME CONSUMPTION (BIG FONT)
+                document.getElementById('totalConsumption').innerText = totalHomeUsage.toFixed(1);
+                
+                // Efficiency Percentage (Self Consumption)
+                if (totalProdDiff > 0) {
+                    const selfConsumed = totalProdDiff - totalExpDiff;
+                    const efficiency = Math.max(0, (selfConsumed / totalProdDiff) * 100);
+                    document.getElementById('effPercent').innerText = efficiency.toFixed(0) + "%";
+                } else {
+                    document.getElementById('effPercent').innerText = "0%";
+                }
+                
+                // CO2 Savings
+                document.getElementById('co2Stat').innerText = (totalProdDiff * 0.7).toFixed(1);
+                
+                // Calculate TODAY'S values (from last 2 entries)
+                const prev = solarData[solarData.length - 2];
+                const daysBetween = getDiffDays(prev.date, last.date);
+                
+                if (daysBetween > 0) {
+                    // Today's values (per day average between last 2 readings)
+                    const todayProd = (last.prod - prev.prod) / daysBetween;
+                    const todayExp = (last.exp - prev.exp) / daysBetween;
+                    const todayImp = (last.imp - prev.imp) / daysBetween;
                     
-                    // CORRECTED: Total Home Usage = Total Production - Export + Import
-                    const totalUsage = diffProd - diffExp + diffImp;
+                    // TODAY'S HOME USAGE = Today's Production - Today's Export + Today's Import
+                    const todayUsage = todayProd - todayExp + todayImp;
                     
-                    // Calculate averages
-                    document.getElementById('avgProd').innerText = "Avg: " + (diffProd / totalDays).toFixed(1) + "/day";
-                    document.getElementById('totalUse').innerText = totalUsage.toFixed(1);
-                    document.getElementById('avgUse').innerText = "Avg: " + (totalUsage / totalDays).toFixed(1) + "/day";
+                    // Today's breakdown: Solar Usage + Grid Import
+                    const solarUsage = Math.max(0, todayProd - todayExp); // Solar energy directly used
+                    const gridUsage = todayImp; // Energy imported from grid
                     
-                    // Efficiency Percentage (Self Consumption)
-                    if (diffProd > 0) {
-                        const selfConsumed = diffProd - diffExp;
-                        document.getElementById('effPercent').innerText = 
-                            Math.max(0, (selfConsumed / diffProd) * 100).toFixed(0) + "%";
-                    } else {
-                        document.getElementById('effPercent').innerText = "0%";
-                    }
+                    // Update Today's Production (SMALL FONT)
+                    document.getElementById('todayProd').innerText = "Today: " + todayProd.toFixed(1) + " units";
                     
-                    // CO2 Savings
-                    document.getElementById('co2Stat').innerText = (diffProd * 0.7).toFixed(1);
+                    // Update Today's Usage (SMALL FONT)
+                    document.getElementById('todayUsage').innerText = "Today: " + todayUsage.toFixed(1) + " units";
                     
-                    // Calculate TODAY'S breakdown (from last 2 entries)
-                    const prev = solarData[solarData.length - 2];
-                    const daysBetween = getDiffDays(prev.date, last.date);
-                    
-                    if (daysBetween > 0) {
-                        const todayProd = (last.prod - prev.prod) / daysBetween;
-                        const todayExp = (last.exp - prev.exp) / daysBetween;
-                        const todayImp = (last.imp - prev.imp) / daysBetween;
-                        
-                        // Today's Home Usage = Today's Production - Today's Export + Today's Import
-                        const todayUsage = todayProd - todayExp + todayImp;
-                        
-                        // Today's breakdown: Solar Usage + Grid Import
-                        const solarUsage = todayProd - todayExp; // Solar energy directly used
-                        const gridUsage = todayImp; // Energy imported from grid
-                        
-                        // ✅ PRODUCTION BOX-ൽ ഇന്നത്തെ production കാണിക്കുക
-                        document.getElementById('todayProdText').innerText = 
-                            "Today: " + todayProd.toFixed(1) + " units";
-                        
-                        // Update Today's Usage Breakdown
-                        document.getElementById('todayUsageBreakdown').innerHTML = 
-                            `<span class="solar-use">Solar: ${solarUsage.toFixed(1)}</span> | ` +
-                            `<span class="grid-use">Grid: ${gridUsage.toFixed(1)}</span>`;
-                    }
+                    // Update Usage Breakdown
+                    document.getElementById('usageBreakdown').innerHTML = 
+                        `<span class="solar-use">Solar: ${solarUsage.toFixed(1)}</span> | ` +
+                        `<span class="grid-use">Grid: ${gridUsage.toFixed(1)}</span>`;
                 }
             }
         }
@@ -305,37 +415,55 @@
         function renderCharts() {
             if (solarData.length < 2) return;
             
-            // --- Line Chart Logic (with Gap Filling) ---
-            let labels = []; let pData = []; let uData = [];
+            // Prepare arrays for daily values
+            let labels = []; 
+            let pData = []; 
+            let uData = [];
+            
+            // Calculate daily averages between each pair of readings
             for (let i = 1; i < solarData.length; i++) {
-                let d1 = new Date(solarData[i-1].date);
-                let daysSpan = getDiffDays(solarData[i-1].date, solarData[i].date);
-                if(daysSpan === 0) continue;
-
-                let dp = (solarData[i].prod - solarData[i-1].prod) / daysSpan;
-                // CORRECTED: Daily Usage = Daily Production - Daily Export + Daily Import
-                let du = ((solarData[i].prod - solarData[i-1].prod) - 
-                         (solarData[i].exp - solarData[i-1].exp) + 
-                         (solarData[i].imp - solarData[i-1].imp)) / daysSpan;
-
-                for (let j = 1; j <= daysSpan; j++) {
-                    let nextDate = new Date(d1); nextDate.setDate(d1.getDate() + j);
-                    labels.push(nextDate.toLocaleDateString('en-GB', {day:'2-digit', month:'2-digit'}));
-                    pData.push(dp.toFixed(2)); uData.push(du.toFixed(2));
+                const prev = solarData[i-1];
+                const curr = solarData[i];
+                
+                const daysBetween = getDiffDays(prev.date, curr.date);
+                if (daysBetween === 0) continue;
+                
+                // Daily averages between these two readings
+                const dailyProd = (curr.prod - prev.prod) / daysBetween;
+                const dailyExp = (curr.exp - prev.exp) / daysBetween;
+                const dailyImp = (curr.imp - prev.imp) / daysBetween;
+                const dailyUsage = dailyProd - dailyExp + dailyImp; // CORRECT FORMULA
+                
+                // Create an entry for each day between readings
+                const startDate = new Date(prev.date);
+                for (let day = 1; day <= daysBetween; day++) {
+                    const currentDate = new Date(startDate);
+                    currentDate.setDate(startDate.getDate() + day);
+                    
+                    labels.push(currentDate.toLocaleDateString('en-GB', {day:'2-digit', month:'2-digit'}));
+                    pData.push(dailyProd.toFixed(1));
+                    uData.push(dailyUsage.toFixed(1));
                 }
             }
             
+            // Line Chart
             const ctxLine = document.getElementById('lineChart').getContext('2d');
             if (lineChart) lineChart.destroy();
+            
+            // Show last 15 days or all if less than 15
+            const showCount = Math.min(15, labels.length);
+            const recentLabels = labels.slice(-showCount);
+            const recentProd = pData.slice(-showCount);
+            const recentUsage = uData.slice(-showCount);
             
             lineChart = new Chart(ctxLine, {
                 type: 'line',
                 data: {
-                    labels: labels.slice(-15),
+                    labels: recentLabels,
                     datasets: [
                         { 
-                            label: 'Prod', 
-                            data: pData.slice(-15), 
+                            label: 'Production', 
+                            data: recentProd, 
                             borderColor: '#3b82f6', 
                             tension: 0.3, 
                             borderWidth: 2, 
@@ -343,8 +471,8 @@
                             fill: false 
                         },
                         { 
-                            label: 'Use', 
-                            data: uData.slice(-15), 
+                            label: 'Usage', 
+                            data: recentUsage, 
                             borderColor: '#f97316', 
                             tension: 0.3, 
                             borderWidth: 2, 
@@ -359,27 +487,32 @@
                     plugins: { legend: { display: false } },
                     scales: {
                         y: {
-                            beginAtZero: true
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + 'u';
+                                }
+                            }
                         }
                     }
                 }
             });
 
-            // --- Round Chart (Today's Split) Logic ---
+            // Round Chart (Today's Split)
             const last = solarData[solarData.length-1];
             const prev = solarData[solarData.length-2];
-            const dSpan = getDiffDays(prev.date, last.date);
+            const daysBetween = getDiffDays(prev.date, last.date);
             
-            if (dSpan <= 0) return;
+            if (daysBetween <= 0) return;
             
-            const dp = (last.prod - prev.prod) / dSpan;
-            const de = (last.exp - prev.exp) / dSpan;
-            const di = (last.imp - prev.imp) / dSpan;
-            const du = dp - de + di; // CORRECTED: Today's Usage
+            const todayProd = (last.prod - prev.prod) / daysBetween;
+            const todayExp = (last.exp - prev.exp) / daysBetween;
+            const todayImp = (last.imp - prev.imp) / daysBetween;
+            const todayUsage = todayProd - todayExp + todayImp; // CORRECT FORMULA
 
-            document.getElementById('splitProd').innerText = dp.toFixed(1);
-            document.getElementById('splitUse').innerText = du.toFixed(1);
-            document.getElementById('splitImp').innerText = di.toFixed(1);
+            document.getElementById('splitProd').innerText = todayProd.toFixed(1);
+            document.getElementById('splitUse').innerText = todayUsage.toFixed(1);
+            document.getElementById('splitImp').innerText = todayImp.toFixed(1);
 
             const ctxRound = document.getElementById('roundChart').getContext('2d');
             if (roundChart) roundChart.destroy();
@@ -389,7 +522,11 @@
                 data: {
                     labels: ['Production', 'Usage', 'Import'],
                     datasets: [{
-                        data: [dp.toFixed(1), du.toFixed(1), di.toFixed(1)],
+                        data: [
+                            parseFloat(todayProd.toFixed(1)), 
+                            parseFloat(todayUsage.toFixed(1)), 
+                            parseFloat(todayImp.toFixed(1))
+                        ],
                         backgroundColor: ['#60a5fa', '#fb923c', '#f87171'],
                         borderWidth: 1
                     }]
