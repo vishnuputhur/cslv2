@@ -30,6 +30,21 @@
         .legend-color { width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; }
         /* Floating Button */
         .fab { position: fixed; bottom: 40px; right: 20px; background: #22c55e; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 40; border: none; }
+        /* Today's Usage Breakdown */
+        .usage-breakdown { font-size: 9px; font-weight: 600; }
+        .solar-use { color: #f59e0b; }
+        .grid-use { color: #ef4444; }
+        /* Today's Production in blue box */
+        .today-prod { 
+            font-size: 0.7rem; 
+            color: #3b82f6; 
+            font-weight: 600; 
+            margin-top: 3px;
+            padding: 2px 6px;
+            background: #eff6ff;
+            border-radius: 4px;
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
@@ -37,6 +52,7 @@
     <header class="shadow-sm">
         <div class="font-bold uppercase tracking-wider text-sm">My Solar Plant <i class="fas fa-leaf text-green-600 ml-1"></i></div>
         <div id="lastUpdateText" class="text-[9px] text-green-700 opacity-70 mt-0.5">Last Updated: --</div>
+        <!-- HEADER-ൽ നിന്ന് today production എടുത്തു മാറ്റി -->
     </header>
 
     <div class="main-content p-3 space-y-3">
@@ -45,11 +61,16 @@
             <div class="glass-card border-l-4 border-blue-500">
                 <p class="text-[9px] font-bold text-gray-400 uppercase">Total Production</p>
                 <p id="totalProd" class="stat-val">0.0</p>
+                <!-- PRODUCTION BOX-ൽ ഇന്നത്തെ production ചേർത്തു -->
+                <div id="todayProdText" class="today-prod">Today: 0.0 units</div>
                 <p id="avgProd" class="stat-avg">Avg: 0.0/day</p>
             </div>
             <div class="glass-card border-l-4 border-orange-500">
-                <p class="text-[9px] font-bold text-gray-400 uppercase">Home Usage (Net)</p>
+                <p class="text-[9px] font-bold text-gray-400 uppercase">Home Usage (Total)</p>
                 <p id="totalUse" class="stat-val">0.0</p>
+                <div id="todayUsageBreakdown" class="usage-breakdown">
+                    <span class="solar-use">Solar: 0.0</span> | <span class="grid-use">Grid: 0.0</span>
+                </div>
                 <p id="avgUse" class="stat-avg">Avg: 0.0/day</p>
             </div>
             <div class="glass-card">
@@ -186,13 +207,15 @@
                 exp: parseFloat(document.getElementById('exportReading').value) || 0,
                 imp: parseFloat(document.getElementById('importReading').value) || 0
             };
+            
             if(!entry.prod) return alert("റീഡിംഗ് നൽകുക!");
-if (solarData.length > 0) {
-    const last = solarData[solarData.length - 1];
-    if (entry.prod < last.prod || entry.exp < last.exp || entry.imp < last.imp) {
-        return alert("New reading must be greater than or equal to previous reading!");
-    }
-}
+            
+            if (solarData.length > 0) {
+                const last = solarData[solarData.length - 1];
+                if (entry.prod < last.prod || entry.exp < last.exp || entry.imp < last.imp) {
+                    return alert("New reading must be greater than or equal to previous reading!");
+                }
+            }
 
             const index = solarData.findIndex(d => d.date === entry.date);
             if (index > -1) solarData[index] = entry;
@@ -211,29 +234,70 @@ if (solarData.length > 0) {
 
         function calculateAll() {
             if (solarData.length < 1) return;
+            
             const last = solarData[solarData.length - 1];
+            
+            // Display Total Production
             document.getElementById('totalProd').innerText = last.prod.toFixed(1);
+            
+            // Display Banking Balance and Value
             document.getElementById('statBanking').innerText = (last.exp - last.imp).toFixed(1);
             document.getElementById('statAmount').innerText = "₹ " + ((last.exp - last.imp) * 3.15).toFixed(2);
 
             if (solarData.length >= 2) {
                 const first = solarData[0];
                 const totalDays = getDiffDays(first.date, last.date);
+                
                 if (totalDays > 0) {
                     const diffProd = last.prod - first.prod;
                     const diffExp = last.exp - first.exp;
                     const diffImp = last.imp - first.imp;
+                    
+                    // CORRECTED: Total Home Usage = Total Production - Export + Import
                     const totalUsage = diffProd - diffExp + diffImp;
                     
+                    // Calculate averages
                     document.getElementById('avgProd').innerText = "Avg: " + (diffProd / totalDays).toFixed(1) + "/day";
                     document.getElementById('totalUse').innerText = totalUsage.toFixed(1);
                     document.getElementById('avgUse').innerText = "Avg: " + (totalUsage / totalDays).toFixed(1) + "/day";
+                    
+                    // Efficiency Percentage (Self Consumption)
                     if (diffProd > 0) {
-    document.getElementById('effPercent').innerText = Math.max(0, ((diffProd - diffExp) / diffProd) * 100).toFixed(0) + "%";
-} else {
-    document.getElementById('effPercent').innerText = "0%";
-}
+                        const selfConsumed = diffProd - diffExp;
+                        document.getElementById('effPercent').innerText = 
+                            Math.max(0, (selfConsumed / diffProd) * 100).toFixed(0) + "%";
+                    } else {
+                        document.getElementById('effPercent').innerText = "0%";
+                    }
+                    
+                    // CO2 Savings
                     document.getElementById('co2Stat').innerText = (diffProd * 0.7).toFixed(1);
+                    
+                    // Calculate TODAY'S breakdown (from last 2 entries)
+                    const prev = solarData[solarData.length - 2];
+                    const daysBetween = getDiffDays(prev.date, last.date);
+                    
+                    if (daysBetween > 0) {
+                        const todayProd = (last.prod - prev.prod) / daysBetween;
+                        const todayExp = (last.exp - prev.exp) / daysBetween;
+                        const todayImp = (last.imp - prev.imp) / daysBetween;
+                        
+                        // Today's Home Usage = Today's Production - Today's Export + Today's Import
+                        const todayUsage = todayProd - todayExp + todayImp;
+                        
+                        // Today's breakdown: Solar Usage + Grid Import
+                        const solarUsage = todayProd - todayExp; // Solar energy directly used
+                        const gridUsage = todayImp; // Energy imported from grid
+                        
+                        // ✅ PRODUCTION BOX-ൽ ഇന്നത്തെ production കാണിക്കുക
+                        document.getElementById('todayProdText').innerText = 
+                            "Today: " + todayProd.toFixed(1) + " units";
+                        
+                        // Update Today's Usage Breakdown
+                        document.getElementById('todayUsageBreakdown').innerHTML = 
+                            `<span class="solar-use">Solar: ${solarUsage.toFixed(1)}</span> | ` +
+                            `<span class="grid-use">Grid: ${gridUsage.toFixed(1)}</span>`;
+                    }
                 }
             }
         }
@@ -249,7 +313,10 @@ if (solarData.length > 0) {
                 if(daysSpan === 0) continue;
 
                 let dp = (solarData[i].prod - solarData[i-1].prod) / daysSpan;
-                let du = ((solarData[i].prod - solarData[i-1].prod) - (solarData[i].exp - solarData[i-1].exp) + (solarData[i].imp - solarData[i-1].imp)) / daysSpan;
+                // CORRECTED: Daily Usage = Daily Production - Daily Export + Daily Import
+                let du = ((solarData[i].prod - solarData[i-1].prod) - 
+                         (solarData[i].exp - solarData[i-1].exp) + 
+                         (solarData[i].imp - solarData[i-1].imp)) / daysSpan;
 
                 for (let j = 1; j <= daysSpan; j++) {
                     let nextDate = new Date(d1); nextDate.setDate(d1.getDate() + j);
@@ -257,55 +324,95 @@ if (solarData.length > 0) {
                     pData.push(dp.toFixed(2)); uData.push(du.toFixed(2));
                 }
             }
+            
             const ctxLine = document.getElementById('lineChart').getContext('2d');
+            if (lineChart) lineChart.destroy();
+            
             lineChart = new Chart(ctxLine, {
                 type: 'line',
                 data: {
                     labels: labels.slice(-15),
                     datasets: [
-                        { label: 'Prod', data: pData.slice(-15), borderColor: '#3b82f6', tension: 0.3, borderWidth: 2, pointRadius: 2, fill: false },
-                        { label: 'Use', data: uData.slice(-15), borderColor: '#f97316', tension: 0.3, borderWidth: 2, pointRadius: 2, fill: false }
+                        { 
+                            label: 'Prod', 
+                            data: pData.slice(-15), 
+                            borderColor: '#3b82f6', 
+                            tension: 0.3, 
+                            borderWidth: 2, 
+                            pointRadius: 2, 
+                            fill: false 
+                        },
+                        { 
+                            label: 'Use', 
+                            data: uData.slice(-15), 
+                            borderColor: '#f97316', 
+                            tension: 0.3, 
+                            borderWidth: 2, 
+                            pointRadius: 2, 
+                            fill: false 
+                        }
                     ]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
             });
 
             // --- Round Chart (Today's Split) Logic ---
             const last = solarData[solarData.length-1];
             const prev = solarData[solarData.length-2];
             const dSpan = getDiffDays(prev.date, last.date);
+            
             if (dSpan <= 0) return;
             
             const dp = (last.prod - prev.prod) / dSpan;
             const de = (last.exp - prev.exp) / dSpan;
             const di = (last.imp - prev.imp) / dSpan;
-            const du = dp - de + di;
+            const du = dp - de + di; // CORRECTED: Today's Usage
 
             document.getElementById('splitProd').innerText = dp.toFixed(1);
             document.getElementById('splitUse').innerText = du.toFixed(1);
             document.getElementById('splitImp').innerText = di.toFixed(1);
 
             const ctxRound = document.getElementById('roundChart').getContext('2d');
+            if (roundChart) roundChart.destroy();
+            
             roundChart = new Chart(ctxRound, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Prod', 'Use', 'Imp'],
+                    labels: ['Production', 'Usage', 'Import'],
                     datasets: [{
                         data: [dp.toFixed(1), du.toFixed(1), di.toFixed(1)],
                         backgroundColor: ['#60a5fa', '#fb923c', '#f87171'],
                         borderWidth: 1
                     }]
                 },
-                options: { cutout: '65%', plugins: { legend: { display: false } } }
+                options: { 
+                    cutout: '65%', 
+                    plugins: { legend: { display: false } }
+                }
             });
         }
 
-        function showModal() { document.getElementById('resetModal').style.display = 'flex'; }
-        function hideModal() { document.getElementById('resetModal').style.display = 'none'; }
+        function showModal() { 
+            document.getElementById('resetModal').style.display = 'flex'; 
+        }
+        
+        function hideModal() { 
+            document.getElementById('resetModal').style.display = 'none'; 
+        }
+        
         function resetData() { 
-    localStorage.removeItem("solarData"); 
-    location.reload(); 
-}
+            localStorage.removeItem("solarData"); 
+            location.reload(); 
+        }
 
         init();
     </script>
