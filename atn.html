@@ -578,12 +578,11 @@
         let employeeData = JSON.parse(localStorage.getItem('employeeData')) || {
             name: '', code: '', 
             clTotal: 0, elTotal: 0, hplTotal: 0, specialTotal: 3, 
-            lastUpdate: "2025-12-01", // NEW: Store last update date
+            lastUpdate: "2025-12-01",
             settingsUpdated: false, userId: '', lastSync: 0
         };
         
-        // 🔥 FIX 1 — Backward compatibility patch (VERY IMPORTANT)
-        // Migration for old users
+        // 🔥 FIX 1 — Backward compatibility patch
         if (employeeData.cl !== undefined) {
             employeeData.clTotal = employeeData.cl || 0;
             delete employeeData.cl;
@@ -624,18 +623,12 @@
                 if (!d.leave) continue;
 
                 const deduction = d.halfDay === 'Yes' ? 0.5 : 1;
-
-                // ✅ FIX 3 — Normalize leave name
                 const lt = (d.leave || '').toUpperCase().trim();
                 
                 if (lt === 'CL') used.cl += deduction;
                 else if (lt === 'EL') used.el += deduction;
-                else if (lt === 'HPL') used.hpl += deduction * 2;
+                else if (lt === 'HPL') used.hpl += deduction;
                 else if (lt === 'SPECIAL' || lt === 'SPL' || lt === 'SPECIAL LEAVE') used.special += deduction;
-                else {
-                    // Default fallback for unknown leave types
-                    console.warn("Unknown leave type:", d.leave);
-                }
             }
             return used;
         }
@@ -644,7 +637,6 @@
         function getLeaveBalance() {
             const used = calculateUsedLeaves();
 
-            // Ensure numbers are valid
             const clTotal = parseFloat(employeeData.clTotal) || 0;
             const elTotal = parseFloat(employeeData.elTotal) || 0;
             const hplTotal = parseFloat(employeeData.hplTotal) || 0;
@@ -697,9 +689,8 @@
             pendingAction = null;
         }
 
-        function confirmAction() {
-            closeConfirmModal();
-            
+        // ✅ FIX: Confirm button handler
+        document.getElementById('confirmOkBtn').onclick = function() {
             if (pendingAction === 'loadCloud') {
                 loadFromCloud();
             } else if (pendingAction === 'saveCloud') {
@@ -707,14 +698,9 @@
             } else if (pendingAction === 'saveSettings') {
                 saveSettingsConfirmed();
             }
-            
+            closeConfirmModal();
             pendingAction = null;
-        }
-
-        // Set up the confirm button
-
-// NEW (ശരി):
-document.getElementById('confirmOkBtn').onclick = handleConfirmAction;
+        };
 
         function packDayData(dayData) {
             if (!dayData) return "";
@@ -765,18 +751,6 @@ document.getElementById('confirmOkBtn').onclick = handleConfirmAction;
             return unpacked;
         }
 
-// ⬇️ ഇത് ചേർക്കുക (രേഖ 580-ന് ശേഷം):
-function handleConfirmAction() {
-    if (pendingAction === 'loadCloud') {
-        loadFromCloud();
-    } else if (pendingAction === 'saveCloud') {
-        saveToCloud();
-    } else if (pendingAction === 'saveSettings') {
-        saveSettingsConfirmed();
-    }
-    closeConfirmModal();
-    pendingAction = null;
-}
         // AUTO SYNC FUNCTION
         async function autoSyncCurrentMonth() {
             if (!db || !employeeData.userId) {
@@ -860,7 +834,7 @@ function handleConfirmAction() {
                 localStorage.setItem('employeeData', JSON.stringify(employeeData));
             }
 
-            // ✅ FIX 1: EL auto increment - 2025 ലും 2026 ലും പ്രവർത്തിക്കും (Updated)
+            // ✅ FIX: EL auto increment
             const currentDate = new Date();
             const lastUpdateDate = new Date(employeeData.lastUpdate || "2025-12-01");
             const monthsElapsed = (currentDate.getFullYear() - lastUpdateDate.getFullYear()) * 12 + 
@@ -868,7 +842,7 @@ function handleConfirmAction() {
 
             if (monthsElapsed > 0) {
                 employeeData.elTotal += (monthsElapsed * 2.5);
-                employeeData.lastUpdate = currentDate.toISOString().split('T')[0]; // Store date only
+                employeeData.lastUpdate = currentDate.toISOString().split('T')[0];
                 localStorage.setItem('employeeData', JSON.stringify(employeeData));
             }
 
@@ -1314,7 +1288,7 @@ function handleConfirmAction() {
                 }
             }
             
-            // ✅ STEP 5: Summary box fix
+            // ✅ FIX: Summary box - ശരിയായ ബാലൻസ് കാണിക്കുക
             const used = calculateUsedLeaves();
             const bal = getLeaveBalance();
             
@@ -1330,7 +1304,7 @@ function handleConfirmAction() {
                 summaryHTML += `<p>Next Month Total OT: ${formatTimeFromHours(nextMonthTotalOT)} hrs</p>`;
             }
             
-            // FIX NaN issue by ensuring numbers
+            // NaN പ്രശ്നം പരിഹരിക്കുക
             const clBalance = isNaN(bal.cl) ? 0 : bal.cl;
             const elBalance = isNaN(bal.el) ? 0 : bal.el;
             const hplBalance = isNaN(bal.hpl) ? 0 : bal.hpl;
@@ -1377,26 +1351,27 @@ function handleConfirmAction() {
             const data = attendanceData[dateStr] || {};
             const defaultTimes = shiftTimes[data.shift] || { start: '', end: '' };
             
-            // ✅ FIX 2 — Always use dynamic balance
+            // ✅ FIX: എല്ലായ്പ്പോഴും dynamic balance ഉപയോഗിക്കുക
             const bal = getLeaveBalance();
             
-           // ✅ TEMPORARILY restore balance if editing an existing leave
-if (data.leave) {
-    const lt = data.leave.toUpperCase();
-    let restore = data.halfDay === 'Yes' ? 0.5 : 1;
+            // ✅ FIX: Existing leave എഡിറ്റ് ചെയ്യുമ്പോൾ restore ചെയ്യുക
+            let adjustedBal = {...bal};
+            if (data.leave) {
+                const lt = data.leave.toUpperCase();
+                let restore = data.halfDay === 'Yes' ? 0.5 : 1;
+                if (lt === 'HPL') restore *= 2;
 
-    if (lt === 'HPL') restore *= 2;
-
-    if (lt === 'CL') bal.cl += restore;
-    else if (lt === 'EL') bal.el += restore;
-    else if (lt === 'HPL') bal.hpl += restore;
-    else if (lt === 'SPECIAL') bal.special += restore;
-}
+                if (lt === 'CL') adjustedBal.cl += restore;
+                else if (lt === 'EL') adjustedBal.el += restore;
+                else if (lt === 'HPL') adjustedBal.hpl += restore;
+                else if (lt === 'SPECIAL') adjustedBal.special += restore;
+            }
+            
             // Ensure numbers are valid
-            const clBalance = isNaN(bal.cl) ? 0 : bal.cl;
-            const elBalance = isNaN(bal.el) ? 0 : bal.el;
-            const hplBalance = isNaN(bal.hpl) ? 0 : bal.hpl;
-            const specialBalance = isNaN(bal.special) ? 0 : bal.special;
+            const clBalance = isNaN(adjustedBal.cl) ? 0 : adjustedBal.cl;
+            const elBalance = isNaN(adjustedBal.el) ? 0 : adjustedBal.el;
+            const hplBalance = isNaN(adjustedBal.hpl) ? 0 : adjustedBal.hpl;
+            const specialBalance = isNaN(adjustedBal.special) ? 0 : adjustedBal.special;
             
             let popupHTML = `
                 <div class="modal-content">
@@ -1492,7 +1467,7 @@ if (data.leave) {
             const halfDay = document.getElementById('halfDay').value;
             const shift = document.getElementById('shift').value;
 
-            // Balance check using dynamic balance
+            // ✅ FIX: Balance check using dynamic balance
             const bal = getLeaveBalance();
             
             if (leave && leave !== '') {
@@ -1508,7 +1483,31 @@ if (data.leave) {
                     return (balance || 0) >= required;
                 };
                 
-                if (!checkBalance(leave, deduction)) {
+                // ✅ FIX: Existing leave restore ചെയ്യുക
+                const existingData = attendanceData[dateStr] || {};
+                if (existingData.leave) {
+                    const existingLeave = existingData.leave.toUpperCase();
+                    let existingDeduction = existingData.halfDay === 'Yes' ? 0.5 : 1;
+                    if (existingLeave === 'HPL') existingDeduction *= 2;
+                    
+                    // Existing leave അഡ്ജസ്റ്റ് ചെയ്യുക
+                    if (existingLeave === leave) {
+                        // Same leave type - only check net difference
+                        if (deduction > existingDeduction) {
+                            const needed = deduction - existingDeduction;
+                            if (!checkBalance(leave, needed)) {
+                                showAlert(`Insufficient ${leave} balance for this change!`, "Leave Error");
+                                return;
+                            }
+                        }
+                    } else {
+                        // Different leave type - check new leave
+                        if (!checkBalance(leave, deduction)) {
+                            showAlert(`Insufficient ${leave} balance!`, "Leave Error");
+                            return;
+                        }
+                    }
+                } else if (!checkBalance(leave, deduction)) {
                     showAlert(`Insufficient ${leave} balance!`, "Leave Error");
                     return;
                 }
@@ -1530,9 +1529,12 @@ if (data.leave) {
             setTimeout(() => {
                 autoSyncCurrentMonth();
             }, 1000);
+            
+            // ✅ FIX: Summary box പുതുക്കുക
+            updateSummaryBox();
         }
 
-        // ✅ FIX 3: ടാബുകൾ മാറുമ്പോൾ ഡാറ്റ പുതുക്കുന്നു
+        // ✅ FIX: ടാബുകൾ മാറുമ്പോൾ ഡാറ്റ പുതുക്കുന്നു
         function showTab(tab) {
             document.getElementById('calendar-tab').style.display = tab === 'calendar' ? 'block' : 'none';
             document.getElementById('settings-tab').style.display = tab === 'settings' ? 'block' : 'none';
@@ -1550,7 +1552,7 @@ if (data.leave) {
         }
 
         function saveSettingsConfirmed() {
-            // ✅ STEP 6: Settings Save = Set TOTAL only
+            // ✅ FIX: Settings Save - TOTAL only
             employeeData.name = document.getElementById('empName').value;
             employeeData.code = document.getElementById('empCode').value;
             employeeData.clTotal = parseFloat(document.getElementById('clBalance').value) || 0;
@@ -1567,7 +1569,7 @@ if (data.leave) {
             showAlert('Settings saved successfully!', "Success");
             loadSettings();
             
-            // ✅ FIX 2: സെറ്റിംഗ്സ് സേവ് ചെയ്യുമ്പോൾ കലണ്ടർ പുതുക്കുന്നു
+            // ✅ FIX: സെറ്റിംഗ്സ് സേവ് ചെയ്യുമ്പോൾ കലണ്ടർ പുതുക്കുന്നു
             updateSummaryBox();
             
             updateSyncStatus('Changes pending');
