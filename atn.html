@@ -614,11 +614,14 @@
         let lastSyncTime = parseInt(localStorage.getItem('lastSyncTime')) || 0;
         let pendingAction = null;
 
-        // ✅ STEP 1 & 2: Calculate USED leaves from attendanceData
-        function calculateUsedLeaves() {
+        // ✅ STEP 1: Calculate USED leaves from attendanceData (ആ മാസത്തെ മാത്രം)
+        function calculateUsedLeavesForCurrentMonth() {
             let used = { cl: 0, el: 0, hpl: 0, special: 0 };
+            const monthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
 
             for (let dateStr in attendanceData) {
+                if (!dateStr.startsWith(monthKey)) continue;
+                
                 const d = attendanceData[dateStr];
                 if (!d.leave) continue;
 
@@ -633,25 +636,49 @@
             return used;
         }
 
-        // ✅ STEP 3: Get REAL balance dynamically
-        function getLeaveBalance() {
-            const used = calculateUsedLeaves();
+        // ✅ STEP 2: Calculate balance from THIS MONTH onwards (നിലവിലെ മാസം മുതൽ)
+        function calculateBalanceFromCurrentMonth() {
+            const monthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+            let remainingBalance = {
+                cl: parseFloat(employeeData.clTotal) || 0,
+                el: parseFloat(employeeData.elTotal) || 0,
+                hpl: parseFloat(employeeData.hplTotal) || 0,
+                special: parseInt(employeeData.specialTotal) || 0
+            };
 
-            const clTotal = parseFloat(employeeData.clTotal) || 0;
-            const elTotal = parseFloat(employeeData.elTotal) || 0;
-            const hplTotal = parseFloat(employeeData.hplTotal) || 0;
-            const specialTotal = parseInt(employeeData.specialTotal) || 0;
+            // നിലവിലെ മാസത്തിനും അതിന് മുമ്പുള്ള മാസങ്ങളിലെ ലീവ് കുറയ്ക്കുക
+            for (let dateStr in attendanceData) {
+                const date = new Date(dateStr);
+                const recordMonthYear = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                
+                // നിലവിലെ മാസത്തിന് മുമ്പുള്ളത് മാത്രം കണക്കാക്കുക
+                if (recordMonthYear < monthKey) {
+                    const d = attendanceData[dateStr];
+                    if (!d.leave) continue;
 
-            const clUsed = parseFloat(used.cl) || 0;
-            const elUsed = parseFloat(used.el) || 0;
-            const hplUsed = parseFloat(used.hpl) || 0;
-            const specialUsed = parseInt(used.special) || 0;
+                    const deduction = d.halfDay === 'Yes' ? 0.5 : 1;
+                    const lt = (d.leave || '').toUpperCase().trim();
+                    
+                    if (lt === 'CL') remainingBalance.cl = Math.max(0, remainingBalance.cl - deduction);
+                    else if (lt === 'EL') remainingBalance.el = Math.max(0, remainingBalance.el - deduction);
+                    else if (lt === 'HPL') remainingBalance.hpl = Math.max(0, remainingBalance.hpl - deduction);
+                    else if (lt === 'SPECIAL' || lt === 'SPL') remainingBalance.special = Math.max(0, remainingBalance.special - deduction);
+                }
+            }
+            
+            return remainingBalance;
+        }
+
+        // ✅ STEP 3: Get REAL balance for current month only
+        function getLeaveBalanceForCurrentMonth() {
+            const startingBalance = calculateBalanceFromCurrentMonth();
+            const usedThisMonth = calculateUsedLeavesForCurrentMonth();
 
             return {
-                cl: Math.max(0, clTotal - clUsed),
-                el: Math.max(0, elTotal - elUsed),
-                hpl: Math.max(0, hplTotal - hplUsed),
-                special: Math.max(0, specialTotal - specialUsed)
+                cl: Math.max(0, startingBalance.cl - usedThisMonth.cl),
+                el: Math.max(0, startingBalance.el - usedThisMonth.el),
+                hpl: Math.max(0, startingBalance.hpl - usedThisMonth.hpl),
+                special: Math.max(0, startingBalance.special - usedThisMonth.special)
             };
         }
 
@@ -1153,12 +1180,26 @@
             return `${hours}.${String(minutes).padStart(2, '0')}`;
         }
 
+        // ✅ FIX: OT enter ചെയ്യുമ്പോൾ 2 എന്ന് ടൈപ്പ് ചെയ്താൽ automatic ആയി 2:00 ആക്കുന്നു
         function parseTimeToHours(timeStr) {
             if (!timeStr) return 0;
+            
+            // Remove any spaces
+            timeStr = timeStr.trim();
+            
+            // If it's just a number (like "2"), treat it as hours
+            if (/^\d+$/.test(timeStr)) {
+                return parseFloat(timeStr);
+            }
+            
+            // Replace colon with dot for decimal calculation
             timeStr = timeStr.replace(':', '.');
             const [hours, minutes] = timeStr.split('.').map(Number);
-            if (isNaN(hours) || isNaN(minutes)) return 0;
-            return hours + (minutes / 60 || 0);
+            
+            if (isNaN(hours)) return 0;
+            if (isNaN(minutes)) return hours;
+            
+            return hours + (minutes / 60);
         }
 
         function showMonth(month) {
@@ -1242,7 +1283,7 @@
 
         function updateSummaryBox() {
             let totalOT = 0, quarterlyOT = 0, nextMonthTotalOT = 0;
-            let presentDays = 0, leaves = [];
+            let presentDays = 0;
             
             const prevMonth = (currentMonth === 0 ? 11 : currentMonth - 1);
             const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
@@ -1280,17 +1321,15 @@
                 }
                 
                 if (date.getFullYear() === currentYear && date.getMonth() === currentMonth) {
-                    if (attendanceData[dateStr].leave) {
-                        leaves.push(`${dateStr}: ${attendanceData[dateStr].leave}${attendanceData[dateStr].halfDay === 'Yes' ? ' (Half)' : ''}`);
-                    } else if (attendanceData[dateStr].inPunch && attendanceData[dateStr].outPunch) {
+                    if (attendanceData[dateStr].inPunch && attendanceData[dateStr].outPunch && !isHoliday(dateStr)) {
                         presentDays += 1;
                     }
                 }
             }
             
-            // ✅ FIX: Summary box - ശരിയായ ബാലൻസ് കാണിക്കുക
-            const used = calculateUsedLeaves();
-            const bal = getLeaveBalance();
+            // ✅ FIX: Summary box - ആ മാസത്തെ ലീവ് മാത്രം കാണിക്കുക
+            const usedThisMonth = calculateUsedLeavesForCurrentMonth();
+            const balThisMonth = getLeaveBalanceForCurrentMonth();
             
             const otRemaining = 75 - quarterlyOT;
             const otRemainingDisplay = otRemaining >= 0 ? `(-${otRemaining.toFixed(2)}hr)` : `(+${Math.abs(otRemaining).toFixed(2)}hr)`;
@@ -1304,23 +1343,22 @@
                 summaryHTML += `<p>Next Month Total OT: ${formatTimeFromHours(nextMonthTotalOT)} hrs</p>`;
             }
             
-            // NaN പ്രശ്നം പരിഹരിക്കുക
-            const clBalance = isNaN(bal.cl) ? 0 : bal.cl;
-            const elBalance = isNaN(bal.el) ? 0 : bal.el;
-            const hplBalance = isNaN(bal.hpl) ? 0 : bal.hpl;
-            const specialBalance = isNaN(bal.special) ? 0 : bal.special;
+            // ✅ FIX: ആ മാസത്തെ ലീവ് ബാലൻസ് മാത്രം കാണിക്കുക (Used (Balance))
+            const clUsed = isNaN(usedThisMonth.cl) ? 0 : usedThisMonth.cl;
+            const elUsed = isNaN(usedThisMonth.el) ? 0 : usedThisMonth.el;
+            const hplUsed = isNaN(usedThisMonth.hpl) ? 0 : usedThisMonth.hpl;
+            const specialUsed = isNaN(usedThisMonth.special) ? 0 : usedThisMonth.special;
             
-            const clUsed = isNaN(used.cl) ? 0 : used.cl;
-            const elUsed = isNaN(used.el) ? 0 : used.el;
-            const hplUsed = isNaN(used.hpl) ? 0 : used.hpl;
-            const specialUsed = isNaN(used.special) ? 0 : used.special;
+            const clBalance = isNaN(balThisMonth.cl) ? 0 : balThisMonth.cl;
+            const elBalance = isNaN(balThisMonth.el) ? 0 : balThisMonth.el;
+            const hplBalance = isNaN(balThisMonth.hpl) ? 0 : balThisMonth.hpl;
+            const specialBalance = isNaN(balThisMonth.special) ? 0 : balThisMonth.special;
             
             summaryHTML += `
-                <p>Leaves: ${leaves.length ? leaves.join(', ') : 'None'}</p>
-                <p>CL: ${clBalance.toFixed(1)} (${clUsed.toFixed(1)})</p>
-                <p>EL: ${elBalance.toFixed(1)} (${elUsed.toFixed(1)})</p>
-                <p>HPL: ${hplBalance.toFixed(1)} (${hplUsed.toFixed(1)})</p>
-                <p>Special: ${specialBalance} (${specialUsed})</p>
+                <p>CL: ${clUsed.toFixed(1)} (${clBalance.toFixed(1)})</p>
+                <p>EL: ${elUsed.toFixed(1)} (${elBalance.toFixed(1)})</p>
+                <p>HPL: ${hplUsed.toFixed(1)} (${hplBalance.toFixed(1)})</p>
+                <p>Special: ${specialUsed} (${specialBalance})</p>
                 <p>Total Present Days: ${presentDays}</p>
             `;
             
@@ -1351,8 +1389,8 @@
             const data = attendanceData[dateStr] || {};
             const defaultTimes = shiftTimes[data.shift] || { start: '', end: '' };
             
-            // ✅ FIX: എല്ലായ്പ്പോഴും dynamic balance ഉപയോഗിക്കുക
-            const bal = getLeaveBalance();
+            // ✅ FIX: ആ മാസത്തെ ബാലൻസ് മാത്രം ഉപയോഗിക്കുക
+            const bal = getLeaveBalanceForCurrentMonth();
             
             // ✅ FIX: Existing leave എഡിറ്റ് ചെയ്യുമ്പോൾ restore ചെയ്യുക
             let adjustedBal = {...bal};
@@ -1396,7 +1434,7 @@
                     </div>
                     <div class="settings-row">
                         <label for="ot">OT:</label>
-                        <input type="text" id="ot" value="${formatTimeFromHours(data.ot)}" placeholder="H:MM">
+                        <input type="text" id="ot" value="${data.ot ? formatTimeFromHours(data.ot) : ''}" placeholder="HH:MM">
                     </div>
                     <div class="settings-row">
                         <label for="leave">Leave:</label>
@@ -1462,13 +1500,16 @@
         function saveAttendance(dateStr) {
             const inPunch = document.getElementById('inPunch').value;
             const outPunch = document.getElementById('outPunch').value;
-            const ot = parseTimeToHours(document.getElementById('ot').value);
+            const otInput = document.getElementById('ot').value;
             const leave = document.getElementById('leave').value;
             const halfDay = document.getElementById('halfDay').value;
             const shift = document.getElementById('shift').value;
 
-            // ✅ FIX: Balance check using dynamic balance
-            const bal = getLeaveBalance();
+            // ✅ FIX: OT input process - "2" എന്ന് ടൈപ്പ് ചെയ്താൽ "2:00" ആയി convert
+            let ot = parseTimeToHours(otInput);
+            
+            // ✅ FIX: Balance check using current month balance only
+            const bal = getLeaveBalanceForCurrentMonth();
             
             if (leave && leave !== '') {
                 let deduction = halfDay === 'Yes' ? 0.5 : 1;
