@@ -1688,5 +1688,12 @@
             }
         });
     </script>
+<link rel="manifest" href="manifest-atn.json">
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw-atn.js');
+  }
+</script>
+
 </body>
 </html>
