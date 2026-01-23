@@ -553,5 +553,12 @@
 
         init();
     </script>
+<link rel="manifest" href="manifest-solar.json">
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw-solar.js');
+  }
+</script>
+
 </body>
 </html>
