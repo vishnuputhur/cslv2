@@ -1,7 +1,9 @@
 {
+  "id": "/solar-pro",
   "name": "My Solar Plant Pro",
   "short_name": "Solar Pro",
   "start_url": "solar.html",
+  "scope": "/cslv2/",
   "display": "standalone",
   "background_color": "#f1f5f9",
   "theme_color": "#22c55e",
