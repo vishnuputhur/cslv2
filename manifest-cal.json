@@ -1,7 +1,9 @@
 {
+  "id": "/csl-calendar",
   "name": "CSL Calendar",
   "short_name": "Calendar",
   "start_url": "calender.html",
+  "scope": "/cslv2/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#2563eb",
