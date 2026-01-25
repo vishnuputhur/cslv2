@@ -29,7 +29,7 @@
         <button id="installBtn" class="btn-install" style="display: none;">Install App</button>
         <div id="waitMsg" style="color: #94a3b8; font-size: 13px; margin-top: 15px;">Waiting for installation prompt...</div>
         
-        <a href="index.html" class="skip-link">Open Web Version →</a>
+        <a href="https://vtsoft.onrender.com" class="skip-link">Back to VT Soft Home →</a>
         <div class="footer-tag">Powered by VTSoft</div>
     </div>
 
@@ -37,20 +37,41 @@
         let deferredPrompt;
         const installBtn = document.getElementById('installBtn');
         const waitMsg = document.getElementById('waitMsg');
-        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw-cal.js'); }
+
+        if ('serviceWorker' in navigator) { 
+            navigator.serviceWorker.register('./sw-cal.js'); 
+        }
+
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
             installBtn.style.display = 'block';
             waitMsg.style.display = 'none';
         });
+
         installBtn.addEventListener('click', async () => {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') window.location.href = 'calender.html';
+                
+                if (outcome === 'accepted') {
+                    installBtn.style.display = 'none';
+                    waitMsg.style.display = 'block';
+                    waitMsg.style.color = '#059669';
+                    waitMsg.innerHTML = "<b style='font-size:16px;'>Successfully Installed!</b><br>Returning to Home in 5 seconds...";
+                    
+                    // ✅ Redirecting to VT Soft Portal
+                    setTimeout(() => {
+                        window.location.href = 'https://vtsoft.onrender.com';
+                    }, 5000);
+                }
+                deferredPrompt = null;
             }
         });
+
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            window.location.href = 'index.html';
+        }
     </script>
 </body>
 </html>
