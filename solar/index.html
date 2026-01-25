@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+<link rel="manifest" href="manifest-solar.json">
+ <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-21G1BS7S3S"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-21G1BS7S3S');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Solar Plant Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background-color: #f1f5f9; font-family: 'Segoe UI', sans-serif; font-size: 13px; scroll-behavior: smooth; }
+        .glass-card { background: white; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; padding: 10px; }
+        header { position: fixed; top: 0; width: 100%; z-index: 50; background: #dcfce7; color: #166534; height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-bottom: 1px solid #bbf7d0; }
+        footer { position: fixed; bottom: 0; width: 100%; font-size: 0.6rem; background: #fff; height: 25px; display: flex; align-items: center; justify-content: center; color: #94a3b8; border-top: 1px solid #eee; }
+        .main-content { margin-top: 70px; margin-bottom: 80px; }
+        .input-box { border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px; width: 100%; height: 38px; outline: none; font-size: 14px; }
+        .input-box:focus { border-color: #22c55e; }
+        .stat-val { font-size: 1.1rem; font-weight: 800; color: #1e293b; line-height: 1; }
+        .stat-sub { font-size: 0.65rem; color: #64748b; font-weight: 500; }
+        #resetModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(2px); }
+        #confirmModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(2px); }
+        .legend-item { display: flex; align-items: center; font-size: 9px; font-weight: bold; }
+        .legend-color { width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; }
+        /* Floating Button */
+        .fab { position: fixed; bottom: 40px; right: 20px; background: #22c55e; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 40; border: none; }
+        /* Usage breakdown */
+        .usage-breakdown { font-size: 0.65rem; font-weight: 500; }
+        .solar-use { color: #f59e0b; }
+        .grid-use { color: #ef4444; }
+        .last-update-bar { 
+            position: fixed; 
+            top: 50px; 
+            width: 100%; 
+            background: #f0f9ff; 
+            height: 18px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 0.6rem; 
+            color: #0284c7;
+            border-bottom: 1px solid #e0f2fe;
+            z-index: 40;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="shadow-sm">
+        <div class="font-bold uppercase tracking-wider text-sm">My Solar Plant <i class="fas fa-leaf text-green-600 ml-1"></i></div>
+    </header>
+
+    <!-- Last Update Bar -->
+    <div id="lastUpdateBar" class="last-update-bar">
+        Last Updated: --
+    </div>
+
+    <div class="main-content p-3 space-y-3">
+        
+        <div class="grid grid-cols-2 gap-2">
+            <!-- LEFT: Production Box -->
+            <div class="glass-card border-l-4 border-blue-500">
+                <p class="text-[9px] font-bold text-gray-400 uppercase">Total Production</p>
+                <p id="totalProd" class="stat-val">0.0</p>
+                <div class="mt-1">
+                    <p id="todayProd" class="stat-sub text-blue-600">Today: 0.0 units</p>
+                </div>
+                <p id="avgProd" class="stat-sub">Avg: 0.0/day</p>
+            </div>
+            
+            <!-- RIGHT: Consumption Box -->
+            <div class="glass-card border-l-4 border-orange-500">
+                <p class="text-[9px] font-bold text-gray-400 uppercase">Total Consumption</p>
+                <p id="totalConsumption" class="stat-val">0.0</p>
+                <div class="mt-1">
+                    <p id="todayUsage" class="stat-sub text-orange-600">Today: 0.0 units</p>
+                </div>
+                <div id="usageBreakdown" class="usage-breakdown">
+                    <span class="solar-use">Solar: 0.0</span> | <span class="grid-use">Grid: 0.0</span>
+                </div>
+                <p id="avgUse" class="stat-sub">Avg: 0.0/day</p>
+            </div>
+            
+            <div class="glass-card">
+                <p class="text-[9px] font-bold text-gray-400 uppercase">Self Sufficiency</p>
+                <p id="effPercent" class="stat-val text-green-600">0%</p>
+                <p class="stat-sub">Utilization</p>
+            </div>
+            <div class="glass-card">
+                <p class="text-[9px] font-bold text-gray-400 uppercase">CO2 Offset</p>
+                <p id="co2Stat" class="stat-val text-blue-600">0.0 <span class="text-[10px]">kg</span></p>
+                <p class="stat-sub">Carbon Saved</p>
+            </div>
+        </div>
+
+        <div class="glass-card bg-green-50 border-green-200 py-3">
+            <div class="flex justify-between items-center">
+                <div>
+                    <p class="text-[10px] text-green-700 font-bold uppercase">Banking Balance (Export-Import)</p>
+                    <p id="statBanking" class="text-2xl font-black text-green-800">0.0 <span class="text-xs">Units</span></p>
+                </div>
+                <div class="text-right">
+                    <p class="text-[10px] text-green-700 font-bold uppercase">Estimated Value</p>
+                    <p id="statAmount" class="text-lg font-bold text-green-600">₹ 0.00</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-card">
+            <p class="text-[10px] font-bold text-gray-400 mb-2 uppercase">Performance History</p>
+            <div style="height: 160px;"><canvas id="lineChart"></canvas></div>
+            <div class="flex justify-center gap-4 mt-3 border-t pt-2">
+                <div class="legend-item"><div class="legend-color bg-blue-500"></div><span class="text-blue-600 uppercase">Prod</span></div>
+                <div class="legend-item"><div class="legend-color bg-orange-500"></div><span class="text-orange-600 uppercase">Usage</span></div>
+            </div>
+        </div>
+
+        <div class="glass-card">
+            <p class="text-[10px] font-bold text-gray-400 mb-2 uppercase">Today's Split (Units)</p>
+            <div class="flex items-center justify-around py-1">
+                <div style="width: 100px; height: 100px;">
+                    <canvas id="roundChart"></canvas>
+                </div>
+                <div class="space-y-1.5">
+                    <div class="legend-item"><div class="legend-color bg-blue-400"></div><span>PROD: <span id="splitProd" class="font-bold">0</span></span></div>
+                    <div class="legend-item"><div class="legend-color bg-orange-400"></div><span>USE: <span id="splitUse" class="font-bold">0</span></span></div>
+                    <div class="legend-item"><div class="legend-color bg-red-400"></div><span>IMP: <span id="splitImp" class="font-bold">0</span></span></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="inputSection" class="glass-card border-t-4 border-green-500">
+            <p class="text-[11px] font-bold text-gray-700 mb-3 uppercase tracking-wider">Meter Reading Input</p>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 ml-1 uppercase">Date</label>
+                    <input type="date" id="inputDate" class="input-box">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 ml-1 uppercase">Production Meter Reading</label>
+                    <input type="number" id="prodReading" class="input-box" placeholder="0.0">
+                    <p id="prevProd" class="text-[9px] text-blue-500 mt-1 font-medium">Prev: --</p>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-500 ml-1 uppercase">KSEB Export Meter</label>
+                        <input type="number" id="exportReading" class="input-box" placeholder="0.0">
+                        <p id="prevExport" class="text-[9px] text-green-600 mt-1 font-medium">Prev: --</p>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-500 ml-1 uppercase">KSEB Import Meter</label>
+                        <input type="number" id="importReading" class="input-box" placeholder="0.0">
+                        <p id="prevImport" class="text-[9px] text-red-500 mt-1 font-medium">Prev: --</p>
+                    </div>
+                </div>
+            </div>
+            <button onclick="saveData()" class="w-full bg-green-600 text-white font-bold py-3 mt-4 rounded-lg shadow-md active:scale-95 transition uppercase text-xs">
+                Save Reading
+            </button>
+        </div>
+
+        <div class="flex justify-center pb-6">
+            <button onclick="showModal()" class="text-[9px] text-red-300 font-bold uppercase tracking-widest">
+                <i class="fas fa-trash mr-1"></i> Reset All Data
+            </button>
+        </div>
+    </div>
+
+    <button onclick="document.getElementById('inputSection').scrollIntoView()" class="fab">
+        <i class="fas fa-plus"></i>
+    </button>
+
+    <!-- Reset Confirmation Modal -->
+    <div id="resetModal">
+        <div class="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-[280px] text-center">
+            <h3 class="font-bold text-gray-800 text-base mb-2">ഡാറ്റ മുഴുവൻ കളയണോ?</h3>
+            <p class="text-[11px] text-gray-500 mb-6">സേവ് ചെയ്ത വിവരങ്ങൾ എല്ലാം മാഞ്ഞുപോകും.</p>
+            <div class="flex gap-2">
+                <button onclick="hideModal()" class="flex-1 bg-gray-100 py-2.5 rounded-xl font-bold text-xs uppercase">No</button>
+                <button onclick="resetData()" class="flex-1 bg-red-500 text-white py-2.5 rounded-xl font-bold text-xs uppercase">Yes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Date Overwrite Confirmation Modal -->
+    <div id="confirmModal">
+        <div class="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-[280px] text-center">
+            <h3 class="font-bold text-gray-800 text-base mb-2">Already Exists!</h3>
+            <p class="text-[11px] text-gray-500 mb-4">This date already has data. Do you want to overwrite it?</p>
+            <div class="text-left text-[10px] text-gray-600 mb-4 p-3 bg-gray-50 rounded">
+                <div><strong>Existing:</strong> Prod: <span id="existingProd">0</span>, Exp: <span id="existingExp">0</span>, Imp: <span id="existingImp">0</span></div>
+                <div><strong>New:</strong> Prod: <span id="newProd">0</span>, Exp: <span id="newExp">0</span>, Imp: <span id="newImp">0</span></div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="hideConfirmModal()" class="flex-1 bg-gray-100 py-2.5 rounded-xl font-bold text-xs uppercase">Cancel</button>
+                <button onclick="confirmOverwrite()" class="flex-1 bg-orange-500 text-white py-2.5 rounded-xl font-bold text-xs uppercase">Overwrite</button>
+            </div>
+        </div>
+    </div>
+
+    <footer> POWERED BY VTSOFT 2026 </footer>
+
+    <script>
+        document.getElementById('inputDate').valueAsDate = new Date();
+        let solarData = JSON.parse(localStorage.getItem('solarData')) || [];
+        let lineChart = null;
+        let roundChart = null;
+        let pendingEntry = null; // Store entry while asking for confirmation
+
+        function init() {
+            displayPrevious();
+            calculateAll();
+            renderCharts();
+        }
+
+        function displayPrevious() {
+            if (solarData.length > 0) {
+                const last = solarData[solarData.length - 1];
+                document.getElementById('prevProd').innerText = "Prev: " + last.prod;
+                document.getElementById('prevExport').innerText = "Prev: " + last.exp;
+                document.getElementById('prevImport').innerText = "Prev: " + last.imp;
+                
+                // Set Last Updated Date in separate bar
+                const d = new Date(last.date);
+                document.getElementById('lastUpdateBar').innerText = 
+                    "Last Updated: " + d.toLocaleDateString('en-GB');
+            }
+        }
+
+        function saveData() {
+            const entry = {
+                date: document.getElementById('inputDate').value,
+                prod: parseFloat(document.getElementById('prodReading').value) || 0,
+                exp: parseFloat(document.getElementById('exportReading').value) || 0,
+                imp: parseFloat(document.getElementById('importReading').value) || 0
+            };
+            
+            if(!entry.prod) return alert("റീഡിംഗ് നൽകുക!");
+            
+            // Check if date already exists
+            const existingIndex = solarData.findIndex(d => d.date === entry.date);
+            
+            if (existingIndex > -1) {
+                // Date already exists, show confirmation
+                const existing = solarData[existingIndex];
+                
+                // Show existing and new values
+                document.getElementById('existingProd').textContent = existing.prod;
+                document.getElementById('existingExp').textContent = existing.exp;
+                document.getElementById('existingImp').textContent = existing.imp;
+                
+                document.getElementById('newProd').textContent = entry.prod;
+                document.getElementById('newExp').textContent = entry.exp;
+                document.getElementById('newImp').textContent = entry.imp;
+                
+                // Store entry for later use
+                pendingEntry = {
+                    entry: entry,
+                    index: existingIndex
+                };
+                
+                // Show confirmation modal
+                document.getElementById('confirmModal').style.display = 'flex';
+                return;
+            }
+            
+            // For NEW dates only, check against previous reading
+            if (solarData.length > 0) {
+                const last = solarData[solarData.length - 1];
+                // Compare dates to check if this is a new date entry
+                const newDate = new Date(entry.date);
+                const lastDate = new Date(last.date);
+                
+                if (newDate > lastDate) {
+                    // This is a new date entry (future date)
+                    if (entry.prod < last.prod || entry.exp < last.exp || entry.imp < last.imp) {
+                        return alert("New reading must be greater than or equal to previous reading!");
+                    }
+                }
+            }
+            
+            // New date, just add it
+            solarData.push(entry);
+            solarData.sort((a, b) => new Date(a.date) - new Date(b.date));
+            localStorage.setItem('solarData', JSON.stringify(solarData));
+            location.reload(); 
+        }
+
+        function confirmOverwrite() {
+            if (pendingEntry) {
+                // Check if this overwrite will cause issues with subsequent entries
+                const entry = pendingEntry.entry;
+                const index = pendingEntry.index;
+                
+                // Check next entry (if exists) to ensure new value is not greater than next
+                if (index < solarData.length - 1) {
+                    const next = solarData[index + 1];
+                    if (entry.prod > next.prod || entry.exp > next.exp || entry.imp > next.imp) {
+                        if (!confirm("Warning: This correction may make future readings invalid. Continue?")) {
+                            hideConfirmModal();
+                            return;
+                        }
+                    }
+                }
+                
+                // Overwrite existing entry
+                solarData[index] = entry;
+                
+                // Sort by date (in case date changed)
+                solarData.sort((a, b) => new Date(a.date) - new Date(b.date));
+                
+                localStorage.setItem('solarData', JSON.stringify(solarData));
+                hideConfirmModal();
+                location.reload();
+            }
+        }
+
+        function hideConfirmModal() {
+            document.getElementById('confirmModal').style.display = 'none';
+            pendingEntry = null;
+        }
+
+        function getDiffDays(d1, d2) {
+            const dt1 = new Date(d1);
+            const dt2 = new Date(d2);
+            return Math.ceil(Math.abs(dt2 - dt1) / (1000 * 60 * 60 * 24));
+        }
+
+        function calculateAll() {
+            if (solarData.length < 1) return;
+            
+            const last = solarData[solarData.length - 1];
+            
+            // Display Total Production
+            document.getElementById('totalProd').innerText = last.prod.toFixed(1);
+            
+            // Display Banking Balance and Value
+            document.getElementById('statBanking').innerText = (last.exp - last.imp).toFixed(1);
+            document.getElementById('statAmount').innerText = "₹ " + ((last.exp - last.imp) * 3.15).toFixed(2);
+
+            if (solarData.length >= 2) {
+                const first = solarData[0];
+                const last = solarData[solarData.length - 1];
+                const totalDays = getDiffDays(first.date, last.date);
+                
+                // Calculate total differences from first to last
+                const totalProdDiff = last.prod - first.prod;
+                const totalExpDiff = last.exp - first.exp;
+                const totalImpDiff = last.imp - first.imp;
+                
+                // TOTAL HOME CONSUMPTION = Total Production - Total Export + Total Import
+                const totalHomeUsage = totalProdDiff - totalExpDiff + totalImpDiff;
+                
+                // Calculate averages (even if user skips days)
+                const avgProd = totalDays > 0 ? (totalProdDiff / totalDays) : 0;
+                const avgUsage = totalDays > 0 ? (totalHomeUsage / totalDays) : 0;
+                
+                // Update averages
+                document.getElementById('avgProd').innerText = "Avg: " + avgProd.toFixed(1) + "/day";
+                document.getElementById('avgUse').innerText = "Avg: " + avgUsage.toFixed(1) + "/day";
+                
+                // Display TOTAL HOME CONSUMPTION (BIG FONT)
+                document.getElementById('totalConsumption').innerText = totalHomeUsage.toFixed(1);
+                
+                // Efficiency Percentage (Self Consumption)
+                if (totalProdDiff > 0) {
+                    const selfConsumed = totalProdDiff - totalExpDiff;
+                    const efficiency = Math.max(0, (selfConsumed / totalProdDiff) * 100);
+                    document.getElementById('effPercent').innerText = efficiency.toFixed(0) + "%";
+                } else {
+                    document.getElementById('effPercent').innerText = "0%";
+                }
+                
+                // CO2 Savings
+                document.getElementById('co2Stat').innerText = (totalProdDiff * 0.7).toFixed(1);
+                
+                // Calculate TODAY'S values (from last 2 entries)
+                const prev = solarData[solarData.length - 2];
+                const daysBetween = getDiffDays(prev.date, last.date);
+                
+                if (daysBetween > 0) {
+                    // Today's values (per day average between last 2 readings)
+                    const todayProd = (last.prod - prev.prod) / daysBetween;
+                    const todayExp = (last.exp - prev.exp) / daysBetween;
+                    const todayImp = (last.imp - prev.imp) / daysBetween;
+                    
+                    // TODAY'S HOME USAGE = Today's Production - Today's Export + Today's Import
+                    const todayUsage = todayProd - todayExp + todayImp;
+                    
+                    // Today's breakdown: Solar Usage + Grid Import
+                    const solarUsage = Math.max(0, todayProd - todayExp); // Solar energy directly used
+                    const gridUsage = todayImp; // Energy imported from grid
+                    
+                    // Update Today's Production (SMALL FONT)
+                    document.getElementById('todayProd').innerText = "Today: " + todayProd.toFixed(1) + " units";
+                    
+                    // Update Today's Usage (SMALL FONT)
+                    document.getElementById('todayUsage').innerText = "Today: " + todayUsage.toFixed(1) + " units";
+                    
+                    // Update Usage Breakdown
+                    document.getElementById('usageBreakdown').innerHTML = 
+                        `<span class="solar-use">Solar: ${solarUsage.toFixed(1)}</span> | ` +
+                        `<span class="grid-use">Grid: ${gridUsage.toFixed(1)}</span>`;
+                }
+            }
+        }
+
+        function renderCharts() {
+            if (solarData.length < 2) return;
+            
+            // Prepare arrays for daily values
+            let labels = []; 
+            let pData = []; 
+            let uData = [];
+            
+            // Calculate daily averages between each pair of readings
+            for (let i = 1; i < solarData.length; i++) {
+                const prev = solarData[i-1];
+                const curr = solarData[i];
+                
+                const daysBetween = getDiffDays(prev.date, curr.date);
+                if (daysBetween === 0) continue;
+                
+                // Daily averages between these two readings
+                const dailyProd = (curr.prod - prev.prod) / daysBetween;
+                const dailyExp = (curr.exp - prev.exp) / daysBetween;
+                const dailyImp = (curr.imp - prev.imp) / daysBetween;
+                const dailyUsage = dailyProd - dailyExp + dailyImp; // CORRECT FORMULA
+                
+                // Create an entry for each day between readings
+                const startDate = new Date(prev.date);
+                for (let day = 1; day <= daysBetween; day++) {
+                    const currentDate = new Date(startDate);
+                    currentDate.setDate(startDate.getDate() + day);
+                    
+                    labels.push(currentDate.toLocaleDateString('en-GB', {day:'2-digit', month:'2-digit'}));
+                    pData.push(dailyProd.toFixed(1));
+                    uData.push(dailyUsage.toFixed(1));
+                }
+            }
+            
+            // Line Chart
+            const ctxLine = document.getElementById('lineChart').getContext('2d');
+            if (lineChart) lineChart.destroy();
+            
+            // Show last 15 days or all if less than 15
+            const showCount = Math.min(15, labels.length);
+            const recentLabels = labels.slice(-showCount);
+            const recentProd = pData.slice(-showCount);
+            const recentUsage = uData.slice(-showCount);
+            
+            lineChart = new Chart(ctxLine, {
+                type: 'line',
+                data: {
+                    labels: recentLabels,
+                    datasets: [
+                        { 
+                            label: 'Production', 
+                            data: recentProd, 
+                            borderColor: '#3b82f6', 
+                            tension: 0.3, 
+                            borderWidth: 2, 
+                            pointRadius: 2, 
+                            fill: false 
+                        },
+                        { 
+                            label: 'Usage', 
+                            data: recentUsage, 
+                            borderColor: '#f97316', 
+                            tension: 0.3, 
+                            borderWidth: 2, 
+                            pointRadius: 2, 
+                            fill: false 
+                        }
+                    ]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + 'u';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Round Chart (Today's Split)
+            const last = solarData[solarData.length-1];
+            const prev = solarData[solarData.length-2];
+            const daysBetween = getDiffDays(prev.date, last.date);
+            
+            if (daysBetween <= 0) return;
+            
+            const todayProd = (last.prod - prev.prod) / daysBetween;
+            const todayExp = (last.exp - prev.exp) / daysBetween;
+            const todayImp = (last.imp - prev.imp) / daysBetween;
+            const todayUsage = todayProd - todayExp + todayImp; // CORRECT FORMULA
+
+            document.getElementById('splitProd').innerText = todayProd.toFixed(1);
+            document.getElementById('splitUse').innerText = todayUsage.toFixed(1);
+            document.getElementById('splitImp').innerText = todayImp.toFixed(1);
+
+            const ctxRound = document.getElementById('roundChart').getContext('2d');
+            if (roundChart) roundChart.destroy();
+            
+            roundChart = new Chart(ctxRound, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Production', 'Usage', 'Import'],
+                    datasets: [{
+                        data: [
+                            parseFloat(todayProd.toFixed(1)), 
+                            parseFloat(todayUsage.toFixed(1)), 
+                            parseFloat(todayImp.toFixed(1))
+                        ],
+                        backgroundColor: ['#60a5fa', '#fb923c', '#f87171'],
+                        borderWidth: 1
+                    }]
+                },
+                options: { 
+                    cutout: '65%', 
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function showModal() { 
+            document.getElementById('resetModal').style.display = 'flex'; 
+        }
+        
+        function hideModal() { 
+            document.getElementById('resetModal').style.display = 'none'; 
+        }
+        
+        function resetData() { 
+            localStorage.removeItem("solarData"); 
+            location.reload(); 
+        }
+
+        init();
+    </script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw-solar.js');
+  }
+</script>
+
+</body>
+</html>
