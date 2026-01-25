@@ -3,10 +3,9 @@
   "name": "CSL Calendar",
   "short_name": "CSL Calendar",
   "start_url": "index.html",
-  "scope": "./",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#2563eb",
+  "background_color": "#2196F3",
+  "theme_color": "#2196F3",
   "icons": [
     {
       "src": "cal-icon-192.png",
