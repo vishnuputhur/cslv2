@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Install Solar Pro</title>
+    <link rel="manifest" href="manifest-solar.json">
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #059669; --bg: #f0fdf4; }
+        body { font-family: 'Segoe UI', sans-serif; text-align: center; background: var(--bg); color: #333; padding: 50px 20px; min-height: 100vh; margin: 0; box-sizing: border-box; }
+        .install-card { background: white; border-radius: 25px; padding: 40px 20px; max-width: 400px; margin: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        .logo { width: 100px; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .badge { font-size: 0.65rem; background: #dcfce7; padding: 4px 12px; border-radius: 20px; font-weight: 700; color: #059669; text-transform: uppercase; }
+        .btn-install { background: #059669; color: white; border: none; padding: 14px 40px; border-radius: 12px; font-weight: 600; cursor: pointer; width: 100%; font-size: 16px; margin-top: 15px; transition: 0.3s; }
+        .btn-install:active { transform: scale(0.98); }
+        .skip-link { display: block; margin-top: 20px; color: #64748b; text-decoration: none; font-size: 13px; font-weight: 500; }
+        .footer-tag { margin-top: 30px; font-size: 0.75rem; color: #94a3b8; }
+    </style>
+</head>
+<body>
+    <div class="install-card">
+        <span class="badge">Energy Monitoring</span>
+        <br><br>
+        <img src="solar-icon-192.png" class="logo" alt="Solar Logo">
+        <h2 style="margin-bottom: 5px; color: #059669;">Solar Pro</h2>
+        <p style="font-size: 0.85rem; color: #64748b; line-height: 1.5; padding: 0 10px;">Monitor real-time energy production, banking balance, Home use, and carbon savings from your solar plant.</p>
+        
+        <button id="installBtn" class="btn-install" style="display: none;">Install App</button>
+        <div id="waitMsg" style="color: #94a3b8; font-size: 13px; margin-top: 15px;">Waiting for installation prompt...</div>
+        
+       
+        <div class="footer-tag">Powered by VTSoft</div>
+    </div>
+
+    <script>
+        let deferredPrompt;
+        const installBtn = document.getElementById('installBtn');
+        const waitMsg = document.getElementById('waitMsg');
+        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw-solar.js'); }
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.style.display = 'block';
+            waitMsg.style.display = 'none';
+        });
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') window.location.href = 'index.html';
+            }
+        });
+    </script>
+</body>
+</html>
