@@ -84,6 +84,14 @@
             border: 2px solid #1E3A5F;
             border-radius: 5px;
             text-align: center;
+            transition: all 0.3s ease;
+            background-color: white;
+            color: #1E3A5F;
+        }
+
+        input.result-value {
+            color: #006400;
+            font-weight: bold;
         }
 
         .btn {
@@ -139,28 +147,28 @@
 
         <div class="input-group">
             <span class="label">a</span>
-            <input type="number" id="sideA" placeholder="Side a">
+            <input type="number" id="sideA" placeholder="Side a" class="input-field">
         </div>
         <div class="input-group">
             <span class="label">b</span>
-            <input type="number" id="sideB" placeholder="Side b">
+            <input type="number" id="sideB" placeholder="Side b" class="input-field">
         </div>
         <div class="input-group">
             <span class="label">c</span>
-            <input type="number" id="sideC" placeholder="Side c">
+            <input type="number" id="sideC" placeholder="Side c" class="input-field">
         </div>
 
         <div class="input-group">
             <span class="label">A°</span>
-            <input type="number" id="angleA" placeholder="Angle A">
+            <input type="number" id="angleA" placeholder="Angle A" class="input-field">
         </div>
         <div class="input-group">
             <span class="label">B°</span>
-            <input type="number" id="angleB" placeholder="Angle B">
+            <input type="number" id="angleB" placeholder="Angle B" class="input-field">
         </div>
         <div class="input-group">
             <span class="label">C°</span>
-            <input type="number" id="angleC" placeholder="Angle C">
+            <input type="number" id="angleC" placeholder="Angle C" class="input-field">
         </div>
 
         <div>
@@ -171,111 +179,255 @@
 
     <div class="bottom-padding"></div>
 
-    <div class="footer">Powered by VT@Soft © 2026 | Version 2.0</div>
+    <div class="footer">Powered by VT@Soft © 2026 | Version 2.2</div>
 
     <script>
+        let isCalculated = false;
+        let originalValues = {};
+
+        // Store original values
+        function storeOriginalValues() {
+            const inputs = document.querySelectorAll('.input-field');
+            originalValues = {};
+            inputs.forEach(input => {
+                originalValues[input.id] = input.value;
+            });
+            isCalculated = true;
+        }
+
+        // Check for edits and reset if needed
+        function setupInputListeners() {
+            const inputs = document.querySelectorAll('.input-field');
+            inputs.forEach(input => {
+                // Remove previous listeners to avoid duplicates
+                input.removeEventListener('input', handleInput);
+                input.removeEventListener('change', handleInput);
+                
+                // Add new listeners
+                input.addEventListener('input', handleInput);
+                input.addEventListener('change', handleInput);
+            });
+        }
+
+        function handleInput(e) {
+            if (isCalculated) {
+                const currentInputId = e.target.id;
+                const currentValue = e.target.value;
+                
+                // Check if this field was originally calculated (empty before calculation)
+                if (originalValues[currentInputId] && 
+                    originalValues[currentInputId] !== "" && 
+                    currentValue !== originalValues[currentInputId]) {
+                    // User edited a calculated field - reset all calculated fields
+                    resetCalculatedFields();
+                    // Also remove green color from all fields
+                    removeResultColors();
+                }
+            }
+        }
+
+        function resetCalculatedFields() {
+            const inputs = document.querySelectorAll('.input-field');
+            inputs.forEach(input => {
+                // If this field was originally empty (user didn't fill it)
+                if (originalValues[input.id] === "" || !originalValues[input.id]) {
+                    input.value = "";
+                } else {
+                    // Keep user's original input
+                    input.value = originalValues[input.id];
+                }
+                // Remove result color
+                input.classList.remove('result-value');
+            });
+            isCalculated = false;
+        }
+
+        function removeResultColors() {
+            const inputs = document.querySelectorAll('.input-field');
+            inputs.forEach(input => {
+                input.classList.remove('result-value');
+            });
+        }
+
+        // Calculate all missing values
         function calculate() {
+            // Get current values
             let a = parseFloat(document.getElementById('sideA').value);
             let b = parseFloat(document.getElementById('sideB').value);
             let c = parseFloat(document.getElementById('sideC').value);
-
             let A = parseFloat(document.getElementById('angleA').value);
             let B = parseFloat(document.getElementById('angleB').value);
             let C = parseFloat(document.getElementById('angleC').value);
 
-            // Count filled values
-            let sidesCount = [a, b, c].filter(val => !isNaN(val)).length;
-            let anglesCount = [A, B, C].filter(val => !isNaN(val)).length;
+            // Store which values were provided by user
+            const userProvided = {
+                sideA: !isNaN(a),
+                sideB: !isNaN(b),
+                sideC: !isNaN(c),
+                angleA: !isNaN(A),
+                angleB: !isNaN(B),
+                angleC: !isNaN(C)
+            };
 
-            // If we have all three angles, calculate missing angle
+            // Count provided values
+            const sidesCount = [a, b, c].filter(val => !isNaN(val)).length;
+            const anglesCount = [A, B, C].filter(val => !isNaN(val)).length;
+
+            // First, calculate missing angle if we have 2 angles
             if (anglesCount === 2) {
                 if (isNaN(A)) A = 180 - B - C;
                 if (isNaN(B)) B = 180 - A - C;
                 if (isNaN(C)) C = 180 - A - B;
             }
 
-            // Sine rule calculations
-            if (sidesCount >= 1 && anglesCount >= 2) {
-                // If we have a side and its opposite angle, we can find other sides
-                if (!isNaN(a) && !isNaN(A)) {
-                    // Use sine rule: a/sinA = b/sinB = c/sinC
-                    const ratio = a / Math.sin(A * Math.PI / 180);
+            // Now we should have at least 3 known values (anglesCount + sidesCount >= 3)
+            if ((anglesCount + sidesCount) >= 3) {
+                // If we have all three sides, calculate all angles
+                if (sidesCount === 3) {
+                    // Use Law of Cosines to find angles
+                    if (isNaN(A)) {
+                        A = Math.acos((b*b + c*c - a*a) / (2*b*c)) * 180 / Math.PI;
+                    }
+                    if (isNaN(B)) {
+                        B = Math.acos((a*a + c*c - b*b) / (2*a*c)) * 180 / Math.PI;
+                    }
+                    if (isNaN(C)) {
+                        C = Math.acos((a*a + b*b - c*c) / (2*a*b)) * 180 / Math.PI;
+                    }
+                }
+                // If we have 2 sides and 1 angle, we can solve the triangle
+                else if (sidesCount === 2 && anglesCount >= 1) {
+                    // Determine which case we have
+                    if (!isNaN(a) && !isNaN(b) && !isNaN(C)) {
+                        // Side-Angle-Side: a, b, and included angle C
+                        // Find side c using Law of Cosines
+                        c = Math.sqrt(a*a + b*b - 2*a*b*Math.cos(C * Math.PI / 180));
+                        
+                        // Now find angles A and B
+                        A = Math.asin(a * Math.sin(C * Math.PI / 180) / c) * 180 / Math.PI;
+                        B = 180 - A - C;
+                    }
+                    else if (!isNaN(a) && !isNaN(c) && !isNaN(B)) {
+                        // Side-Angle-Side: a, c, and included angle B
+                        b = Math.sqrt(a*a + c*c - 2*a*c*Math.cos(B * Math.PI / 180));
+                        A = Math.asin(a * Math.sin(B * Math.PI / 180) / b) * 180 / Math.PI;
+                        C = 180 - A - B;
+                    }
+                    else if (!isNaN(b) && !isNaN(c) && !isNaN(A)) {
+                        // Side-Angle-Side: b, c, and included angle A
+                        a = Math.sqrt(b*b + c*c - 2*b*c*Math.cos(A * Math.PI / 180));
+                        B = Math.asin(b * Math.sin(A * Math.PI / 180) / a) * 180 / Math.PI;
+                        C = 180 - A - B;
+                    }
+                    // For cases where the angle is not between the two sides
+                    else if (!isNaN(a) && !isNaN(b) && !isNaN(A)) {
+                        // Two sides and non-included angle (SSA/ambiguous case)
+                        // Use Law of Sines to find angle B
+                        const sinB = b * Math.sin(A * Math.PI / 180) / a;
+                        if (Math.abs(sinB) <= 1) {
+                            B = Math.asin(sinB) * 180 / Math.PI;
+                            C = 180 - A - B;
+                            c = a * Math.sin(C * Math.PI / 180) / Math.sin(A * Math.PI / 180);
+                        }
+                    }
+                    else if (!isNaN(a) && !isNaN(c) && !isNaN(C)) {
+                        const sinA = a * Math.sin(C * Math.PI / 180) / c;
+                        if (Math.abs(sinA) <= 1) {
+                            A = Math.asin(sinA) * 180 / Math.PI;
+                            B = 180 - A - C;
+                            b = c * Math.sin(B * Math.PI / 180) / Math.sin(C * Math.PI / 180);
+                        }
+                    }
+                    else if (!isNaN(b) && !isNaN(c) && !isNaN(B)) {
+                        const sinC = c * Math.sin(B * Math.PI / 180) / b;
+                        if (Math.abs(sinC) <= 1) {
+                            C = Math.asin(sinC) * 180 / Math.PI;
+                            A = 180 - B - C;
+                            a = b * Math.sin(A * Math.PI / 180) / Math.sin(B * Math.PI / 180);
+                        }
+                    }
+                }
+                // If we have 1 side and 2 angles
+                else if (sidesCount === 1 && anglesCount >= 2) {
+                    // Calculate the third angle
+                    if (isNaN(A)) A = 180 - B - C;
+                    if (isNaN(B)) B = 180 - A - C;
+                    if (isNaN(C)) C = 180 - A - B;
                     
-                    if (!isNaN(B) && isNaN(b)) {
-                        b = ratio * Math.sin(B * Math.PI / 180);
+                    // Now use Law of Sines to find the other sides
+                    if (!isNaN(a) && !isNaN(A)) {
+                        const ratio = a / Math.sin(A * Math.PI / 180);
+                        if (isNaN(b)) b = ratio * Math.sin(B * Math.PI / 180);
+                        if (isNaN(c)) c = ratio * Math.sin(C * Math.PI / 180);
                     }
-                    if (!isNaN(C) && isNaN(c)) {
-                        c = ratio * Math.sin(C * Math.PI / 180);
+                    else if (!isNaN(b) && !isNaN(B)) {
+                        const ratio = b / Math.sin(B * Math.PI / 180);
+                        if (isNaN(a)) a = ratio * Math.sin(A * Math.PI / 180);
+                        if (isNaN(c)) c = ratio * Math.sin(C * Math.PI / 180);
                     }
-                } else if (!isNaN(b) && !isNaN(B)) {
-                    const ratio = b / Math.sin(B * Math.PI / 180);
-                    
-                    if (!isNaN(A) && isNaN(a)) {
-                        a = ratio * Math.sin(A * Math.PI / 180);
-                    }
-                    if (!isNaN(C) && isNaN(c)) {
-                        c = ratio * Math.sin(C * Math.PI / 180);
-                    }
-                } else if (!isNaN(c) && !isNaN(C)) {
-                    const ratio = c / Math.sin(C * Math.PI / 180);
-                    
-                    if (!isNaN(A) && isNaN(a)) {
-                        a = ratio * Math.sin(A * Math.PI / 180);
-                    }
-                    if (!isNaN(B) && isNaN(b)) {
-                        b = ratio * Math.sin(B * Math.PI / 180);
+                    else if (!isNaN(c) && !isNaN(C)) {
+                        const ratio = c / Math.sin(C * Math.PI / 180);
+                        if (isNaN(a)) a = ratio * Math.sin(A * Math.PI / 180);
+                        if (isNaN(b)) b = ratio * Math.sin(B * Math.PI / 180);
                     }
                 }
             }
 
-            // Cosine rule for when we have two sides and included angle
-            if (sidesCount === 2 && anglesCount >= 1) {
-                if (!isNaN(a) && !isNaN(b) && !isNaN(C) && isNaN(c)) {
-                    // c² = a² + b² - 2ab cos C
-                    c = Math.sqrt(a*a + b*b - 2*a*b*Math.cos(C * Math.PI / 180));
-                } else if (!isNaN(a) && !isNaN(c) && !isNaN(B) && isNaN(b)) {
-                    // b² = a² + c² - 2ac cos B
-                    b = Math.sqrt(a*a + c*c - 2*a*c*Math.cos(B * Math.PI / 180));
-                } else if (!isNaN(b) && !isNaN(c) && !isNaN(A) && isNaN(a)) {
-                    // a² = b² + c² - 2bc cos A
-                    a = Math.sqrt(b*b + c*c - 2*b*c*Math.cos(A * Math.PI / 180));
+            // Ensure angle sum is 180 (adjust for rounding errors)
+            if (!isNaN(A) && !isNaN(B) && !isNaN(C)) {
+                const sum = A + B + C;
+                if (Math.abs(sum - 180) > 0.01) {
+                    // Adjust proportionally
+                    const factor = 180 / sum;
+                    A *= factor;
+                    B *= factor;
+                    C *= factor;
                 }
             }
 
-            // Calculate missing angles using cosine rule if we have all three sides
-            if (sidesCount === 3 && anglesCount < 3) {
-                if (isNaN(A)) {
-                    // A = cos⁻¹((b² + c² - a²) / 2bc)
-                    A = Math.acos((b*b + c*c - a*a) / (2*b*c)) * 180 / Math.PI;
-                }
-                if (isNaN(B)) {
-                    // B = cos⁻¹((a² + c² - b²) / 2ac)
-                    B = Math.acos((a*a + c*c - b*b) / (2*a*c)) * 180 / Math.PI;
-                }
-                if (isNaN(C)) {
-                    // C = 180 - A - B or use cosine rule
-                    C = Math.acos((a*a + b*b - c*c) / (2*a*b)) * 180 / Math.PI;
-                }
-            }
+            // Update ALL fields with calculated values
+            const fields = [
+                {id: 'sideA', value: a},
+                {id: 'sideB', value: b},
+                {id: 'sideC', value: c},
+                {id: 'angleA', value: A},
+                {id: 'angleB', value: B},
+                {id: 'angleC', value: C}
+            ];
 
-            // Update values if they were calculated
-            document.getElementById('sideA').value = !isNaN(a) ? a.toFixed(2) : "";
-            document.getElementById('sideB').value = !isNaN(b) ? b.toFixed(2) : "";
-            document.getElementById('sideC').value = !isNaN(c) ? c.toFixed(2) : "";
+            fields.forEach(field => {
+                const element = document.getElementById(field.id);
+                if (!isNaN(field.value)) {
+                    element.value = field.value.toFixed(2);
+                    // Add green color only if this field was NOT provided by user
+                    if (!userProvided[field.id]) {
+                        element.classList.add('result-value');
+                    } else {
+                        element.classList.remove('result-value');
+                    }
+                } else {
+                    element.value = "";
+                    element.classList.remove('result-value');
+                }
+            });
 
-            document.getElementById('angleA').value = !isNaN(A) ? A.toFixed(2) : "";
-            document.getElementById('angleB').value = !isNaN(B) ? B.toFixed(2) : "";
-            document.getElementById('angleC').value = !isNaN(C) ? C.toFixed(2) : "";
+            // Store original values and setup listeners
+            storeOriginalValues();
+            setupInputListeners();
         }
 
         function clearAll() {
-            document.getElementById('sideA').value = "";
-            document.getElementById('sideB').value = "";
-            document.getElementById('sideC').value = "";
-            document.getElementById('angleA').value = "";
-            document.getElementById('angleB').value = "";
-            document.getElementById('angleC').value = "";
+            const inputs = document.querySelectorAll('.input-field');
+            inputs.forEach(input => {
+                input.value = "";
+                input.classList.remove('result-value');
+            });
+            isCalculated = false;
+            originalValues = {};
         }
+
+        // Initialize listeners on page load
+        document.addEventListener('DOMContentLoaded', setupInputListeners);
     </script>
 
 </body>
