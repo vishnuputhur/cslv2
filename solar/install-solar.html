@@ -14,7 +14,6 @@
         .badge { font-size: 0.65rem; background: #dcfce7; padding: 4px 12px; border-radius: 20px; font-weight: 700; color: #059669; text-transform: uppercase; }
         .btn-install { background: #059669; color: white; border: none; padding: 14px 40px; border-radius: 12px; font-weight: 600; cursor: pointer; width: 100%; font-size: 16px; margin-top: 15px; transition: 0.3s; }
         .btn-install:active { transform: scale(0.98); }
-        .skip-link { display: block; margin-top: 20px; color: #64748b; text-decoration: none; font-size: 13px; font-weight: 500; }
         .footer-tag { margin-top: 30px; font-size: 0.75rem; color: #94a3b8; }
     </style>
 </head>
@@ -29,7 +28,6 @@
         <button id="installBtn" class="btn-install" style="display: none;">Install App</button>
         <div id="waitMsg" style="color: #94a3b8; font-size: 13px; margin-top: 15px;">Waiting for installation prompt...</div>
         
-       
         <div class="footer-tag">Powered by VTSoft</div>
     </div>
 
@@ -37,20 +35,52 @@
         let deferredPrompt;
         const installBtn = document.getElementById('installBtn');
         const waitMsg = document.getElementById('waitMsg');
-        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw-solar.js'); }
+
+        // ✅ Updated Service Worker path
+        if ('serviceWorker' in navigator) { 
+            navigator.serviceWorker.register('./sw-solar.js'); 
+        }
+
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
             installBtn.style.display = 'block';
             waitMsg.style.display = 'none';
         });
+
         installBtn.addEventListener('click', async () => {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') window.location.href = 'index.html';
+                
+                if (outcome === 'accepted') {
+                    // 1. Hide Button
+                    installBtn.style.display = 'none';
+                    
+                    // 2. Show "Installing..."
+                    waitMsg.style.display = 'block';
+                    waitMsg.style.color = '#2563eb';
+                    waitMsg.innerHTML = "<b>Installing... please wait</b>";
+                    
+                    // 3. Wait 2 seconds, then show Success
+                    setTimeout(() => {
+                        waitMsg.style.color = '#059669';
+                        waitMsg.innerHTML = "<b style='font-size:18px;'>Successfully Installed!</b>";
+                        
+                        // 4. Wait 3 more seconds, then redirect
+                        setTimeout(() => {
+                            window.location.href = 'https://vtsoft.onrender.com';
+                        }, 3000);
+                    }, 2000);
+                }
+                deferredPrompt = null;
             }
         });
+
+        // Redirect if already in standalone mode
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            window.location.href = 'index.html';
+        }
     </script>
 </body>
 </html>
