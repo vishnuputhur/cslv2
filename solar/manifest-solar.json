@@ -6,7 +6,7 @@
   "scope": "/cslv2/",
   "display": "standalone",
   "background_color": "#f1f5f9",
-  "theme_color": "#22c55e",
+  "theme_color": "#dcfce7",
   "icons": [
     {
       "src": "solar-icon-192.png",
