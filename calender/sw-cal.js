@@ -1,10 +1,19 @@
-const CACHE_NAME = 'cal-v1';
-const ASSETS = ['calender.html'];
+const CACHE_NAME = 'cal-v2';
+const ASSETS = [
+  'index.html',
+  'manifest-cal.json',
+  'cal-icon-192.png',
+  'icon-512.png'
+];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)));
+  e.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+  );
 });
 
 self.addEventListener('fetch', (e) => {
-  e.respondWith(caches.match(e.request).then((res) => res || fetch(e.request)));
+  e.respondWith(
+    caches.match(e.request).then((res) => res || fetch(e.request))
+  );
 });
