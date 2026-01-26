@@ -560,14 +560,6 @@
     navigator.serviceWorker.register('sw-solar.js');
   }
 </script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw-solar.js');
-
-  // ✅ പുതിയ വേർഷൻ വന്നാൽ പേജ് ഉടൻ റിഫ്രഷ് ചെയ്യാൻ
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    window.location.reload();
-  });
-}
 
 </body>
 </html>
