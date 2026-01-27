@@ -16,6 +16,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
     <style>
         body { background-color: #f1f5f9; font-family: 'Segoe UI', sans-serif; font-size: 13px; scroll-behavior: smooth; }
         .glass-card { background: white; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; padding: 10px; }
@@ -28,6 +31,7 @@
         .stat-sub { font-size: 0.65rem; color: #64748b; font-weight: 500; }
         #resetModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(2px); }
         #confirmModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(2px); }
+        #userSetupModal { display: flex; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px); }
         .legend-item { display: flex; align-items: center; font-size: 9px; font-weight: bold; }
         .legend-color { width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; }
         /* Floating Button */
@@ -36,31 +40,86 @@
         .usage-breakdown { font-size: 0.65rem; font-weight: 500; }
         .solar-use { color: #f59e0b; }
         .grid-use { color: #ef4444; }
-        .last-update-bar { 
+        .status-bar { 
             position: fixed; 
             top: 50px; 
             width: 100%; 
             background: #f0f9ff; 
-            height: 18px; 
+            height: 20px; 
             display: flex; 
             align-items: center; 
-            justify-content: center; 
-            font-size: 0.6rem; 
+            justify-content: space-between;
+            padding: 0 10px;
+            font-size: 0.65rem; 
             color: #0284c7;
             border-bottom: 1px solid #e0f2fe;
             z-index: 40;
+        }
+        .bar-container { height: 120px; position: relative; }
+        .monthly-bar { 
+            width: 6mm !important; 
+            max-width: 24px !important;
+            border-radius: 3px;
+        }
+        .cloud-indicator {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 1px 6px;
+            border-radius: 10px;
+            font-size: 0.6rem;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            border: 1px solid #fde68a;
         }
     </style>
 </head>
 <body>
 
+    <!-- User Setup Modal (Shows on first load) -->
+    <div id="userSetupModal">
+        <div class="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-[320px] text-center">
+            <h3 class="font-bold text-gray-800 text-base mb-2">Welcome to Solar Plant Pro</h3>
+            <p class="text-[11px] text-gray-500 mb-4">Please enter your details to enable cloud backup</p>
+            
+            <div class="space-y-3 mb-4">
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 ml-1 uppercase block text-left mb-1">Your Name</label>
+                    <input type="text" id="setupUserName" class="input-box" placeholder="Enter your name" maxlength="20" required>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 ml-1 uppercase block text-left mb-1">Mobile Number</label>
+                    <input type="tel" id="setupUserMobile" class="input-box" placeholder="10 digit mobile" pattern="[0-9]{10}" maxlength="10" required>
+                </div>
+                <div class="text-left text-[9px] text-gray-500 mt-1">
+                    Your User ID: <span id="setupUserId" class="font-bold">---</span>
+                </div>
+            </div>
+            
+            <div class="space-y-2">
+                <button onclick="saveUserSetup()" class="w-full bg-green-600 text-white py-2.5 rounded-xl font-bold text-xs uppercase">
+                    <i class="fas fa-save mr-1"></i> Save & Continue
+                </button>
+            </div>
+            
+            <div id="setupStatus" class="mt-3 text-[10px]"></div>
+        </div>
+    </div>
+
     <header class="shadow-sm">
         <div class="font-bold uppercase tracking-wider text-sm">My Solar Plant <i class="fas fa-leaf text-green-600 ml-1"></i></div>
     </header>
 
-    <!-- Last Update Bar -->
-    <div id="lastUpdateBar" class="last-update-bar">
-        Last Updated: --
+    <!-- Combined Status Bar -->
+    <div id="statusBar" class="status-bar">
+        <div class="flex items-center gap-1">
+            <i class="fas fa-calendar-alt text-[10px]"></i>
+            <span id="lastUpdateText">--</span>
+        </div>
+        <div id="cloudStatus" class="cloud-indicator">
+            <i class="fas fa-cloud text-[10px]"></i>
+            <span id="cloudStatusText">--</span>
+        </div>
     </div>
 
     <div class="main-content p-3 space-y-3">
@@ -137,6 +196,19 @@
             </div>
         </div>
 
+        <!-- Monthly Production Chart -->
+        <div class="glass-card">
+            <p class="text-[10px] font-bold text-gray-400 mb-2 uppercase">Monthly Production</p>
+            <div class="bar-container">
+                <canvas id="monthlyChart"></canvas>
+            </div>
+            <div class="flex justify-center mt-2">
+                <button onclick="toggleMonthlyView()" class="text-[9px] text-blue-600 font-bold">
+                    <i class="fas fa-exchange-alt mr-1"></i> Toggle View
+                </button>
+            </div>
+        </div>
+
         <div id="inputSection" class="glass-card border-t-4 border-green-500">
             <p class="text-[11px] font-bold text-gray-700 mb-3 uppercase tracking-wider">Meter Reading Input</p>
             <div class="space-y-3">
@@ -167,13 +239,14 @@
             </button>
         </div>
 
-        <div class="flex justify-center pb-6">
+        <div class="flex justify-center pb-6 px-2">
             <button onclick="showModal()" class="text-[9px] text-red-300 font-bold uppercase tracking-widest">
                 <i class="fas fa-trash mr-1"></i> Reset All Data
             </button>
         </div>
     </div>
 
+    <!-- Add Data Floating Button -->
     <button onclick="document.getElementById('inputSection').scrollIntoView()" class="fab">
         <i class="fas fa-plus"></i>
     </button>
@@ -206,19 +279,289 @@
         </div>
     </div>
 
-    <footer> POWERED BY VTSOFT 2026 </footer>
+    <footer> 
+        <span id="cloudStatusFooter" class="text-blue-500 mr-1"><i class="fas fa-cloud"></i> Powered by VTSOFT 2026</span>
+    </footer>
 
     <script>
         document.getElementById('inputDate').valueAsDate = new Date();
         let solarData = JSON.parse(localStorage.getItem('solarData')) || [];
         let lineChart = null;
         let roundChart = null;
-        let pendingEntry = null; // Store entry while asking for confirmation
+        let monthlyChart = null;
+        let pendingEntry = null;
+        let monthlyViewMode = 'current';
+        let currentUserId = localStorage.getItem('solarUserId') || null;
+        let currentUserName = localStorage.getItem('solarUserName') || null;
+        
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCCjWVI1hB3sbu0JiA4viW1BK81xbMML-U",
+            authDomain: "csl-calculations.firebaseapp.com",
+            projectId: "csl-calculations",
+            storageBucket: "csl-calculations.firebasestorage.app",
+            messagingSenderId: "887219643486",
+            appId: "1:887219643486:web:0cb001f2c72039a00240cf"
+        };
 
+        // Initialize Firebase
+        let db;
+        try {
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            db = firebase.firestore();
+            console.log("Firebase initialized successfully");
+        } catch (err) {
+            console.log("Firebase error:", err);
+        }
+
+        // Generate User ID
+        function generateUserId(name, mobile) {
+            if (!name || !mobile) return null;
+            const first3 = name.substring(0, 3).toLowerCase();
+            const cleanMobile = mobile.replace(/\D/g, '').substring(0, 10);
+            if (cleanMobile.length !== 10) return null;
+            return first3 + cleanMobile;
+        }
+
+        // Update User ID display in setup
+        document.getElementById('setupUserName').addEventListener('input', updateSetupUserId);
+        document.getElementById('setupUserMobile').addEventListener('input', updateSetupUserId);
+        
+        function updateSetupUserId() {
+            const name = document.getElementById('setupUserName').value.trim();
+            const mobile = document.getElementById('setupUserMobile').value.trim();
+            const userId = generateUserId(name, mobile);
+            document.getElementById('setupUserId').textContent = userId || '---';
+        }
+
+        // Save User Setup
+        function saveUserSetup() {
+            const name = document.getElementById('setupUserName').value.trim();
+            const mobile = document.getElementById('setupUserMobile').value.trim();
+            
+            if (!name || name.length < 2) {
+                document.getElementById('setupStatus').innerHTML = 
+                    '<span class="text-red-500">Enter valid name (min 2 letters)</span>';
+                return;
+            }
+            
+            if (!mobile || mobile.replace(/\D/g, '').length !== 10) {
+                document.getElementById('setupStatus').innerHTML = 
+                    '<span class="text-red-500">Enter valid 10-digit mobile number</span>';
+                return;
+            }
+            
+            const userId = generateUserId(name, mobile);
+            
+            // Save to localStorage
+            localStorage.setItem('solarUserId', userId);
+            localStorage.setItem('solarUserName', name);
+            localStorage.setItem('solarUserMobile', mobile);
+            
+            currentUserId = userId;
+            currentUserName = name;
+            
+            document.getElementById('setupStatus').innerHTML = 
+                '<span class="text-green-500">Saving...</span>';
+            
+            // Check if user exists in Firebase and restore data
+            checkAndRestoreUserData(userId, name, mobile);
+        }
+
+        // Check and restore user data from Firebase
+        async function checkAndRestoreUserData(userId, name, mobile) {
+            try {
+                const doc = await db.collection('solarBackups').doc(userId).get();
+                
+                if (doc.exists) {
+                    const cloudData = doc.data();
+                    const compactData = cloudData.data;
+                    
+                    // Parse compact data
+                    const restoredData = compactData.split(';').map(item => {
+                        const parts = item.split('|');
+                        return {
+                            date: parts[0],
+                            prod: parseFloat(parts[1]),
+                            exp: parseFloat(parts[2]),
+                            imp: parseFloat(parts[3])
+                        };
+                    });
+                    
+                    // Check if we have local data
+                    const localData = JSON.parse(localStorage.getItem('solarData')) || [];
+                    
+                    if (localData.length === 0) {
+                        // No local data, use cloud data
+                        solarData = restoredData;
+                        localStorage.setItem('solarData', JSON.stringify(solarData));
+                        showToast(`Restored ${restoredData.length} entries from cloud`, 'success');
+                    } else {
+                        // We have local data, show option to merge
+                        if (confirm(`Cloud backup found with ${restoredData.length} entries. Merge with local data?`)) {
+                            // Merge data (avoid duplicates by date)
+                            const mergedData = [...localData];
+                            restoredData.forEach(cloudEntry => {
+                                if (!mergedData.find(local => local.date === cloudEntry.date)) {
+                                    mergedData.push(cloudEntry);
+                                }
+                            });
+                            // Sort by date
+                            mergedData.sort((a, b) => new Date(a.date) - new Date(b.date));
+                            solarData = mergedData;
+                            localStorage.setItem('solarData', JSON.stringify(solarData));
+                            showToast(`Merged data. Total: ${mergedData.length} entries`, 'success');
+                        } else {
+                            showToast("Using local data only", 'info');
+                        }
+                    }
+                    
+                    document.getElementById('setupStatus').innerHTML = 
+                        `<span class="text-green-500">✓ Welcome ${name}! Data restored</span>`;
+                } else {
+                    // New user, create empty backup
+                    const backupData = {
+                        userId: userId,
+                        name: name,
+                        mobile: mobile,
+                        data: '',
+                        lastUpdated: new Date().toISOString(),
+                        entryCount: 0
+                    };
+                    
+                    await db.collection('solarBackups').doc(userId).set(backupData);
+                    document.getElementById('setupStatus').innerHTML = 
+                        `<span class="text-green-500">✓ Welcome ${name}! New account created</span>`;
+                }
+                
+                // Update cloud status
+                updateCloudStatus('Connected');
+                
+                // Hide setup modal and initialize app
+                setTimeout(() => {
+                    document.getElementById('userSetupModal').style.display = 'none';
+                    init();
+                }, 1500);
+                
+            } catch (error) {
+                console.error("Firebase error:", error);
+                document.getElementById('setupStatus').innerHTML = 
+                    `<span class="text-red-500">Error: ${error.message}</span>`;
+                // Still proceed with app
+                setTimeout(() => {
+                    document.getElementById('userSetupModal').style.display = 'none';
+                    init();
+                }, 2000);
+            }
+        }
+
+        // Automatic Backup to Firebase
+        async function autoBackupToFirebase() {
+            if (!currentUserId || solarData.length === 0) return;
+            
+            try {
+                // Compact data
+                const compactData = solarData.map(d => 
+                    `${d.date}|${d.prod}|${d.exp}|${d.imp}`
+                ).join(';');
+                
+                const backupData = {
+                    userId: currentUserId,
+                    name: currentUserName,
+                    mobile: localStorage.getItem('solarUserMobile') || '',
+                    data: compactData,
+                    lastUpdated: new Date().toISOString(),
+                    entryCount: solarData.length
+                };
+                
+                await db.collection('solarBackups').doc(currentUserId).set(backupData);
+                updateCloudStatus('Synced');
+                
+            } catch (error) {
+                console.error("Auto backup error:", error);
+                updateCloudStatus('Error');
+            }
+        }
+
+        // Update Combined Status Bar
+        function updateStatusBar(lastUpdateDate, cloudStatus) {
+            const updateText = lastUpdateDate ? 
+                `Last: ${lastUpdateDate}` : 
+                'No data yet';
+            
+            const cloudText = cloudStatus || '--';
+            
+            document.getElementById('lastUpdateText').textContent = updateText;
+            document.getElementById('cloudStatusText').textContent = cloudText;
+            
+            // Update cloud indicator color
+            const cloudIndicator = document.getElementById('cloudStatus');
+            if (cloudStatus === 'Connected' || cloudStatus === 'Synced') {
+                cloudIndicator.style.background = '#f0fdf4';
+                cloudIndicator.style.color = '#166534';
+                cloudIndicator.style.borderColor = '#bbf7d0';
+            } else if (cloudStatus === 'Error') {
+                cloudIndicator.style.background = '#fef2f2';
+                cloudIndicator.style.color = '#dc2626';
+                cloudIndicator.style.borderColor = '#fecaca';
+            } else {
+                cloudIndicator.style.background = '#fef3c7';
+                cloudIndicator.style.color = '#92400e';
+                cloudIndicator.style.borderColor = '#fde68a';
+            }
+        }
+
+        // Show Toast Notification
+        function showToast(message, type = 'info') {
+            const colors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                info: 'bg-blue-500',
+                warning: 'bg-yellow-500'
+            };
+            
+            const toast = document.createElement('div');
+            toast.className = `fixed top-16 left-1/2 transform -translate-x-1/2 text-white px-4 py-2 rounded-lg shadow-lg text-xs font-bold z-50 ${colors[type]}`;
+            toast.textContent = message;
+            toast.style.animation = 'slideIn 0.3s, slideOut 0.3s 2.7s';
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // Check if user is setup
+        function checkUserSetup() {
+            if (!currentUserId) {
+                // Show setup modal
+                document.getElementById('userSetupModal').style.display = 'flex';
+                return false;
+            } else {
+                // User is setup, hide modal
+                document.getElementById('userSetupModal').style.display = 'none';
+                updateStatusBar('', 'Connecting...');
+                return true;
+            }
+        }
+
+        // Initialize App
         function init() {
+            if (!checkUserSetup()) return;
+            
             displayPrevious();
             calculateAll();
             renderCharts();
+            
+            // Auto backup existing data
+            setTimeout(() => {
+                if (solarData.length > 0) {
+                    autoBackupToFirebase();
+                }
+            }, 1000);
         }
 
         function displayPrevious() {
@@ -228,10 +571,13 @@
                 document.getElementById('prevExport').innerText = "Prev: " + last.exp;
                 document.getElementById('prevImport').innerText = "Prev: " + last.imp;
                 
-                // Set Last Updated Date in separate bar
                 const d = new Date(last.date);
-                document.getElementById('lastUpdateBar').innerText = 
-                    "Last Updated: " + d.toLocaleDateString('en-GB');
+                const formattedDate = d.toLocaleDateString('en-GB');
+                
+                // Update status bar
+                updateStatusBar(formattedDate, 'Connected');
+            } else {
+                updateStatusBar('No data', 'Ready');
             }
         }
 
@@ -245,14 +591,11 @@
             
             if(!entry.prod) return alert("റീഡിംഗ് നൽകുക!");
             
-            // Check if date already exists
             const existingIndex = solarData.findIndex(d => d.date === entry.date);
             
             if (existingIndex > -1) {
-                // Date already exists, show confirmation
                 const existing = solarData[existingIndex];
                 
-                // Show existing and new values
                 document.getElementById('existingProd').textContent = existing.prod;
                 document.getElementById('existingExp').textContent = existing.exp;
                 document.getElementById('existingImp').textContent = existing.imp;
@@ -261,46 +604,51 @@
                 document.getElementById('newExp').textContent = entry.exp;
                 document.getElementById('newImp').textContent = entry.imp;
                 
-                // Store entry for later use
                 pendingEntry = {
                     entry: entry,
                     index: existingIndex
                 };
                 
-                // Show confirmation modal
                 document.getElementById('confirmModal').style.display = 'flex';
                 return;
             }
             
-            // For NEW dates only, check against previous reading
             if (solarData.length > 0) {
                 const last = solarData[solarData.length - 1];
-                // Compare dates to check if this is a new date entry
                 const newDate = new Date(entry.date);
                 const lastDate = new Date(last.date);
                 
                 if (newDate > lastDate) {
-                    // This is a new date entry (future date)
                     if (entry.prod < last.prod || entry.exp < last.exp || entry.imp < last.imp) {
                         return alert("New reading must be greater than or equal to previous reading!");
                     }
                 }
             }
             
-            // New date, just add it
             solarData.push(entry);
             solarData.sort((a, b) => new Date(a.date) - new Date(b.date));
             localStorage.setItem('solarData', JSON.stringify(solarData));
-            location.reload(); 
+            
+            // Auto backup after saving
+            autoBackupToFirebase();
+            showToast("Data saved & backed up to cloud", 'success');
+            
+            // Update UI
+            displayPrevious();
+            calculateAll();
+            renderCharts();
+            
+            // Clear inputs
+            document.getElementById('prodReading').value = '';
+            document.getElementById('exportReading').value = '';
+            document.getElementById('importReading').value = '';
         }
 
         function confirmOverwrite() {
             if (pendingEntry) {
-                // Check if this overwrite will cause issues with subsequent entries
                 const entry = pendingEntry.entry;
                 const index = pendingEntry.index;
                 
-                // Check next entry (if exists) to ensure new value is not greater than next
                 if (index < solarData.length - 1) {
                     const next = solarData[index + 1];
                     if (entry.prod > next.prod || entry.exp > next.exp || entry.imp > next.imp) {
@@ -311,15 +659,20 @@
                     }
                 }
                 
-                // Overwrite existing entry
                 solarData[index] = entry;
-                
-                // Sort by date (in case date changed)
                 solarData.sort((a, b) => new Date(a.date) - new Date(b.date));
-                
                 localStorage.setItem('solarData', JSON.stringify(solarData));
+                
+                // Auto backup after overwrite
+                autoBackupToFirebase();
+                showToast("Data updated & backed up", 'success');
+                
                 hideConfirmModal();
-                location.reload();
+                
+                // Update UI
+                displayPrevious();
+                calculateAll();
+                renderCharts();
             }
         }
 
@@ -339,10 +692,13 @@
             
             const last = solarData[solarData.length - 1];
             
-            // Display Total Production
-            document.getElementById('totalProd').innerText = last.prod.toFixed(1);
+            // CORRECTION 3: Simple Total Home Consumption Formula
+            const totalConsumption = last.prod - last.exp + last.imp;
             
-            // Display Banking Balance and Value
+            document.getElementById('totalProd').innerText = last.prod.toFixed(1);
+            document.getElementById('totalConsumption').innerText = totalConsumption.toFixed(1);
+            
+            // Banking Balance and Value
             document.getElementById('statBanking').innerText = (last.exp - last.imp).toFixed(1);
             document.getElementById('statAmount').innerText = "₹ " + ((last.exp - last.imp) * 3.15).toFixed(2);
 
@@ -351,26 +707,18 @@
                 const last = solarData[solarData.length - 1];
                 const totalDays = getDiffDays(first.date, last.date);
                 
-                // Calculate total differences from first to last
                 const totalProdDiff = last.prod - first.prod;
                 const totalExpDiff = last.exp - first.exp;
                 const totalImpDiff = last.imp - first.imp;
                 
-                // TOTAL HOME CONSUMPTION = Total Production - Total Export + Total Import
                 const totalHomeUsage = totalProdDiff - totalExpDiff + totalImpDiff;
                 
-                // Calculate averages (even if user skips days)
                 const avgProd = totalDays > 0 ? (totalProdDiff / totalDays) : 0;
                 const avgUsage = totalDays > 0 ? (totalHomeUsage / totalDays) : 0;
                 
-                // Update averages
                 document.getElementById('avgProd').innerText = "Avg: " + avgProd.toFixed(1) + "/day";
                 document.getElementById('avgUse').innerText = "Avg: " + avgUsage.toFixed(1) + "/day";
                 
-                // Display TOTAL HOME CONSUMPTION (BIG FONT)
-                document.getElementById('totalConsumption').innerText = totalHomeUsage.toFixed(1);
-                
-                // Efficiency Percentage (Self Consumption)
                 if (totalProdDiff > 0) {
                     const selfConsumed = totalProdDiff - totalExpDiff;
                     const efficiency = Math.max(0, (selfConsumed / totalProdDiff) * 100);
@@ -379,33 +727,23 @@
                     document.getElementById('effPercent').innerText = "0%";
                 }
                 
-                // CO2 Savings
                 document.getElementById('co2Stat').innerText = (totalProdDiff * 0.7).toFixed(1);
                 
-                // Calculate TODAY'S values (from last 2 entries)
                 const prev = solarData[solarData.length - 2];
                 const daysBetween = getDiffDays(prev.date, last.date);
                 
                 if (daysBetween > 0) {
-                    // Today's values (per day average between last 2 readings)
                     const todayProd = (last.prod - prev.prod) / daysBetween;
                     const todayExp = (last.exp - prev.exp) / daysBetween;
                     const todayImp = (last.imp - prev.imp) / daysBetween;
-                    
-                    // TODAY'S HOME USAGE = Today's Production - Today's Export + Today's Import
                     const todayUsage = todayProd - todayExp + todayImp;
                     
-                    // Today's breakdown: Solar Usage + Grid Import
-                    const solarUsage = Math.max(0, todayProd - todayExp); // Solar energy directly used
-                    const gridUsage = todayImp; // Energy imported from grid
+                    const solarUsage = Math.max(0, todayProd - todayExp);
+                    const gridUsage = todayImp;
                     
-                    // Update Today's Production (SMALL FONT)
                     document.getElementById('todayProd').innerText = "Today: " + todayProd.toFixed(1) + " units";
-                    
-                    // Update Today's Usage (SMALL FONT)
                     document.getElementById('todayUsage').innerText = "Today: " + todayUsage.toFixed(1) + " units";
                     
-                    // Update Usage Breakdown
                     document.getElementById('usageBreakdown').innerHTML = 
                         `<span class="solar-use">Solar: ${solarUsage.toFixed(1)}</span> | ` +
                         `<span class="grid-use">Grid: ${gridUsage.toFixed(1)}</span>`;
@@ -413,15 +751,142 @@
             }
         }
 
+        function renderMonthlyChart() {
+            if (solarData.length < 2) return;
+            
+            // Group data by month
+            const monthlyData = {};
+            
+            for (let i = 1; i < solarData.length; i++) {
+                const prev = solarData[i-1];
+                const curr = solarData[i];
+                
+                const prevDate = new Date(prev.date);
+                const currDate = new Date(curr.date);
+                
+                // Get month-year key
+                const monthKey = currDate.getFullYear() + '-' + (currDate.getMonth() + 1).toString().padStart(2, '0');
+                const monthName = currDate.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+                
+                if (!monthlyData[monthKey]) {
+                    monthlyData[monthKey] = {
+                        name: monthName,
+                        production: 0,
+                        usage: 0
+                    };
+                }
+                
+                const daysBetween = getDiffDays(prev.date, curr.date);
+                if (daysBetween > 0) {
+                    const dailyProd = (curr.prod - prev.prod) / daysBetween;
+                    const dailyExp = (curr.exp - prev.exp) / daysBetween;
+                    const dailyImp = (curr.imp - prev.imp) / daysBetween;
+                    const dailyUsage = dailyProd - dailyExp + dailyImp;
+                    
+                    monthlyData[monthKey].production += dailyProd * daysBetween;
+                    monthlyData[monthKey].usage += dailyUsage * daysBetween;
+                }
+            }
+            
+            // Sort months chronologically
+            const sortedMonths = Object.keys(monthlyData).sort();
+            const last12Months = monthlyViewMode === 'current' ? 
+                sortedMonths.slice(-12) : 
+                sortedMonths;
+            
+            const labels = last12Months.map(key => {
+                const monthData = monthlyData[key];
+                return `${monthData.name}\n${monthData.production.toFixed(0)}u`;
+            });
+            
+            const prodData = last12Months.map(key => parseFloat(monthlyData[key].production.toFixed(1)));
+            
+            const ctxMonthly = document.getElementById('monthlyChart').getContext('2d');
+            if (monthlyChart) monthlyChart.destroy();
+            
+            monthlyChart = new Chart(ctxMonthly, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Production',
+                        data: prodData,
+                        backgroundColor: '#22c55e',
+                        borderColor: '#16a34a',
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        barPercentage: 0.6,
+                        categoryPercentage: 0.8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const monthKey = sortedMonths[context.dataIndex];
+                                    const monthData = monthlyData[monthKey];
+                                    return [
+                                        `Production: ${monthData.production.toFixed(1)} units`,
+                                        `Usage: ${monthData.usage.toFixed(1)} units`
+                                    ];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + 'u';
+                                },
+                                font: {
+                                    size: 9
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0,0,0,0.05)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: {
+                                    size: 8
+                                },
+                                maxRotation: 0
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    layout: {
+                        padding: {
+                            top: 10
+                        }
+                    }
+                }
+            });
+        }
+
+        function toggleMonthlyView() {
+            monthlyViewMode = monthlyViewMode === 'current' ? 'all' : 'current';
+            renderMonthlyChart();
+            showToast(`Showing ${monthlyViewMode === 'current' ? '12 months' : 'all months'}`, 'info');
+        }
+
         function renderCharts() {
             if (solarData.length < 2) return;
             
-            // Prepare arrays for daily values
+            // Line Chart
             let labels = []; 
             let pData = []; 
             let uData = [];
             
-            // Calculate daily averages between each pair of readings
             for (let i = 1; i < solarData.length; i++) {
                 const prev = solarData[i-1];
                 const curr = solarData[i];
@@ -429,13 +894,11 @@
                 const daysBetween = getDiffDays(prev.date, curr.date);
                 if (daysBetween === 0) continue;
                 
-                // Daily averages between these two readings
                 const dailyProd = (curr.prod - prev.prod) / daysBetween;
                 const dailyExp = (curr.exp - prev.exp) / daysBetween;
                 const dailyImp = (curr.imp - prev.imp) / daysBetween;
-                const dailyUsage = dailyProd - dailyExp + dailyImp; // CORRECT FORMULA
+                const dailyUsage = dailyProd - dailyExp + dailyImp;
                 
-                // Create an entry for each day between readings
                 const startDate = new Date(prev.date);
                 for (let day = 1; day <= daysBetween; day++) {
                     const currentDate = new Date(startDate);
@@ -447,11 +910,9 @@
                 }
             }
             
-            // Line Chart
             const ctxLine = document.getElementById('lineChart').getContext('2d');
             if (lineChart) lineChart.destroy();
             
-            // Show last 15 days or all if less than 15
             const showCount = Math.min(15, labels.length);
             const recentLabels = labels.slice(-showCount);
             const recentProd = pData.slice(-showCount);
@@ -499,7 +960,7 @@
                 }
             });
 
-            // Round Chart (Today's Split)
+            // Round Chart
             const last = solarData[solarData.length-1];
             const prev = solarData[solarData.length-2];
             const daysBetween = getDiffDays(prev.date, last.date);
@@ -509,7 +970,7 @@
             const todayProd = (last.prod - prev.prod) / daysBetween;
             const todayExp = (last.exp - prev.exp) / daysBetween;
             const todayImp = (last.imp - prev.imp) / daysBetween;
-            const todayUsage = todayProd - todayExp + todayImp; // CORRECT FORMULA
+            const todayUsage = todayProd - todayExp + todayImp;
 
             document.getElementById('splitProd').innerText = todayProd.toFixed(1);
             document.getElementById('splitUse').innerText = todayUsage.toFixed(1);
@@ -537,6 +998,9 @@
                     plugins: { legend: { display: false } }
                 }
             });
+            
+            // Monthly Chart
+            renderMonthlyChart();
         }
 
         function showModal() { 
@@ -549,9 +1013,43 @@
         
         function resetData() { 
             localStorage.removeItem("solarData"); 
+            // Also reset cloud backup if exists
+            if (currentUserId && db) {
+                db.collection('solarBackups').doc(currentUserId).delete()
+                    .then(() => {
+                        showToast("All data reset from cloud", 'success');
+                    })
+                    .catch(err => {
+                        console.error("Cloud reset error:", err);
+                    });
+            }
+            showToast("All data reset", 'success');
             location.reload(); 
         }
 
+        // Update cloud status function
+        function updateCloudStatus(status) {
+            updateStatusBar(
+                document.getElementById('lastUpdateText').textContent,
+                status
+            );
+        }
+
+        // Add CSS for toast animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translate(-50%, -20px); opacity: 0; }
+                to { transform: translate(-50%, 0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translate(-50%, 0); opacity: 1; }
+                to { transform: translate(-50%, -20px); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initialize app
         init();
     </script>
 
