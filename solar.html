@@ -22,7 +22,7 @@
     <style>
         body { background-color: #f1f5f9; font-family: 'Segoe UI', sans-serif; font-size: 13px; scroll-behavior: smooth; }
         .glass-card { background: white; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; padding: 10px; }
-        header { position: fixed; top: 0; width: 100%; z-index: 50; background: #dcfce7; color: #166534; height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-bottom: 1px solid #bbf7d0; }
+        header { position: fixed; top: 0; width: 100%; z-index: 50; background: #dcfce7; color: #166534; height: 50px; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #bbf7d0; padding: 0 15px; }
         footer { position: fixed; bottom: 0; width: 100%; font-size: 0.6rem; background: #fff; height: 25px; display: flex; align-items: center; justify-content: center; color: #94a3b8; border-top: 1px solid #eee; }
         .main-content { margin-top: 70px; margin-bottom: 80px; }
         .input-box { border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px; width: 100%; height: 38px; outline: none; font-size: 14px; }
@@ -32,13 +32,14 @@
         #resetModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(2px); }
         #confirmModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(2px); }
         #userSetupModal { display: flex; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px); }
+        #profileModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px); }
         .legend-item { display: flex; align-items: center; font-size: 9px; font-weight: bold; }
         .legend-color { width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; }
         /* Floating Button */
         .fab { position: fixed; bottom: 40px; right: 20px; background: #22c55e; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 40; border: none; }
         /* Usage breakdown */
         .usage-breakdown { font-size: 0.65rem; font-weight: 500; }
-        .solar-use { color: #f59e0b; }
+        .solar-use { color: #16a34a; } /* Changed to green as requested */
         .grid-use { color: #ef4444; }
         .status-bar { 
             position: fixed; 
@@ -72,6 +73,31 @@
             gap: 3px;
             border: 1px solid #fde68a;
         }
+        .profile-btn {
+            position: absolute;
+            right: 15px;
+            background: #22c55e;
+            color: white;
+            border-radius: 50%;
+            width: 31px;
+            height: 31px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            border: none;
+        }
+        .month-label {
+            font-size: 8px;
+            text-align: center;
+            margin-top: 2px;
+        }
+        .month-total {
+            font-size: 7px;
+            font-weight: bold;
+            color: #166534;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -91,9 +117,6 @@
                     <label class="text-[10px] font-bold text-gray-500 ml-1 uppercase block text-left mb-1">Mobile Number</label>
                     <input type="tel" id="setupUserMobile" class="input-box" placeholder="10 digit mobile" pattern="[0-9]{10}" maxlength="10" required>
                 </div>
-                <div class="text-left text-[9px] text-gray-500 mt-1">
-                    Your User ID: <span id="setupUserId" class="font-bold">---</span>
-                </div>
             </div>
             
             <div class="space-y-2">
@@ -106,8 +129,52 @@
         </div>
     </div>
 
+    <!-- Profile Modal -->
+    <div id="profileModal">
+        <div class="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-[320px] text-center">
+            <h3 class="font-bold text-gray-800 text-base mb-4">User Profile</h3>
+            
+            <div class="space-y-4 mb-6">
+                <div class="text-left">
+                    <label class="text-[10px] font-bold text-gray-500 ml-1 uppercase block mb-1">Name</label>
+                    <input type="text" id="profileUserName" class="input-box" placeholder="Your name" maxlength="20">
+                </div>
+                <div class="text-left">
+                    <label class="text-[10px] font-bold text-gray-500 ml-1 uppercase block mb-1">Mobile Number</label>
+                    <input type="tel" id="profileUserMobile" class="input-box" placeholder="10 digit mobile" pattern="[0-9]{10}" maxlength="10">
+                </div>
+                <div class="text-left text-[10px] text-gray-600">
+                    <i class="fas fa-database mr-1"></i> Data Entries: <span id="profileDataCount" class="font-bold">0</span>
+                </div>
+                <div class="text-left text-[10px] text-gray-600">
+                    <i class="fas fa-calendar mr-1"></i> Last Backup: <span id="profileLastBackup" class="font-bold">Never</span>
+                </div>
+            </div>
+            
+            <div class="space-y-2">
+                <button onclick="updateProfile()" class="w-full bg-green-600 text-white py-2.5 rounded-xl font-bold text-xs uppercase">
+                    <i class="fas fa-edit mr-1"></i> Update Profile
+                </button>
+                <button onclick="showLoginSetup()" class="w-full bg-blue-600 text-white py-2.5 rounded-xl font-bold text-xs uppercase">
+                    <i class="fas fa-sign-in-alt mr-1"></i> Re-login
+                </button>
+                <button onclick="logoutUser()" class="w-full bg-red-600 text-white py-2.5 rounded-xl font-bold text-xs uppercase">
+                    <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                </button>
+                <button onclick="hideProfileModal()" class="w-full bg-gray-200 text-gray-800 py-2.5 rounded-xl font-bold text-xs uppercase">
+                    Cancel
+                </button>
+            </div>
+            
+            <div id="profileStatus" class="mt-3 text-[10px]"></div>
+        </div>
+    </div>
+
     <header class="shadow-sm">
         <div class="font-bold uppercase tracking-wider text-sm">My Solar Plant <i class="fas fa-leaf text-green-600 ml-1"></i></div>
+        <button onclick="showProfileModal()" class="profile-btn">
+            <i class="fas fa-user"></i>
+        </button>
     </header>
 
     <!-- Combined Status Bar -->
@@ -192,6 +259,7 @@
                     <div class="legend-item"><div class="legend-color bg-blue-400"></div><span>PROD: <span id="splitProd" class="font-bold">0</span></span></div>
                     <div class="legend-item"><div class="legend-color bg-orange-400"></div><span>USE: <span id="splitUse" class="font-bold">0</span></span></div>
                     <div class="legend-item"><div class="legend-color bg-red-400"></div><span>IMP: <span id="splitImp" class="font-bold">0</span></span></div>
+                    <div class="legend-item"><div class="legend-color bg-green-400"></div><span>EXP: <span id="splitExp" class="font-bold">0</span></span></div>
                 </div>
             </div>
         </div>
@@ -202,6 +270,7 @@
             <div class="bar-container">
                 <canvas id="monthlyChart"></canvas>
             </div>
+            <div id="monthlyTotals" class="flex justify-center gap-4 mt-2 overflow-x-auto py-2"></div>
             <div class="flex justify-center mt-2">
                 <button onclick="toggleMonthlyView()" class="text-[9px] text-blue-600 font-bold">
                     <i class="fas fa-exchange-alt mr-1"></i> Toggle View
@@ -223,14 +292,14 @@
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="text-[10px] font-bold text-gray-500 ml-1 uppercase">KSEB Export Meter</label>
-                        <input type="number" id="exportReading" class="input-box" placeholder="0.0">
-                        <p id="prevExport" class="text-[9px] text-green-600 mt-1 font-medium">Prev: --</p>
-                    </div>
-                    <div>
                         <label class="text-[10px] font-bold text-gray-500 ml-1 uppercase">KSEB Import Meter</label>
                         <input type="number" id="importReading" class="input-box" placeholder="0.0">
                         <p id="prevImport" class="text-[9px] text-red-500 mt-1 font-medium">Prev: --</p>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-500 ml-1 uppercase">KSEB Export Meter</label>
+                        <input type="number" id="exportReading" class="input-box" placeholder="0.0">
+                        <p id="prevExport" class="text-[9px] text-green-600 mt-1 font-medium">Prev: --</p>
                     </div>
                 </div>
             </div>
@@ -254,8 +323,8 @@
     <!-- Reset Confirmation Modal -->
     <div id="resetModal">
         <div class="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-[280px] text-center">
-            <h3 class="font-bold text-gray-800 text-base mb-2">ഡാറ്റ മുഴുവൻ കളയണോ?</h3>
-            <p class="text-[11px] text-gray-500 mb-6">സേവ് ചെയ്ത വിവരങ്ങൾ എല്ലാം മാഞ്ഞുപോകും.</p>
+            <h3 class="font-bold text-gray-800 text-base mb-2">Delete All Data?</h3>
+            <p class="text-[11px] text-gray-500 mb-6">All saved information will be permanently deleted.</p>
             <div class="flex gap-2">
                 <button onclick="hideModal()" class="flex-1 bg-gray-100 py-2.5 rounded-xl font-bold text-xs uppercase">No</button>
                 <button onclick="resetData()" class="flex-1 bg-red-500 text-white py-2.5 rounded-xl font-bold text-xs uppercase">Yes</button>
@@ -280,7 +349,7 @@
     </div>
 
     <footer> 
-        <span id="cloudStatusFooter" class="text-blue-500 mr-1"><i class="fas fa-cloud"></i> Powered by VTSOFT 2026</span>
+        <span class="text-gray-500">Powered by VTSOFT 2026</span>
     </footer>
 
     <script>
@@ -314,6 +383,104 @@
             console.log("Firebase initialized successfully");
         } catch (err) {
             console.log("Firebase error:", err);
+        }
+
+        // Profile Modal Functions
+        function showProfileModal() {
+            if (!currentUserId) {
+                showLoginSetup();
+                return;
+            }
+            
+            // Populate profile data
+            document.getElementById('profileUserName').value = currentUserName || '';
+            document.getElementById('profileUserMobile').value = localStorage.getItem('solarUserMobile') || '';
+            document.getElementById('profileDataCount').textContent = solarData.length;
+            
+            // Get last backup time
+            const lastBackup = localStorage.getItem('solarLastBackup') || 'Never';
+            document.getElementById('profileLastBackup').textContent = lastBackup;
+            
+            document.getElementById('profileModal').style.display = 'flex';
+        }
+        
+        function hideProfileModal() {
+            document.getElementById('profileModal').style.display = 'none';
+        }
+        
+        function updateProfile() {
+            const name = document.getElementById('profileUserName').value.trim();
+            const mobile = document.getElementById('profileUserMobile').value.trim();
+            
+            if (!name || name.length < 2) {
+                document.getElementById('profileStatus').innerHTML = 
+                    '<span class="text-red-500">Enter valid name (min 2 letters)</span>';
+                return;
+            }
+            
+            if (!mobile || mobile.replace(/\D/g, '').length !== 10) {
+                document.getElementById('profileStatus').innerHTML = 
+                    '<span class="text-red-500">Enter valid 10-digit mobile number</span>';
+                return;
+            }
+            
+            // Update local storage
+            localStorage.setItem('solarUserName', name);
+            localStorage.setItem('solarUserMobile', mobile);
+            currentUserName = name;
+            
+            document.getElementById('profileStatus').innerHTML = 
+                '<span class="text-green-500">Updating...</span>';
+            
+            // Update in Firebase if exists
+            if (db && currentUserId) {
+                updateUserInFirebase(name, mobile);
+            } else {
+                document.getElementById('profileStatus').innerHTML = 
+                    '<span class="text-green-500">Profile updated!</span>';
+                setTimeout(hideProfileModal, 1500);
+            }
+        }
+        
+        async function updateUserInFirebase(name, mobile) {
+            try {
+                const userRef = db.collection('solarBackups').doc(currentUserId);
+                await userRef.update({
+                    name: name,
+                    mobile: mobile,
+                    lastUpdated: new Date().toISOString()
+                });
+                
+                document.getElementById('profileStatus').innerHTML = 
+                    '<span class="text-green-500">✓ Profile updated & synced!</span>';
+                setTimeout(hideProfileModal, 1500);
+                
+            } catch (error) {
+                console.error("Update error:", error);
+                document.getElementById('profileStatus').innerHTML = 
+                    '<span class="text-green-500">Profile updated locally!</span>';
+                setTimeout(hideProfileModal, 1500);
+            }
+        }
+        
+        function showLoginSetup() {
+            hideProfileModal();
+            document.getElementById('userSetupModal').style.display = 'flex';
+        }
+        
+        function logoutUser() {
+            if (confirm("Logout will keep your data. You can login later with same mobile number. Continue?")) {
+                localStorage.removeItem('solarUserId');
+                localStorage.removeItem('solarUserName');
+                localStorage.removeItem('solarUserMobile');
+                currentUserId = null;
+                currentUserName = null;
+                hideProfileModal();
+                showToast("Logged out successfully", 'info');
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            }
         }
 
         // Generate User ID
@@ -477,6 +644,12 @@
                 };
                 
                 await db.collection('solarBackups').doc(currentUserId).set(backupData);
+                
+                // Save last backup time
+                const now = new Date();
+                const backupTime = now.toLocaleDateString('en-GB') + ' ' + now.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
+                localStorage.setItem('solarLastBackup', backupTime);
+                
                 updateCloudStatus('Synced');
                 
             } catch (error) {
@@ -485,11 +658,19 @@
             }
         }
 
-        // Update Combined Status Bar
+        // Update Combined Status Bar - CORRECTED
         function updateStatusBar(lastUpdateDate, cloudStatus) {
-            const updateText = lastUpdateDate ? 
-                `Last: ${lastUpdateDate}` : 
-                'No data yet';
+            // Check if lastUpdateDate already contains "Last: "
+            let updateText;
+            if (lastUpdateDate && lastUpdateDate.includes("Last: ")) {
+                // If it already has "Last: ", use as is
+                updateText = lastUpdateDate;
+            } else {
+                // Otherwise add "Last: " prefix
+                updateText = lastUpdateDate ? 
+                    `Last: ${lastUpdateDate}` : 
+                    'No data yet';
+            }
             
             const cloudText = cloudStatus || '--';
             
@@ -574,7 +755,7 @@
                 const d = new Date(last.date);
                 const formattedDate = d.toLocaleDateString('en-GB');
                 
-                // Update status bar
+                // Update status bar - FIX: Don't add "Last: " here, let updateStatusBar handle it
                 updateStatusBar(formattedDate, 'Connected');
             } else {
                 updateStatusBar('No data', 'Ready');
@@ -589,7 +770,7 @@
                 imp: parseFloat(document.getElementById('importReading').value) || 0
             };
             
-            if(!entry.prod) return alert("റീഡിംഗ് നൽകുക!");
+            if(!entry.prod) return alert("Enter production reading!");
             
             const existingIndex = solarData.findIndex(d => d.date === entry.date);
             
@@ -752,124 +933,126 @@
         }
 
         function renderMonthlyChart() {
-            if (solarData.length < 2) return;
+    if (solarData.length < 2) return;
+    
+    const monthlyData = {};
+    const monthKeys = [];
+    
+    // ഓരോ റീഡിംഗും തമ്മിലുള്ള വ്യത്യാസം നോക്കുന്നു
+    for (let i = 1; i < solarData.length; i++) {
+        const prev = solarData[i-1];
+        const curr = solarData[i];
+        
+        const daysBetween = getDiffDays(prev.date, curr.date);
+        if (daysBetween <= 0) continue;
+
+        // ആ കാലയളവിലെ ഒരു ദിവസത്തെ ശരാശരി കണക്കാക്കുന്നു
+        const dailyProd = (curr.prod - prev.prod) / daysBetween;
+        const dailyExp = (curr.exp - prev.exp) / daysBetween;
+        const dailyImp = (curr.imp - prev.imp) / daysBetween;
+        const dailyUsage = dailyProd - dailyExp + dailyImp;
+
+        const startDate = new Date(prev.date);
+        
+        // ഓരോ ദിവസവും ഏത് മാസമാണെന്ന് നോക്കി ആ മാസത്തിലേക്ക് മാത്രം വാല്യൂ കൂട്ടുന്നു
+        for (let d = 1; d <= daysBetween; d++) {
+            const checkDate = new Date(startDate);
+            checkDate.setDate(startDate.getDate() + d);
             
-            // Group data by month
-            const monthlyData = {};
+            const monthKey = checkDate.getFullYear() + '-' + (checkDate.getMonth() + 1).toString().padStart(2, '0');
+            const monthName = checkDate.toLocaleDateString('en-US', { month: 'short' }) + " '" + checkDate.getFullYear().toString().slice(-2);
             
-            for (let i = 1; i < solarData.length; i++) {
-                const prev = solarData[i-1];
-                const curr = solarData[i];
-                
-                const prevDate = new Date(prev.date);
-                const currDate = new Date(curr.date);
-                
-                // Get month-year key
-                const monthKey = currDate.getFullYear() + '-' + (currDate.getMonth() + 1).toString().padStart(2, '0');
-                const monthName = currDate.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
-                
-                if (!monthlyData[monthKey]) {
-                    monthlyData[monthKey] = {
-                        name: monthName,
-                        production: 0,
-                        usage: 0
-                    };
-                }
-                
-                const daysBetween = getDiffDays(prev.date, curr.date);
-                if (daysBetween > 0) {
-                    const dailyProd = (curr.prod - prev.prod) / daysBetween;
-                    const dailyExp = (curr.exp - prev.exp) / daysBetween;
-                    const dailyImp = (curr.imp - prev.imp) / daysBetween;
-                    const dailyUsage = dailyProd - dailyExp + dailyImp;
-                    
-                    monthlyData[monthKey].production += dailyProd * daysBetween;
-                    monthlyData[monthKey].usage += dailyUsage * daysBetween;
-                }
+            if (!monthlyData[monthKey]) {
+                monthlyData[monthKey] = {
+                    name: monthName,
+                    production: 0,
+                    usage: 0
+                };
+                monthKeys.push(monthKey);
             }
             
-            // Sort months chronologically
-            const sortedMonths = Object.keys(monthlyData).sort();
-            const last12Months = monthlyViewMode === 'current' ? 
-                sortedMonths.slice(-12) : 
-                sortedMonths;
-            
-            const labels = last12Months.map(key => {
-                const monthData = monthlyData[key];
-                return `${monthData.name}\n${monthData.production.toFixed(0)}u`;
-            });
-            
-            const prodData = last12Months.map(key => parseFloat(monthlyData[key].production.toFixed(1)));
-            
-            const ctxMonthly = document.getElementById('monthlyChart').getContext('2d');
-            if (monthlyChart) monthlyChart.destroy();
-            
-            monthlyChart = new Chart(ctxMonthly, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Production',
-                        data: prodData,
-                        backgroundColor: '#22c55e',
-                        borderColor: '#16a34a',
-                        borderWidth: 1,
-                        borderRadius: 4,
-                        barPercentage: 0.6,
-                        categoryPercentage: 0.8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const monthKey = sortedMonths[context.dataIndex];
-                                    const monthData = monthlyData[monthKey];
-                                    return [
-                                        `Production: ${monthData.production.toFixed(1)} units`,
-                                        `Usage: ${monthData.usage.toFixed(1)} units`
-                                    ];
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return value + 'u';
-                                },
-                                font: {
-                                    size: 9
-                                }
-                            },
-                            grid: {
-                                color: 'rgba(0,0,0,0.05)'
-                            }
-                        },
-                        x: {
-                            ticks: {
-                                font: {
-                                    size: 8
-                                },
-                                maxRotation: 0
-                            },
-                            grid: {
-                                display: false
-                            }
-                        }
-                    },
-                    layout: {
-                        padding: {
-                            top: 10
+            monthlyData[monthKey].production += dailyProd;
+            monthlyData[monthKey].usage += dailyUsage;
+        }
+    }
+    
+    // മാസങ്ങൾ ക്രമീകരിക്കുന്നു
+    monthKeys.sort();
+    const last12Months = monthlyViewMode === 'current' ? 
+        monthKeys.slice(-12) : 
+        monthKeys;
+    
+    const labels = last12Months.map(key => monthlyData[key].name);
+    const prodData = last12Months.map(key => parseFloat(monthlyData[key].production.toFixed(1)));
+    
+    // താഴെ കാണിക്കുന്ന ലിസ്റ്റ് അപ്ഡേറ്റ് ചെയ്യുന്നു
+    displayMonthlyTotals(last12Months, monthlyData);
+    
+    const ctxMonthly = document.getElementById('monthlyChart').getContext('2d');
+    if (monthlyChart) monthlyChart.destroy();
+    
+    monthlyChart = new Chart(ctxMonthly, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Production',
+                data: prodData,
+                backgroundColor: '#22c55e',
+                borderColor: '#16a34a',
+                borderWidth: 1,
+                borderRadius: 4,
+                barPercentage: 0.6,
+                categoryPercentage: 0.8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const monthKey = last12Months[context.dataIndex];
+                            const monthData = monthlyData[monthKey];
+                            return [
+                                `Production: ${monthData.production.toFixed(1)} units`,
+                                `Usage: ${monthData.usage.toFixed(1)} units`
+                            ];
                         }
                     }
                 }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { font: { size: 9 }, callback: (v) => v + 'u' },
+                    grid: { color: 'rgba(0,0,0,0.05)' }
+                },
+                x: {
+                    ticks: { font: { size: 8 }, maxRotation: 0 },
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+}
+
+        
+        function displayMonthlyTotals(monthKeys, monthlyData) {
+            const container = document.getElementById('monthlyTotals');
+            container.innerHTML = '';
+            
+            monthKeys.forEach(key => {
+                const month = monthlyData[key];
+                const div = document.createElement('div');
+                div.className = 'text-center min-w-[45px]';
+                div.innerHTML = `
+                    <div class="font-bold text-[8px] text-gray-600">${month.name}</div>
+                    <div class="font-bold text-[7px] text-green-700">${month.production.toFixed(0)}u</div>
+                `;
+                container.appendChild(div);
             });
         }
 
@@ -975,6 +1158,7 @@
             document.getElementById('splitProd').innerText = todayProd.toFixed(1);
             document.getElementById('splitUse').innerText = todayUsage.toFixed(1);
             document.getElementById('splitImp').innerText = todayImp.toFixed(1);
+            document.getElementById('splitExp').innerText = todayExp.toFixed(1);
 
             const ctxRound = document.getElementById('roundChart').getContext('2d');
             if (roundChart) roundChart.destroy();
@@ -982,14 +1166,15 @@
             roundChart = new Chart(ctxRound, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Production', 'Usage', 'Import'],
+                    labels: ['Production', 'Usage', 'Import', 'Export'],
                     datasets: [{
                         data: [
                             parseFloat(todayProd.toFixed(1)), 
                             parseFloat(todayUsage.toFixed(1)), 
-                            parseFloat(todayImp.toFixed(1))
+                            parseFloat(todayImp.toFixed(1)),
+                            parseFloat(todayExp.toFixed(1))
                         ],
-                        backgroundColor: ['#60a5fa', '#fb923c', '#f87171'],
+                        backgroundColor: ['#60a5fa', '#fb923c', '#f87171', '#4ade80'],
                         borderWidth: 1
                     }]
                 },
