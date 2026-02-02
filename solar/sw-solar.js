@@ -1,4 +1,4 @@
-const CACHE_NAME = 'solar-v3'; // അടുത്ത മാറ്റത്തിൽ ഇത് v4 ആക്കി മാറ്റുക
+const CACHE_NAME = 'solar-v4'; // അടുത്ത മാറ്റത്തിൽ ഇത് v4 ആക്കി മാറ്റുക
 const ASSETS = [
   'index.html',
   'manifest-solar.json',
