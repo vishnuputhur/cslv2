@@ -40,7 +40,7 @@
         .fab { position: fixed; bottom: 40px; right: 20px; background: #22c55e; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 40; border: none; }
         /* Usage breakdown */
         .usage-breakdown { font-size: 0.65rem; font-weight: 500; }
-        .solar-use { color: #16a34a; } /* Changed to green as requested */
+        .solar-use { color: #16a34a; }
         .grid-use { color: #ef4444; }
         .status-bar { 
             position: fixed; 
@@ -99,6 +99,57 @@
             color: #166534;
             text-align: center;
         }
+        .sync-notification {
+            position: fixed;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #3b82f6;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: bold;
+            z-index: 45;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .offline-mode {
+            position: fixed;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #f59e0b;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: bold;
+            z-index: 45;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        /* Clickable box styles - ADDED */
+        .clickable-box {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .clickable-box:active {
+            transform: scale(0.98);
+            opacity: 0.9;
+        }
+        @keyframes slideIn {
+            from { transform: translate(-50%, -20px); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translate(-50%, 0); opacity: 1; }
+            to { transform: translate(-50%, -20px); opacity: 0; }
+        }
     </style>
 </head>
 <body>
@@ -156,13 +207,22 @@
                 <div class="text-left text-[10px] text-gray-600">
                     <i class="fas fa-calendar mr-1"></i> Last Backup: <span id="profileLastBackup" class="font-bold">Never</span>
                 </div>
+                <div class="text-left text-[10px] text-gray-600">
+                    <i class="fas fa-sync mr-1"></i> Last Sync: <span id="profileLastSync" class="font-bold">Never</span>
+                </div>
+                <div class="text-left text-[10px] text-gray-600">
+                    <i class="fas fa-wifi mr-1"></i> Status: <span id="profileConnectionStatus" class="font-bold">--</span>
+                </div>
             </div>
             
             <div class="space-y-2">
+                <button onclick="manualSync()" class="w-full bg-blue-600 text-white py-2.5 rounded-xl font-bold text-xs uppercase">
+                    <i class="fas fa-sync-alt mr-1"></i> Sync Now
+                </button>
                 <button onclick="updateProfile()" class="w-full bg-green-600 text-white py-2.5 rounded-xl font-bold text-xs uppercase">
                     <i class="fas fa-edit mr-1"></i> Update Profile
                 </button>
-                <button onclick="showLoginSetup()" class="w-full bg-blue-600 text-white py-2.5 rounded-xl font-bold text-xs uppercase">
+                <button onclick="showLoginSetup()" class="w-full bg-orange-600 text-white py-2.5 rounded-xl font-bold text-xs uppercase">
                     <i class="fas fa-sign-in-alt mr-1"></i> Re-login
                 </button>
                 <button onclick="showLogoutModal()" class="w-full bg-red-600 text-white py-2.5 rounded-xl font-bold text-xs uppercase">
@@ -211,8 +271,8 @@
     <div class="main-content p-3 space-y-3">
         
         <div class="grid grid-cols-2 gap-2">
-            <!-- LEFT: Production Box -->
-            <div class="glass-card border-l-4 border-blue-500">
+            <!-- LEFT: Production Box - MADE CLICKABLE -->
+            <div class="glass-card border-l-4 border-blue-500 clickable-box" onclick="window.location.href='solar/solar2.html'">
                 <p class="text-[9px] font-bold text-gray-400 uppercase">Total Production</p>
                 <p id="totalProd" class="stat-val">0.0</p>
                 <div class="mt-1">
@@ -221,8 +281,8 @@
                 <p id="avgProd" class="stat-sub">Avg: 0.0/day</p>
             </div>
             
-            <!-- RIGHT: Consumption Box -->
-            <div class="glass-card border-l-4 border-orange-500">
+            <!-- RIGHT: Consumption Box - MADE CLICKABLE -->
+            <div class="glass-card border-l-4 border-orange-500 clickable-box" onclick="window.location.href='solar/solar2.html'">
                 <p class="text-[9px] font-bold text-gray-400 uppercase">Total Consumption</p>
                 <p id="totalConsumption" class="stat-val">0.0</p>
                 <div class="mt-1">
@@ -246,7 +306,8 @@
             </div>
         </div>
 
-        <div class="glass-card bg-green-50 border-green-200 py-3">
+        <!-- Banking Balance Card - MADE CLICKABLE -->
+        <div class="glass-card bg-green-50 border-green-200 py-3 clickable-box" onclick="window.location.href='solar/solar2.html'">
             <div class="flex justify-between items-center">
                 <div>
                     <p class="text-[10px] text-green-700 font-bold uppercase">Banking Balance (Export-Import)</p>
@@ -295,6 +356,19 @@
                     <i class="fas fa-exchange-alt mr-1"></i> Toggle View
                 </button>
             </div>
+        </div>
+
+        <!-- More Details Card -->
+        <div class="glass-card bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 text-center">
+            <div class="flex items-center justify-center gap-2 mb-2">
+                <i class="fas fa-chart-pie text-blue-500 text-lg"></i>
+                <h3 class="text-sm font-bold text-blue-700">Detailed Analytics</h3>
+            </div>
+            <p class="text-[10px] text-gray-600 mb-3">View day-by-day analysis, monthly reports, and financial year banking</p>
+            <button onclick="window.location.href='solar/solar2.html'" 
+                    class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg text-xs transition-colors w-full">
+                <i class="fas fa-external-link-alt mr-2"></i> Open Detailed View
+            </button>
         </div>
 
         <div id="inputSection" class="glass-card border-t-4 border-green-500">
@@ -373,7 +447,7 @@
 
     <script>
         document.getElementById('inputDate').valueAsDate = new Date();
-        let solarData = JSON.parse(localStorage.getItem('solarData')) || [];
+        let solarData = [];
         let lineChart = null;
         let roundChart = null;
         let monthlyChart = null;
@@ -381,6 +455,10 @@
         let monthlyViewMode = 'current';
         let currentUserId = localStorage.getItem('solarUserId') || null;
         let currentUserName = localStorage.getItem('solarUserName') || null;
+        let lastSyncTime = localStorage.getItem('solarLastSync') || 'Never';
+        let syncInProgress = false;
+        let isOfflineMode = false;
+        let pendingOfflineData = JSON.parse(localStorage.getItem('solarPendingData')) || [];
         
         // Firebase Configuration
         const firebaseConfig = {
@@ -404,6 +482,75 @@
             console.log("Firebase error:", err);
         }
 
+        // Load data from Cloud FIRST
+        async function loadDataFromCloud() {
+            if (!currentUserId || !db) {
+                // Load from local storage if no user or no db
+                const localData = JSON.parse(localStorage.getItem('solarData')) || [];
+                solarData = localData;
+                updateUI();
+                return false;
+            }
+            
+            try {
+                const doc = await db.collection('solarBackups').doc(currentUserId).get();
+                
+                if (doc.exists) {
+                    const cloudData = doc.data();
+                    const compactData = cloudData.data;
+                    
+                    if (compactData && compactData.trim() !== '') {
+                        // Parse cloud data
+                        solarData = compactData.split(';').map(item => {
+                            const parts = item.split('|');
+                            return {
+                                date: parts[0],
+                                prod: parseFloat(parts[1]),
+                                exp: parseFloat(parts[2]),
+                                imp: parseFloat(parts[3])
+                            };
+                        });
+                        
+                        // Save to local storage as cache
+                        localStorage.setItem('solarData', JSON.stringify(solarData));
+                        
+                        // Update sync time
+                        const now = new Date();
+                        lastSyncTime = now.toLocaleDateString('en-GB') + ' ' + now.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
+                        localStorage.setItem('solarLastSync', lastSyncTime);
+                        
+                        updateCloudStatus('Synced');
+                        return true;
+                    } else {
+                        // No cloud data, use local
+                        const localData = JSON.parse(localStorage.getItem('solarData')) || [];
+                        solarData = localData;
+                        updateUI();
+                        return false;
+                    }
+                } else {
+                    // No user in cloud, use local
+                    const localData = JSON.parse(localStorage.getItem('solarData')) || [];
+                    solarData = localData;
+                    updateUI();
+                    return false;
+                }
+            } catch (error) {
+                console.error("Cloud load error:", error);
+                // Offline mode - use local data
+                const localData = JSON.parse(localStorage.getItem('solarData')) || [];
+                solarData = localData;
+                updateUI();
+                
+                // Show offline notification
+                if (navigator.onLine === false) {
+                    showOfflineNotification();
+                }
+                
+                return false;
+            }
+        }
+
         // Profile Modal Functions
         function showProfileModal() {
             if (!currentUserId) {
@@ -420,6 +567,8 @@
             // Get last backup time
             const lastBackup = localStorage.getItem('solarLastBackup') || 'Never';
             document.getElementById('profileLastBackup').textContent = lastBackup;
+            document.getElementById('profileLastSync').textContent = lastSyncTime;
+            document.getElementById('profileConnectionStatus').textContent = isOfflineMode ? 'Offline' : 'Online';
             
             document.getElementById('profileModal').style.display = 'flex';
         }
@@ -441,13 +590,33 @@
             localStorage.removeItem('solarUserId');
             localStorage.removeItem('solarUserName');
             localStorage.removeItem('solarUserMobile');
+            localStorage.removeItem('solarData'); // Clear local data on logout
             currentUserId = null;
             currentUserName = null;
+            solarData = [];
             hideLogoutModal();
             showToast("Logged out successfully", 'info');
             setTimeout(() => {
                 location.reload();
             }, 1000);
+        }
+        
+        // Manual Sync Function
+        function manualSync() {
+            if (syncInProgress) {
+                showToast("Sync already in progress", 'warning');
+                return;
+            }
+            
+            if (!navigator.onLine) {
+                showToast("No internet connection", 'error');
+                return;
+            }
+            
+            document.getElementById('profileStatus').innerHTML = 
+                '<span class="text-blue-500">Syncing with cloud...</span>';
+            
+            syncWithCloud(true); // true = manual sync
         }
         
         function updateProfile() {
@@ -475,11 +644,11 @@
                 '<span class="text-green-500">Updating...</span>';
             
             // Update in Firebase if exists
-            if (db && currentUserId) {
+            if (db && currentUserId && navigator.onLine) {
                 updateUserInFirebase(name, mobile);
             } else {
                 document.getElementById('profileStatus').innerHTML = 
-                    '<span class="text-green-500">Profile updated!</span>';
+                    '<span class="text-green-500">Profile updated locally!</span>';
                 setTimeout(hideProfileModal, 1500);
             }
         }
@@ -564,7 +733,7 @@
             checkAndRestoreUserData(userId, name, mobile);
         }
 
-        // Check and restore user data from Firebase - CORRECTED
+        // Check and restore user data from Firebase
         async function checkAndRestoreUserData(userId, name, mobile) {
             try {
                 const doc = await db.collection('solarBackups').doc(userId).get();
@@ -573,10 +742,9 @@
                     const cloudData = doc.data();
                     const compactData = cloudData.data;
                     
-                    // Parse compact data
-                    let restoredData = [];
                     if (compactData && compactData.trim() !== '') {
-                        restoredData = compactData.split(';').map(item => {
+                        // Parse cloud data
+                        solarData = compactData.split(';').map(item => {
                             const parts = item.split('|');
                             return {
                                 date: parts[0],
@@ -585,62 +753,19 @@
                                 imp: parseFloat(parts[3])
                             };
                         });
-                    }
-                    
-                    // Check if we have local data
-                    const localData = JSON.parse(localStorage.getItem('solarData')) || [];
-                    
-                    // Get latest dates
-                    const cloudLatestDate = restoredData.length > 0 ? 
-                        new Date(restoredData[restoredData.length - 1].date) : null;
-                    const localLatestDate = localData.length > 0 ? 
-                        new Date(localData[localData.length - 1].date) : null;
-                    
-                    let finalData = [];
-                    
-                    if (localData.length === 0) {
-                        // No local data, use cloud data
-                        finalData = restoredData;
-                        showToast(`Restored ${restoredData.length} entries from cloud`, 'success');
-                    } else if (restoredData.length === 0) {
-                        // No cloud data, use local data
-                        finalData = localData;
-                        showToast(`Using local data (${localData.length} entries)`, 'info');
+                        
+                        // Save to local storage
+                        localStorage.setItem('solarData', JSON.stringify(solarData));
+                        
+                        showToast(`Loaded ${solarData.length} entries from cloud`, 'success');
                     } else {
-                        // Both have data - use the latest one
-                        if (cloudLatestDate > localLatestDate) {
-                            // Cloud has newer data
-                            finalData = restoredData;
-                            showToast(`Cloud has newer data (${restoredData.length} entries). Using cloud data.`, 'success');
-                        } else {
-                            // Local has newer or same data
-                            // Merge both, keeping the latest version of each date
-                            const mergedMap = new Map();
-                            
-                            // Add all cloud data first
-                            restoredData.forEach(item => {
-                                mergedMap.set(item.date, item);
-                            });
-                            
-                            // Add or overwrite with local data
-                            localData.forEach(item => {
-                                mergedMap.set(item.date, item);
-                            });
-                            
-                            // Convert back to array and sort
-                            finalData = Array.from(mergedMap.values());
-                            finalData.sort((a, b) => new Date(a.date) - new Date(b.date));
-                            
-                            showToast(`Merged data. Total: ${finalData.length} entries`, 'success');
-                        }
+                        // No cloud data, use local if exists
+                        const localData = JSON.parse(localStorage.getItem('solarData')) || [];
+                        solarData = localData;
                     }
-                    
-                    // Save to localStorage
-                    solarData = finalData;
-                    localStorage.setItem('solarData', JSON.stringify(solarData));
                     
                     document.getElementById('setupStatus').innerHTML = 
-                        `<span class="text-green-500">✓ Welcome ${name}! Data loaded successfully</span>`;
+                        `<span class="text-green-500">✓ Welcome ${name}! Data loaded</span>`;
                 } else {
                     // New user, create empty backup
                     const backupData = {
@@ -677,42 +802,202 @@
                 }, 2000);
             }
         }
-
-        // Automatic Backup to Firebase
-        async function autoBackupToFirebase() {
-            if (!currentUserId || solarData.length === 0) return;
+        
+        // Sync with Cloud - REAL-TIME SYNC
+        async function syncWithCloud(manual = false) {
+            if (!currentUserId || !db) {
+                if (manual) {
+                    showToast("Cannot sync: No database connection", 'error');
+                }
+                return;
+            }
+            
+            if (syncInProgress) {
+                if (manual) {
+                    showToast("Sync already in progress", 'warning');
+                }
+                return;
+            }
+            
+            if (!navigator.onLine) {
+                if (manual) {
+                    showToast("No internet connection", 'error');
+                }
+                return;
+            }
+            
+            syncInProgress = true;
             
             try {
-                // Compact data
+                if (manual) {
+                    showSyncNotification("Syncing with cloud...");
+                }
+                
+                // First, get current data from Firebase
+                const doc = await db.collection('solarBackups').doc(currentUserId).get();
+                
+                if (!doc.exists) {
+                    // Create user if doesn't exist
+                    const backupData = {
+                        userId: currentUserId,
+                        name: currentUserName,
+                        mobile: localStorage.getItem('solarUserMobile') || '',
+                        data: '',
+                        lastUpdated: new Date().toISOString(),
+                        entryCount: 0
+                    };
+                    await db.collection('solarBackups').doc(currentUserId).set(backupData);
+                }
+                
+                // Process any pending offline data
+                if (pendingOfflineData.length > 0) {
+                    for (const entry of pendingOfflineData) {
+                        await saveToCloud(entry);
+                    }
+                    pendingOfflineData = [];
+                    localStorage.removeItem('solarPendingData');
+                }
+                
+                // Update Firebase with current local data
                 const compactData = solarData.map(d => 
                     `${d.date}|${d.prod}|${d.exp}|${d.imp}`
                 ).join(';');
                 
-                const backupData = {
-                    userId: currentUserId,
-                    name: currentUserName,
-                    mobile: localStorage.getItem('solarUserMobile') || '',
+                await db.collection('solarBackups').doc(currentUserId).update({
                     data: compactData,
                     lastUpdated: new Date().toISOString(),
                     entryCount: solarData.length
-                };
+                });
                 
-                await db.collection('solarBackups').doc(currentUserId).set(backupData);
+                // Update sync time
+                const now = new Date();
+                lastSyncTime = now.toLocaleDateString('en-GB') + ' ' + now.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
+                localStorage.setItem('solarLastSync', lastSyncTime);
                 
                 // Save last backup time
-                const now = new Date();
-                const backupTime = now.toLocaleDateString('en-GB') + ' ' + now.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
-                localStorage.setItem('solarLastBackup', backupTime);
+                localStorage.setItem('solarLastBackup', lastSyncTime);
+                
+                if (manual) {
+                    showToast(`Synced successfully! ${solarData.length} entries`, 'success');
+                    document.getElementById('profileStatus').innerHTML = 
+                        '<span class="text-green-500">✓ Sync complete!</span>';
+                    document.getElementById('profileLastSync').textContent = lastSyncTime;
+                    document.getElementById('profileLastBackup').textContent = lastSyncTime;
+                    document.getElementById('profileDataCount').textContent = solarData.length;
+                }
                 
                 updateCloudStatus('Synced');
+                isOfflineMode = false;
                 
             } catch (error) {
-                console.error("Auto backup error:", error);
+                console.error("Sync error:", error);
+                if (manual) {
+                    showToast("Sync failed: " + error.message, 'error');
+                    document.getElementById('profileStatus').innerHTML = 
+                        '<span class="text-red-500">Sync failed</span>';
+                }
                 updateCloudStatus('Error');
+            } finally {
+                syncInProgress = false;
+                if (manual) {
+                    setTimeout(() => {
+                        const notification = document.querySelector('.sync-notification');
+                        if (notification) notification.remove();
+                    }, 2000);
+                }
             }
         }
+        
+        async function saveToCloud(entry) {
+            try {
+                // Get current data from Firebase
+                const doc = await db.collection('solarBackups').doc(currentUserId).get();
+                let cloudData = [];
+                
+                if (doc.exists) {
+                    const data = doc.data();
+                    if (data.data && data.data.trim() !== '') {
+                        cloudData = data.data.split(';').map(item => {
+                            const parts = item.split('|');
+                            return {
+                                date: parts[0],
+                                prod: parseFloat(parts[1]),
+                                exp: parseFloat(parts[2]),
+                                imp: parseFloat(parts[3])
+                            };
+                        });
+                    }
+                }
+                
+                // Check if date exists in cloud
+                const existingIndex = cloudData.findIndex(d => d.date === entry.date);
+                
+                if (existingIndex > -1) {
+                    // Overwrite existing
+                    cloudData[existingIndex] = entry;
+                } else {
+                    // Add new entry
+                    cloudData.push(entry);
+                }
+                
+                // Sort by date
+                cloudData.sort((a, b) => new Date(a.date) - new Date(b.date));
+                
+                // Convert back to compact format
+                const compactData = cloudData.map(d => 
+                    `${d.date}|${d.prod}|${d.exp}|${d.imp}`
+                ).join(';');
+                
+                // Update Firebase
+                await db.collection('solarBackups').doc(currentUserId).update({
+                    data: compactData,
+                    lastUpdated: new Date().toISOString(),
+                    entryCount: cloudData.length
+                });
+                
+                // Update local data to match cloud
+                solarData = cloudData;
+                localStorage.setItem('solarData', JSON.stringify(solarData));
+                
+                return true;
+                
+            } catch (error) {
+                console.error("Save to cloud error:", error);
+                return false;
+            }
+        }
+        
+        function showSyncNotification(message) {
+            const existing = document.querySelector('.sync-notification');
+            if (existing) existing.remove();
+            
+            const notification = document.createElement('div');
+            notification.className = 'sync-notification';
+            notification.innerHTML = `
+                <i class="fas fa-sync-alt fa-spin"></i>
+                <span>${message}</span>
+            `;
+            document.body.appendChild(notification);
+        }
+        
+        function showOfflineNotification() {
+            const existing = document.querySelector('.offline-mode');
+            if (existing) existing.remove();
+            
+            const notification = document.createElement('div');
+            notification.className = 'offline-mode';
+            notification.innerHTML = `
+                <i class="fas fa-wifi-slash"></i>
+                <span>Offline Mode - Data saved locally</span>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
 
-        // Update Combined Status Bar - CORRECTED
+        // Update Combined Status Bar
         function updateStatusBar(lastUpdateDate, cloudStatus) {
             // Check if lastUpdateDate already contains "Last: "
             let updateText;
@@ -784,19 +1069,34 @@
         }
 
         // Initialize App
-        function init() {
+        async function init() {
             if (!checkUserSetup()) return;
             
+            // Load data from cloud FIRST
+            const cloudLoaded = await loadDataFromCloud();
+            
+            if (!cloudLoaded && navigator.onLine) {
+                // If cloud load failed but we're online, try to sync
+                setTimeout(() => {
+                    syncWithCloud(false);
+                }, 1000);
+            }
+            
+            updateUI();
+            
+            // Auto sync every 10 seconds if online
+            setInterval(() => {
+                if (navigator.onLine && currentUserId && db && !syncInProgress) {
+                    syncWithCloud(false);
+                }
+            }, 10000); // 10 seconds
+        }
+        
+        // Update UI
+        function updateUI() {
             displayPrevious();
             calculateAll();
             renderCharts();
-            
-            // Auto backup existing data
-            setTimeout(() => {
-                if (solarData.length > 0) {
-                    autoBackupToFirebase();
-                }
-            }, 1000);
         }
 
         function displayPrevious() {
@@ -809,14 +1109,14 @@
                 const d = new Date(last.date);
                 const formattedDate = d.toLocaleDateString('en-GB');
                 
-                // Update status bar - FIX: Don't add "Last: " here, let updateStatusBar handle it
-                updateStatusBar(formattedDate, 'Connected');
+                // Update status bar
+                updateStatusBar(formattedDate, isOfflineMode ? 'Offline' : 'Connected');
             } else {
-                updateStatusBar('No data', 'Ready');
+                updateStatusBar('No data', isOfflineMode ? 'Offline' : 'Ready');
             }
         }
 
-        function saveData() {
+        async function saveData() {
             const entry = {
                 date: document.getElementById('inputDate').value,
                 prod: parseFloat(document.getElementById('prodReading').value) || 0,
@@ -860,13 +1160,30 @@
                 }
             }
             
+            // Add to local data
             solarData.push(entry);
             solarData.sort((a, b) => new Date(a.date) - new Date(b.date));
             localStorage.setItem('solarData', JSON.stringify(solarData));
             
-            // Auto backup after saving
-            autoBackupToFirebase();
-            showToast("Data saved & backed up to cloud", 'success');
+            // Try to save to cloud
+            if (currentUserId && db && navigator.onLine) {
+                const saved = await saveToCloud(entry);
+                if (saved) {
+                    showToast("Data saved & synced to cloud", 'success');
+                    updateCloudStatus('Synced');
+                } else {
+                    showToast("Data saved locally", 'warning');
+                    updateCloudStatus('Error');
+                }
+            } else {
+                // Offline mode
+                pendingOfflineData.push(entry);
+                localStorage.setItem('solarPendingData', JSON.stringify(pendingOfflineData));
+                showToast("Data saved locally (offline)", 'info');
+                isOfflineMode = true;
+                updateCloudStatus('Offline');
+                showOfflineNotification();
+            }
             
             // Update UI
             displayPrevious();
@@ -879,7 +1196,7 @@
             document.getElementById('importReading').value = '';
         }
 
-        function confirmOverwrite() {
+        async function confirmOverwrite() {
             if (pendingEntry) {
                 const entry = pendingEntry.entry;
                 const index = pendingEntry.index;
@@ -898,9 +1215,24 @@
                 solarData.sort((a, b) => new Date(a.date) - new Date(b.date));
                 localStorage.setItem('solarData', JSON.stringify(solarData));
                 
-                // Auto backup after overwrite
-                autoBackupToFirebase();
-                showToast("Data updated & backed up", 'success');
+                // Try to save to cloud
+                if (currentUserId && db && navigator.onLine) {
+                    const saved = await saveToCloud(entry);
+                    if (saved) {
+                        showToast("Data updated & synced to cloud", 'success');
+                        updateCloudStatus('Synced');
+                    } else {
+                        showToast("Data updated locally", 'warning');
+                        updateCloudStatus('Error');
+                    }
+                } else {
+                    // Offline mode
+                    pendingOfflineData.push(entry);
+                    localStorage.setItem('solarPendingData', JSON.stringify(pendingOfflineData));
+                    showToast("Data updated locally (offline)", 'info');
+                    isOfflineMode = true;
+                    updateCloudStatus('Offline');
+                }
                 
                 hideConfirmModal();
                 
@@ -989,7 +1321,7 @@
         function renderMonthlyChart() {
             if (solarData.length < 2) return;
             
-            // Group data by month - COMPLETELY REWRITTEN
+            // Group data by month
             const monthlyData = {};
             
             // First, get all unique months from the data
@@ -1291,18 +1623,26 @@
         
         function resetData() { 
             localStorage.removeItem("solarData"); 
+            localStorage.removeItem("solarPendingData");
+            solarData = [];
+            pendingOfflineData = [];
+            
             // Also reset cloud backup if exists
-            if (currentUserId && db) {
-                db.collection('solarBackups').doc(currentUserId).delete()
-                    .then(() => {
-                        showToast("All data reset from cloud", 'success');
-                    })
-                    .catch(err => {
-                        console.error("Cloud reset error:", err);
-                    });
+            if (currentUserId && db && navigator.onLine) {
+                db.collection('solarBackups').doc(currentUserId).update({
+                    data: '',
+                    lastUpdated: new Date().toISOString(),
+                    entryCount: 0
+                })
+                .then(() => {
+                    showToast("All data reset from cloud", 'success');
+                })
+                .catch(err => {
+                    console.error("Cloud reset error:", err);
+                });
             }
             showToast("All data reset", 'success');
-            location.reload(); 
+            updateUI();
         }
 
         // Update cloud status function
@@ -1326,6 +1666,21 @@
             }
         `;
         document.head.appendChild(style);
+
+        // Network status listener
+        window.addEventListener('online', function() {
+            if (currentUserId && db && !syncInProgress) {
+                setTimeout(() => {
+                    syncWithCloud(false);
+                }, 1000);
+            }
+        });
+        
+        window.addEventListener('offline', function() {
+            isOfflineMode = true;
+            updateCloudStatus('Offline');
+            showOfflineNotification();
+        });
 
         // Initialize app
         init();
