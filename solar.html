@@ -133,6 +133,23 @@
             align-items: center;
             gap: 6px;
         }
+        /* Clickable box styles - ADDED */
+        .clickable-box {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .clickable-box:active {
+            transform: scale(0.98);
+            opacity: 0.9;
+        }
+        @keyframes slideIn {
+            from { transform: translate(-50%, -20px); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translate(-50%, 0); opacity: 1; }
+            to { transform: translate(-50%, -20px); opacity: 0; }
+        }
     </style>
 </head>
 <body>
@@ -254,8 +271,8 @@
     <div class="main-content p-3 space-y-3">
         
         <div class="grid grid-cols-2 gap-2">
-            <!-- LEFT: Production Box -->
-            <div class="glass-card border-l-4 border-blue-500">
+            <!-- LEFT: Production Box - MADE CLICKABLE -->
+            <div class="glass-card border-l-4 border-blue-500 clickable-box" onclick="window.location.href='solar/solar2.html'">
                 <p class="text-[9px] font-bold text-gray-400 uppercase">Total Production</p>
                 <p id="totalProd" class="stat-val">0.0</p>
                 <div class="mt-1">
@@ -264,8 +281,8 @@
                 <p id="avgProd" class="stat-sub">Avg: 0.0/day</p>
             </div>
             
-            <!-- RIGHT: Consumption Box -->
-            <div class="glass-card border-l-4 border-orange-500">
+            <!-- RIGHT: Consumption Box - MADE CLICKABLE -->
+            <div class="glass-card border-l-4 border-orange-500 clickable-box" onclick="window.location.href='solar/solar2.html'">
                 <p class="text-[9px] font-bold text-gray-400 uppercase">Total Consumption</p>
                 <p id="totalConsumption" class="stat-val">0.0</p>
                 <div class="mt-1">
@@ -289,7 +306,8 @@
             </div>
         </div>
 
-        <div class="glass-card bg-green-50 border-green-200 py-3">
+        <!-- Banking Balance Card - MADE CLICKABLE -->
+        <div class="glass-card bg-green-50 border-green-200 py-3 clickable-box" onclick="window.location.href='solar/solar2.html'">
             <div class="flex justify-between items-center">
                 <div>
                     <p class="text-[10px] text-green-700 font-bold uppercase">Banking Balance (Export-Import)</p>
@@ -339,21 +357,20 @@
                 </button>
             </div>
         </div>
-<!-- More Details Card -->
-<div class="glass-card bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 text-center">
-    <div class="flex items-center justify-center gap-2 mb-2">
-        <i class="fas fa-chart-pie text-blue-500 text-lg"></i>
-        <h3 class="text-sm font-bold text-blue-700">Detailed Analytics</h3>
-    </div>
-    <p class="text-[10px] text-gray-600 mb-3">View day-by-day analysis, monthly reports, and financial year banking</p>
-    <button onclick="window.location.href='solar/solar2.html'" 
-            class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg text-xs transition-colors w-full">
-        <i class="fas fa-external-link-alt mr-2"></i> Open Detailed View
-    </button>
-</div>
 
-<div id="inputSection" class="glass-card border-t-4 border-green-500">
-    <!-- Existing input section code -->
+        <!-- More Details Card -->
+        <div class="glass-card bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 text-center">
+            <div class="flex items-center justify-center gap-2 mb-2">
+                <i class="fas fa-chart-pie text-blue-500 text-lg"></i>
+                <h3 class="text-sm font-bold text-blue-700">Detailed Analytics</h3>
+            </div>
+            <p class="text-[10px] text-gray-600 mb-3">View day-by-day analysis, monthly reports, and financial year banking</p>
+            <button onclick="window.location.href='solar/solar2.html'" 
+                    class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg text-xs transition-colors w-full">
+                <i class="fas fa-external-link-alt mr-2"></i> Open Detailed View
+            </button>
+        </div>
+
         <div id="inputSection" class="glass-card border-t-4 border-green-500">
             <p class="text-[11px] font-bold text-gray-700 mb-3 uppercase tracking-wider">Meter Reading Input</p>
             <div class="space-y-3">
