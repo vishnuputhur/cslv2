@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day-by-Day Details | Solar Plant Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    <style>
+        body { background-color: #f1f5f9; font-family: 'Segoe UI', sans-serif; font-size: 13px; }
+        .glass-card { background: white; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; padding: 12px; }
+        header { position: fixed; top: 0; width: 100%; z-index: 50; background: #dcfce7; color: #166534; height: 50px; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #bbf7d0; padding: 0 15px; }
+        footer { position: fixed; bottom: 0; width: 100%; font-size: 0.6rem; background: #fff; height: 25px; display: flex; align-items: center; justify-content: center; color: #94a3b8; border-top: 1px solid #eee; }
+        .main-content { margin-top: 70px; margin-bottom: 80px; }
+        .stat-val { font-size: 1.1rem; font-weight: 800; color: #1e293b; line-height: 1; }
+        .stat-sub { font-size: 0.65rem; color: #64748b; font-weight: 500; }
+        .status-bar { 
+            position: fixed; 
+            top: 50px; 
+            width: 100%; 
+            background: #f0f9ff; 
+            height: 20px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between;
+            padding: 0 10px;
+            font-size: 0.65rem; 
+            color: #0284c7;
+            border-bottom: 1px solid #e0f2fe;
+            z-index: 40;
+        }
+        .solar-use { color: #16a34a; font-weight: 600; }
+        .grid-use { color: #ef4444; font-weight: 600; }
+        .export-use { color: #10b981; font-weight: 600; }
+        .import-use { color: #f97316; font-weight: 600; }
+        .data-row {
+            transition: all 0.2s;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .data-row:hover {
+            background-color: #f8fafc;
+        }
+        .badge {
+            font-size: 0.6rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+        .badge-success { background: #d1fae5; color: #065f46; }
+        .badge-warning { background: #fef3c7; color: #92400e; }
+        .badge-info { background: #dbeafe; color: #1e40af; }
+        .badge-purple { background: #e9d5ff; color: #7c3aed; }
+        .month-selector {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 8px 15px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .financial-year {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 0.7rem;
+        }
+        .record-badge {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-size: 0.5rem;
+            font-weight: bold;
+            margin-left: 4px;
+        }
+        .highlight-row {
+            border-left: 4px solid #f59e0b;
+        }
+        @keyframes slideIn {
+            from { transform: translate(-50%, -20px); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translate(-50%, 0); opacity: 1; }
+            to { transform: translate(-50%, -20px); opacity: 0; }
+        }
+        .input-box {
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 8px;
+            width: 100%;
+            height: 38px;
+            outline: none;
+            font-size: 14px;
+        }
+        .stat-card {
+            text-align: center;
+            padding: 10px;
+            border-radius: 10px;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <header class="shadow-sm">
+        <div class="font-bold uppercase tracking-wider text-sm">
+            <i class="fas fa-calendar-alt mr-2"></i> Day-by-Day Details
+        </div>
+    </header>
+
+    <!-- Status Bar -->
+    <div id="statusBar" class="status-bar">
+        <div class="flex items-center gap-1">
+            <i class="fas fa-database text-[10px]"></i>
+            <span id="totalEntries">Loading...</span>
+        </div>
+        <div id="cloudStatus" class="cloud-indicator" style="background: #fef3c7; color: #92400e; padding: 1px 6px; border-radius: 10px; font-size: 0.6rem;">
+            <i class="fas fa-cloud text-[10px]"></i>
+            <span id="cloudStatusText">--</span>
+        </div>
+    </div>
+
+    <div class="main-content p-3 space-y-3">
+        
+        <!-- Financial Year Summary -->
+        <div class="glass-card bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-200">
+            <div class="flex justify-between items-center mb-3">
+                <div>
+                    <p class="text-[10px] text-purple-700 font-bold uppercase">Financial Year Banking</p>
+                    <div class="flex items-center gap-2">
+                        <span id="currentFinancialYear" class="financial-year">2024-25</span>
+                        <span id="fyProgress" class="text-[9px] text-purple-600">(Apr 1 - Mar 31)</span>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-[10px] text-purple-700 font-bold uppercase">Net Banking</p>
+                    <p id="fyBanking" class="text-xl font-black text-purple-800">0.0 <span class="text-xs">Units</span></p>
+                    <p id="fyAmount" class="text-[11px] font-bold text-purple-600">₹ 0.00</p>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-4 gap-2 text-center">
+                <div class="bg-white p-2 rounded-lg">
+                    <p class="text-[8px] text-gray-500 font-bold">Total Export</p>
+                    <p id="fyExport" class="text-sm font-bold text-green-600">0.0</p>
+                </div>
+                <div class="bg-white p-2 rounded-lg">
+                    <p class="text-[8px] text-gray-500 font-bold">Total Import</p>
+                    <p id="fyImport" class="text-sm font-bold text-orange-600">0.0</p>
+                </div>
+                <div class="bg-white p-2 rounded-lg">
+                    <p class="text-[8px] text-gray-500 font-bold">Days Count</p>
+                    <p id="fyDays" class="text-sm font-bold text-blue-600">0</p>
+                </div>
+                <div class="bg-white p-2 rounded-lg">
+                    <p class="text-[8px] text-gray-500 font-bold">Avg Daily</p>
+                    <p id="fyAvg" class="text-sm font-bold text-purple-600">0.0</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Month Selector & Stats -->
+        <div class="month-selector">
+            <div>
+                <p class="text-[9px] opacity-90 uppercase">Selected Month</p>
+                <div class="flex items-center gap-2">
+                    <span id="selectedMonth" class="text-base font-bold">January 2024</span>
+                    <span id="monthStats" class="text-[10px] bg-white/20 px-2 py-1 rounded">0 days</span>
+                </div>
+            </div>
+            <button onclick="showMonthPicker()" class="bg-white/20 hover:bg-white/30 p-2 rounded-lg">
+                <i class="fas fa-calendar-alt"></i>
+            </button>
+        </div>
+
+        <!-- Month Picker (Hidden by default) -->
+        <div id="monthPicker" class="glass-card hidden">
+            <div class="flex justify-between items-center mb-3">
+                <select id="yearSelect" class="input-box text-center font-bold" onchange="changeYear()">
+                    <!-- Years will be populated dynamically -->
+                </select>
+                <button onclick="hideMonthPicker()" class="text-gray-500">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+                <!-- Months will be populated dynamically -->
+            </div>
+        </div>
+
+        <!-- Monthly Performance Stats -->
+        <div class="grid grid-cols-2 gap-2">
+            <div class="glass-card border-l-4 border-green-500">
+                <p class="text-[9px] font-bold text-gray-400 uppercase">Monthly Production</p>
+                <p id="monthlyProduction" class="stat-val text-green-600">0.0</p>
+                <p class="stat-sub">Avg: <span id="monthlyAvgProd">0.0</span>/day</p>
+            </div>
+            <div class="glass-card border-l-4 border-orange-500">
+                <p class="text-[9px] font-bold text-gray-400 uppercase">Monthly Usage</p>
+                <p id="monthlyUsage" class="stat-val text-orange-600">0.0</p>
+                <p class="stat-sub">Solar: <span id="monthlySolarUse" class="solar-use">0.0</span> | Grid: <span id="monthlyGridUse" class="grid-use">0.0</span></p>
+            </div>
+        </div>
+
+        <!-- Record Stats for Selected Month -->
+        <div class="glass-card bg-gradient-to-r from-amber-50 to-yellow-50 border-amber-200">
+            <p class="text-[10px] font-bold text-gray-400 mb-3 uppercase">Monthly Records</p>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <p class="text-[9px] text-gray-500">Highest Production Day</p>
+                    <div class="flex items-center">
+                        <span id="monthlyMaxProd" class="text-[11px] font-bold text-green-700">0.0</span>
+                        <span id="monthlyMaxProdDate" class="text-[8px] text-gray-600 ml-2">--</span>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-[9px] text-gray-500">Highest Usage Day</p>
+                    <div class="flex items-center">
+                        <span id="monthlyMaxUse" class="text-[11px] font-bold text-orange-700">0.0</span>
+                        <span id="monthlyMaxUseDate" class="text-[8px] text-gray-600 ml-2">--</span>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-[9px] text-gray-500">Highest Grid Usage Day</p>
+                    <div class="flex items-center">
+                        <span id="monthlyMaxGrid" class="text-[11px] font-bold text-red-700">0.0</span>
+                        <span id="monthlyMaxGridDate" class="text-[8px] text-gray-600 ml-2">--</span>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-[9px] text-gray-500">Highest Banking Day</p>
+                    <div class="flex items-center">
+                        <span id="monthlyMaxBanking" class="text-[11px] font-bold text-purple-700">0.0</span>
+                        <span id="monthlyMaxBankingDate" class="text-[8px] text-gray-600 ml-2">--</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Banking Graph -->
+        <div class="glass-card">
+            <p class="text-[10px] font-bold text-gray-400 mb-2 uppercase">Monthly Banking Trend</p>
+            <div style="height: 140px;"><canvas id="monthlyBankingChart"></canvas></div>
+        </div>
+
+        <!-- Annual Record Stats -->
+        <div class="glass-card bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200">
+            <p class="text-[10px] font-bold text-gray-400 mb-3 uppercase">Annual Records</p>
+            <div class="space-y-2">
+                <div class="flex justify-between items-center">
+                    <span class="text-[10px] text-gray-600">Highest Production Day</span>
+                    <div class="text-right">
+                        <span id="yearlyMaxProd" class="text-[11px] font-bold text-green-700">0.0</span>
+                        <span id="yearlyMaxProdDate" class="text-[9px] text-gray-600 ml-2">--</span>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-[10px] text-gray-600">Highest Usage Day</span>
+                    <div class="text-right">
+                        <span id="yearlyMaxUse" class="text-[11px] font-bold text-orange-700">0.0</span>
+                        <span id="yearlyMaxUseDate" class="text-[9px] text-gray-600 ml-2">--</span>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-[10px] text-gray-600">Highest Grid Usage Day</span>
+                    <div class="text-right">
+                        <span id="yearlyMaxGrid" class="text-[11px] font-bold text-red-700">0.0</span>
+                        <span id="yearlyMaxGridDate" class="text-[9px] text-gray-600 ml-2">--</span>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-[10px] text-gray-600">Highest Banking Day</span>
+                    <div class="text-right">
+                        <span id="yearlyMaxBanking" class="text-[11px] font-bold text-purple-700">0.0</span>
+                        <span id="yearlyMaxBankingDate" class="text-[9px] text-gray-600 ml-2">--</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Daily Data Table -->
+        <div class="glass-card">
+            <div class="flex justify-between items-center mb-3">
+                <p class="text-[10px] font-bold text-gray-400 uppercase">Daily Details</p>
+                <div class="flex gap-1">
+                    <button onclick="exportToCSV()" class="text-[9px] text-green-600 font-bold px-2 py-1 bg-green-50 rounded">
+                        <i class="fas fa-download mr-1"></i> Export CSV
+                    </button>
+                </div>
+            </div>
+            
+            <div id="dailyDataTable" class="space-y-2 max-h-[350px] overflow-y-auto">
+                <!-- Data will be populated here -->
+                <div class="text-center py-8 text-gray-400">
+                    <i class="fas fa-database text-2xl mb-2"></i>
+                    <p class="text-[11px]">No data for selected month</p>
+                    <p class="text-[9px] mt-1">Select a different month or add data in main app</p>
+                </div>
+            </div>
+            
+            <div class="flex justify-between mt-4 pt-3 border-t">
+                <div class="text-[9px] text-gray-500">
+                    Showing <span id="showingCount">0</span> of <span id="totalCount">0</span> days
+                </div>
+                <div id="monthlyBankingTotal" class="text-[10px] font-bold">
+                    Monthly Total Banking: <span id="monthlyTotalBanking" class="text-green-600">0.0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Efficiency Stats -->
+        <div class="glass-card bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-200">
+            <p class="text-[10px] font-bold text-gray-400 mb-3 uppercase">Efficiency Statistics</p>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <p class="text-[9px] text-gray-500">Monthly Avg Efficiency</p>
+                    <p id="monthlyAvgEfficiency" class="text-[11px] font-bold text-blue-700">0%</p>
+                </div>
+                <div>
+                    <p class="text-[9px] text-gray-500">Best Efficiency Day</p>
+                    <div class="flex items-center">
+                        <span id="monthlyMaxEfficiency" class="text-[11px] font-bold text-green-700">0%</span>
+                        <span id="monthlyMaxEfficiencyDate" class="text-[8px] text-gray-600 ml-2">--</span>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-[9px] text-gray-500">Solar Usage %</p>
+                    <p id="monthlySolarPercent" class="text-[11px] font-bold text-green-700">0%</p>
+                </div>
+                <div>
+                    <p class="text-[9px] text-gray-500">Self-Sufficiency</p>
+                    <p id="monthlySelfSufficiency" class="text-[11px] font-bold text-teal-700">0%</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Stats -->
+        <div class="grid grid-cols-2 gap-2">
+            <div class="stat-card">
+                <i class="fas fa-bolt text-yellow-500 text-lg mb-1"></i>
+                <p class="text-[9px] font-bold text-gray-400">Peak Daily Production</p>
+                <p id="peakDailyProd" class="text-sm font-bold text-yellow-600">0.0</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-home text-green-500 text-lg mb-1"></i>
+                <p class="text-[9px] font-bold text-gray-400">Peak Daily Usage</p>
+                <p id="peakDailyUse" class="text-sm font-bold text-green-600">0.0</p>
+            </div>
+        </div>
+
+    </div>
+
+    <footer> 
+        <span class="text-gray-500">Powered by VTSOFT 2026</span>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-16 left-1/2 transform -translate-x-1/2 text-white px-4 py-2 rounded-lg shadow-lg text-xs font-bold z-50 hidden"></div>
+
+    <script>
+        let solarData = [];
+        let currentUserId = localStorage.getItem('solarUserId');
+        let db = null;
+        let monthlyBankingChart = null;
+        let currentYear = new Date().getFullYear();
+        let currentMonth = new Date().getMonth() + 1;
+        let financialYearStart = 4; // April
+        let monthlyRecords = {};
+        let yearlyRecords = {};
+        let dailyCalculations = {}; // Store pre-calculated daily values
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCCjWVI1hB3sbu0JiA4viW1BK81xbMML-U",
+            authDomain: "csl-calculations.firebaseapp.com",
+            projectId: "csl-calculations",
+            storageBucket: "csl-calculations.firebasestorage.app",
+            messagingSenderId: "887219643486",
+            appId: "1:887219643486:web:0cb001f2c72039a00240cf"
+        };
+
+        // Initialize Firebase
+        try {
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            db = firebase.firestore();
+        } catch (err) {
+            console.log("Firebase error:", err);
+        }
+
+        // Initialize App
+        async function init() {
+            if (!currentUserId) {
+                showToast("Please login first", "error");
+                setTimeout(() => {
+                    window.location.href = "index.html";
+                }, 2000);
+                return;
+            }
+
+            // Load data from Firebase
+            await loadDataFromCloud();
+            
+            // Pre-calculate all daily values
+            preCalculateDailyValues();
+            
+            // Calculate all records
+            calculateAllRecords();
+            
+            // Initialize month picker
+            initMonthPicker();
+            
+            // Show current month data
+            showMonthData(currentYear, currentMonth);
+            
+            // Update cloud status
+            updateCloudStatus('Connected');
+        }
+
+        // Pre-calculate all daily values (FIXED CALCULATIONS)
+        function preCalculateDailyValues() {
+            dailyCalculations = {};
+            
+            if (solarData.length < 2) return;
+            
+            // Sort data by date ascending
+            const sortedData = solarData.sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            for (let i = 1; i < sortedData.length; i++) {
+                const prev = sortedData[i - 1];
+                const curr = sortedData[i];
+                
+                const daysBetween = getDiffDays(prev.date, curr.date);
+                if (daysBetween <= 0) continue;
+                
+                // Calculate daily values - CORRECT FORMULAS
+                const dailyProd = (curr.prod - prev.prod) / daysBetween;
+                const dailyExp = (curr.exp - prev.exp) / daysBetween;
+                const dailyImp = (curr.imp - prev.imp) / daysBetween;
+                const dailyUsage = dailyProd - dailyExp + dailyImp; // Correct usage formula
+                const solarUse = Math.max(0, dailyProd - dailyExp);
+                const gridUse = dailyImp;
+                const banking = dailyExp - dailyImp; // Correct banking formula
+                const efficiency = dailyProd > 0 ? ((dailyProd - dailyExp) / dailyProd * 100) : 0;
+                
+                // Store calculations by date
+                dailyCalculations[curr.date] = {
+                    prod: dailyProd,
+                    exp: dailyExp,
+                    imp: dailyImp,
+                    usage: dailyUsage,
+                    solarUse: solarUse,
+                    gridUse: gridUse,
+                    banking: banking,
+                    efficiency: efficiency,
+                    prevDate: prev.date
+                };
+            }
+        }
+
+        // Load data from Cloud
+        async function loadDataFromCloud() {
+            try {
+                if (!db) {
+                    // Try local storage
+                    solarData = JSON.parse(localStorage.getItem('solarData')) || [];
+                    return;
+                }
+
+                const doc = await db.collection('solarBackups').doc(currentUserId).get();
+                
+                if (doc.exists) {
+                    const cloudData = doc.data();
+                    const compactData = cloudData.data;
+                    
+                    if (compactData && compactData.trim() !== '') {
+                        // Parse cloud data
+                        solarData = compactData.split(';').map(item => {
+                            const parts = item.split('|');
+                            return {
+                                date: parts[0],
+                                prod: parseFloat(parts[1]),
+                                exp: parseFloat(parts[2]),
+                                imp: parseFloat(parts[3])
+                            };
+                        }).sort((a, b) => new Date(a.date) - new Date(b.date));
+                        
+                        // Save to local storage as cache
+                        localStorage.setItem('solarData', JSON.stringify(solarData));
+                    } else {
+                        // No cloud data
+                        solarData = JSON.parse(localStorage.getItem('solarData')) || [];
+                    }
+                } else {
+                    solarData = JSON.parse(localStorage.getItem('solarData')) || [];
+                }
+                
+            } catch (error) {
+                console.error("Cloud load error:", error);
+                solarData = JSON.parse(localStorage.getItem('solarData')) || [];
+                updateCloudStatus('Offline');
+            }
+        }
+
+        // Calculate All Records
+        function calculateAllRecords() {
+            monthlyRecords = {};
+            yearlyRecords = {
+                maxProd: { value: 0, date: '' },
+                maxUse: { value: 0, date: '' },
+                maxGrid: { value: 0, date: '' },
+                maxBanking: { value: -Infinity, date: '' },
+                maxEfficiency: { value: 0, date: '' }
+            };
+            
+            if (Object.keys(dailyCalculations).length === 0) return;
+            
+            // Process all daily calculations
+            Object.entries(dailyCalculations).forEach(([date, calc]) => {
+                const dateObj = new Date(date);
+                const year = dateObj.getFullYear();
+                const month = dateObj.getMonth() + 1;
+                const key = `${year}-${month.toString().padStart(2, '0')}`;
+                const dateStr = dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+                
+                // Initialize monthly record if not exists
+                if (!monthlyRecords[key]) {
+                    monthlyRecords[key] = {
+                        maxProd: { value: 0, date: '' },
+                        maxUse: { value: 0, date: '' },
+                        maxGrid: { value: 0, date: '' },
+                        maxBanking: { value: -Infinity, date: '' },
+                        maxEfficiency: { value: 0, date: '' }
+                    };
+                }
+                
+                // Update yearly records
+                if (calc.prod > yearlyRecords.maxProd.value) {
+                    yearlyRecords.maxProd = { value: calc.prod, date: dateStr };
+                }
+                if (calc.usage > yearlyRecords.maxUse.value) {
+                    yearlyRecords.maxUse = { value: calc.usage, date: dateStr };
+                }
+                if (calc.gridUse > yearlyRecords.maxGrid.value) {
+                    yearlyRecords.maxGrid = { value: calc.gridUse, date: dateStr };
+                }
+                if (calc.banking > yearlyRecords.maxBanking.value) {
+                    yearlyRecords.maxBanking = { value: calc.banking, date: dateStr };
+                }
+                if (calc.efficiency > yearlyRecords.maxEfficiency.value) {
+                    yearlyRecords.maxEfficiency = { value: calc.efficiency, date: dateStr };
+                }
+                
+                // Update monthly records
+                if (calc.prod > monthlyRecords[key].maxProd.value) {
+                    monthlyRecords[key].maxProd = { value: calc.prod, date: dateStr };
+                }
+                if (calc.usage > monthlyRecords[key].maxUse.value) {
+                    monthlyRecords[key].maxUse = { value: calc.usage, date: dateStr };
+                }
+                if (calc.gridUse > monthlyRecords[key].maxGrid.value) {
+                    monthlyRecords[key].maxGrid = { value: calc.gridUse, date: dateStr };
+                }
+                if (calc.banking > monthlyRecords[key].maxBanking.value) {
+                    monthlyRecords[key].maxBanking = { value: calc.banking, date: dateStr };
+                }
+                if (calc.efficiency > monthlyRecords[key].maxEfficiency.value) {
+                    monthlyRecords[key].maxEfficiency = { value: calc.efficiency, date: dateStr };
+                }
+            });
+            
+            // Update yearly records UI
+            updateYearlyRecordsUI();
+        }
+        
+        function updateYearlyRecordsUI() {
+            document.getElementById('yearlyMaxProd').textContent = yearlyRecords.maxProd.value.toFixed(1);
+            document.getElementById('yearlyMaxProdDate').textContent = yearlyRecords.maxProd.date;
+            document.getElementById('yearlyMaxUse').textContent = yearlyRecords.maxUse.value.toFixed(1);
+            document.getElementById('yearlyMaxUseDate').textContent = yearlyRecords.maxUse.date;
+            document.getElementById('yearlyMaxGrid').textContent = yearlyRecords.maxGrid.value.toFixed(1);
+            document.getElementById('yearlyMaxGridDate').textContent = yearlyRecords.maxGrid.date;
+            document.getElementById('yearlyMaxBanking').textContent = yearlyRecords.maxBanking.value.toFixed(1);
+            document.getElementById('yearlyMaxBankingDate').textContent = yearlyRecords.maxBanking.date;
+        }
+
+        // Update Cloud Status
+        function updateCloudStatus(status) {
+            const cloudText = status || '--';
+            document.getElementById('cloudStatusText').textContent = cloudText;
+            
+            const cloudIndicator = document.getElementById('cloudStatus');
+            if (status === 'Connected' || status === 'Synced') {
+                cloudIndicator.style.background = '#f0fdf4';
+                cloudIndicator.style.color = '#166534';
+                cloudIndicator.style.borderColor = '#bbf7d0';
+            } else if (status === 'Error') {
+                cloudIndicator.style.background = '#fef2f2';
+                cloudIndicator.style.color = '#dc2626';
+                cloudIndicator.style.borderColor = '#fecaca';
+            } else {
+                cloudIndicator.style.background = '#fef3c7';
+                cloudIndicator.style.color = '#92400e';
+                cloudIndicator.style.borderColor = '#fde68a';
+            }
+        }
+
+        // Initialize Month Picker
+        function initMonthPicker() {
+            if (solarData.length === 0) return;
+            
+            // Get unique years from data
+            const years = new Set();
+            solarData.forEach(entry => {
+                const year = new Date(entry.date).getFullYear();
+                years.add(year);
+            });
+            
+            // Add current year if not present
+            years.add(currentYear);
+            
+            // Sort years descending
+            const sortedYears = Array.from(years).sort((a, b) => b - a);
+            
+            // Populate year select
+            const yearSelect = document.getElementById('yearSelect');
+            yearSelect.innerHTML = '';
+            sortedYears.forEach(year => {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                if (year === currentYear) option.selected = true;
+                yearSelect.appendChild(option);
+            });
+            
+            // Populate months grid
+            const monthsGrid = document.querySelector('#monthPicker .grid');
+            monthsGrid.innerHTML = '';
+            
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+                               "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            
+            monthNames.forEach((monthName, index) => {
+                const monthNum = index + 1;
+                const monthDiv = document.createElement('div');
+                monthDiv.className = 'text-center p-2 rounded-lg bg-gray-50 hover:bg-green-50 cursor-pointer';
+                monthDiv.innerHTML = `
+                    <div class="text-[11px] font-bold text-gray-700">${monthName}</div>
+                    <div class="text-[9px] text-gray-500 mt-1" id="monthCount${monthNum}">0</div>
+                `;
+                monthDiv.onclick = () => {
+                    showMonthData(currentYear, monthNum);
+                    hideMonthPicker();
+                };
+                monthsGrid.appendChild(monthDiv);
+            });
+            
+            // Update month counts
+            updateMonthCounts();
+        }
+
+        // Update Month Counts
+        function updateMonthCounts() {
+            const year = parseInt(document.getElementById('yearSelect').value);
+            
+            // Count entries per month from dailyCalculations
+            const monthCounts = new Array(12).fill(0);
+            Object.keys(dailyCalculations).forEach(date => {
+                const dateObj = new Date(date);
+                if (dateObj.getFullYear() === year) {
+                    monthCounts[dateObj.getMonth()]++;
+                }
+            });
+            
+            // Update UI
+            monthCounts.forEach((count, index) => {
+                const element = document.getElementById(`monthCount${index + 1}`);
+                if (element) {
+                    element.textContent = `${count} days`;
+                    element.parentElement.style.background = count > 0 ? '#d1fae5' : '#f1f5f9';
+                }
+            });
+        }
+
+        // Show Month Data
+        function showMonthData(year, month) {
+            currentYear = year;
+            currentMonth = month;
+            
+            const monthNames = ["January", "February", "March", "April", "May", "June",
+                               "July", "August", "September", "October", "November", "December"];
+            
+            document.getElementById('selectedMonth').textContent = 
+                `${monthNames[month - 1]} ${year}`;
+            
+            // Filter calculations for selected month
+            const monthCalculations = Object.entries(dailyCalculations)
+                .filter(([date, calc]) => {
+                    const dateObj = new Date(date);
+                    return dateObj.getFullYear() === year && 
+                           dateObj.getMonth() + 1 === month;
+                });
+            
+            // Update month stats
+            document.getElementById('monthStats').textContent = `${monthCalculations.length} days`;
+            
+            // Calculate monthly totals
+            calculateMonthlyTotals(monthCalculations);
+            
+            // Calculate financial year data
+            calculateFinancialYear(year, month);
+            
+            // Update monthly records
+            updateMonthlyRecordsUI(year, month);
+            
+            // Display daily data table
+            displayDailyData(monthCalculations);
+            
+            // Update efficiency stats
+            updateEfficiencyStats(monthCalculations);
+            
+            // Update total entries
+            document.getElementById('totalEntries').textContent = `${Object.keys(dailyCalculations).length} days`;
+            document.getElementById('showingCount').textContent = monthCalculations.length;
+            document.getElementById('totalCount').textContent = Object.keys(dailyCalculations).length;
+            
+            // Render monthly banking chart
+            renderMonthlyBankingChart(year);
+        }
+
+        // Calculate Monthly Totals - FIXED
+        function calculateMonthlyTotals(monthCalculations) {
+            if (monthCalculations.length === 0) {
+                resetMonthlyStats();
+                return;
+            }
+            
+            let totalProd = 0;
+            let totalExp = 0;
+            let totalImp = 0;
+            let totalUsage = 0;
+            let totalSolarUse = 0;
+            let totalGridUse = 0;
+            let totalBanking = 0;
+            let peakProd = 0;
+            let peakUsage = 0;
+            
+            // Sum up all calculations for the month
+            monthCalculations.forEach(([date, calc]) => {
+                totalProd += calc.prod;
+                totalExp += calc.exp;
+                totalImp += calc.imp;
+                totalUsage += calc.usage;
+                totalSolarUse += calc.solarUse;
+                totalGridUse += calc.gridUse;
+                totalBanking += calc.banking;
+                
+                peakProd = Math.max(peakProd, calc.prod);
+                peakUsage = Math.max(peakUsage, calc.usage);
+            });
+            
+            // Calculate averages
+            const avgProd = totalProd / monthCalculations.length;
+            const avgUsage = totalUsage / monthCalculations.length;
+            
+            // Update UI
+            document.getElementById('monthlyProduction').textContent = totalProd.toFixed(1);
+            document.getElementById('monthlyUsage').textContent = totalUsage.toFixed(1);
+            document.getElementById('monthlyAvgProd').textContent = avgProd.toFixed(1);
+            document.getElementById('monthlySolarUse').textContent = totalSolarUse.toFixed(1);
+            document.getElementById('monthlyGridUse').textContent = totalGridUse.toFixed(1);
+            document.getElementById('monthlyTotalBanking').textContent = totalBanking.toFixed(1);
+            document.getElementById('peakDailyProd').textContent = peakProd.toFixed(1);
+            document.getElementById('peakDailyUse').textContent = peakUsage.toFixed(1);
+        }
+
+        function resetMonthlyStats() {
+            document.getElementById('monthlyProduction').textContent = "0.0";
+            document.getElementById('monthlyUsage').textContent = "0.0";
+            document.getElementById('monthlyAvgProd').textContent = "0.0";
+            document.getElementById('monthlySolarUse').textContent = "0.0";
+            document.getElementById('monthlyGridUse').textContent = "0.0";
+            document.getElementById('monthlyTotalBanking').textContent = "0.0";
+            document.getElementById('peakDailyProd').textContent = "0.0";
+            document.getElementById('peakDailyUse').textContent = "0.0";
+        }
+
+        // Update Monthly Records UI
+        function updateMonthlyRecordsUI(year, month) {
+            const key = `${year}-${month.toString().padStart(2, '0')}`;
+            const records = monthlyRecords[key];
+            
+            if (records) {
+                document.getElementById('monthlyMaxProd').textContent = records.maxProd.value.toFixed(1);
+                document.getElementById('monthlyMaxProdDate').textContent = records.maxProd.date;
+                document.getElementById('monthlyMaxUse').textContent = records.maxUse.value.toFixed(1);
+                document.getElementById('monthlyMaxUseDate').textContent = records.maxUse.date;
+                document.getElementById('monthlyMaxGrid').textContent = records.maxGrid.value.toFixed(1);
+                document.getElementById('monthlyMaxGridDate').textContent = records.maxGrid.date;
+                document.getElementById('monthlyMaxBanking').textContent = records.maxBanking.value.toFixed(1);
+                document.getElementById('monthlyMaxBankingDate').textContent = records.maxBanking.date;
+                document.getElementById('monthlyMaxEfficiency').textContent = records.maxEfficiency.value.toFixed(0) + '%';
+                document.getElementById('monthlyMaxEfficiencyDate').textContent = records.maxEfficiency.date;
+            } else {
+                // Reset if no records
+                document.getElementById('monthlyMaxProd').textContent = "0.0";
+                document.getElementById('monthlyMaxProdDate').textContent = "--";
+                document.getElementById('monthlyMaxUse').textContent = "0.0";
+                document.getElementById('monthlyMaxUseDate').textContent = "--";
+                document.getElementById('monthlyMaxGrid').textContent = "0.0";
+                document.getElementById('monthlyMaxGridDate').textContent = "--";
+                document.getElementById('monthlyMaxBanking').textContent = "0.0";
+                document.getElementById('monthlyMaxBankingDate').textContent = "--";
+                document.getElementById('monthlyMaxEfficiency').textContent = "0%";
+                document.getElementById('monthlyMaxEfficiencyDate').textContent = "--";
+            }
+        }
+
+        // Calculate Financial Year Data - FIXED
+        function calculateFinancialYear(year, month) {
+            // Determine financial year
+            let financialYear = year;
+            if (month < financialYearStart) {
+                financialYear = year - 1;
+            }
+            
+            const fyStart = `${financialYear}-${financialYearStart.toString().padStart(2, '0')}-01`;
+            const fyEnd = `${financialYear + 1}-${(financialYearStart - 1).toString().padStart(2, '0')}-31`;
+            
+            document.getElementById('currentFinancialYear').textContent = 
+                `${financialYear}-${(financialYear + 1).toString().slice(-2)}`;
+            
+            // Filter data for financial year
+            const fyCalculations = Object.entries(dailyCalculations)
+                .filter(([date, calc]) => {
+                    const dateObj = new Date(date);
+                    const startDate = new Date(fyStart);
+                    const endDate = new Date(fyEnd);
+                    return dateObj >= startDate && dateObj <= endDate;
+                });
+            
+            if (fyCalculations.length === 0) {
+                resetFinancialYearStats();
+                return;
+            }
+            
+            // Calculate totals for financial year
+            let totalExp = 0;
+            let totalImp = 0;
+            let totalBanking = 0;
+            
+            fyCalculations.forEach(([date, calc]) => {
+                totalExp += calc.exp;
+                totalImp += calc.imp;
+                totalBanking += calc.banking;
+            });
+            
+            // Calculate days in FY
+            const startDate = new Date(fyStart);
+            const endDate = new Date();
+            if (endDate > new Date(fyEnd)) endDate = new Date(fyEnd);
+            const daysInFY = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+            
+            // Calculate average daily banking
+            const avgDaily = totalBanking / daysInFY;
+            
+            // Calculate amount
+            const amount = totalBanking * 3.15;
+            
+            // Update UI
+            document.getElementById('fyBanking').textContent = totalBanking.toFixed(1);
+            document.getElementById('fyAmount').textContent = `₹ ${amount.toFixed(2)}`;
+            document.getElementById('fyExport').textContent = totalExp.toFixed(1);
+            document.getElementById('fyImport').textContent = totalImp.toFixed(1);
+            document.getElementById('fyDays').textContent = fyCalculations.length;
+            document.getElementById('fyAvg').textContent = avgDaily.toFixed(2);
+        }
+
+        function resetFinancialYearStats() {
+            document.getElementById('fyBanking').textContent = "0.0";
+            document.getElementById('fyAmount').textContent = "₹ 0.00";
+            document.getElementById('fyExport').textContent = "0.0";
+            document.getElementById('fyImport').textContent = "0.0";
+            document.getElementById('fyDays').textContent = "0";
+            document.getElementById('fyAvg').textContent = "0.0";
+        }
+
+        // Update Efficiency Stats
+        function updateEfficiencyStats(monthCalculations) {
+            if (monthCalculations.length === 0) {
+                resetEfficiencyStats();
+                return;
+            }
+            
+            let totalEfficiency = 0;
+            let totalSolarUse = 0;
+            let totalUsage = 0;
+            let totalProd = 0;
+            
+            monthCalculations.forEach(([date, calc]) => {
+                totalEfficiency += calc.efficiency;
+                totalSolarUse += calc.solarUse;
+                totalUsage += calc.usage;
+                totalProd += calc.prod;
+            });
+            
+            // Calculate averages
+            const avgEfficiency = totalEfficiency / monthCalculations.length;
+            const solarPercent = totalUsage > 0 ? (totalSolarUse / totalUsage * 100) : 0;
+            const selfSufficiency = totalProd > 0 ? (totalSolarUse / totalProd * 100) : 0;
+            
+            // Update UI
+            document.getElementById('monthlyAvgEfficiency').textContent = avgEfficiency.toFixed(0) + '%';
+            document.getElementById('monthlySolarPercent').textContent = solarPercent.toFixed(0) + '%';
+            document.getElementById('monthlySelfSufficiency').textContent = selfSufficiency.toFixed(0) + '%';
+        }
+        
+        function resetEfficiencyStats() {
+            document.getElementById('monthlyAvgEfficiency').textContent = "0%";
+            document.getElementById('monthlySolarPercent').textContent = "0%";
+            document.getElementById('monthlySelfSufficiency').textContent = "0%";
+        }
+
+        // Display Daily Data Table - FIXED (always shows in chronological order)
+        function displayDailyData(monthCalculations) {
+            const table = document.getElementById('dailyDataTable');
+            
+            if (monthCalculations.length === 0) {
+                table.innerHTML = `
+                    <div class="text-center py-8 text-gray-400">
+                        <i class="fas fa-database text-2xl mb-2"></i>
+                        <p class="text-[11px]">No data for selected month</p>
+                        <p class="text-[9px] mt-1">Add data in main app for more detailed analysis</p>
+                    </div>
+                `;
+                document.getElementById('monthlyTotalBanking').textContent = "0.0";
+                return;
+            }
+            
+            // Sort by date ascending (oldest first)
+            const sortedCalculations = monthCalculations.sort((a, b) => new Date(a[0]) - new Date(b[0]));
+            
+            let html = '';
+            
+            sortedCalculations.forEach(([date, calc]) => {
+                const dateObj = new Date(date);
+                const dateStr = dateObj.toLocaleDateString('en-GB', {
+                    day: '2-digit',
+                    month: 'short'
+                });
+                const dayName = dateObj.toLocaleDateString('en-GB', { weekday: 'short' });
+                
+                // Determine day type badge
+                let dayType = '';
+                if (calc.banking > 0) {
+                    dayType = '<span class="badge badge-success">Profit</span>';
+                } else if (calc.banking < 0) {
+                    dayType = '<span class="badge badge-warning">Loss</span>';
+                } else {
+                    dayType = '<span class="badge badge-info">Neutral</span>';
+                }
+                
+                // Check if this is a record day
+                const key = `${currentYear}-${currentMonth.toString().padStart(2, '0')}`;
+                const records = monthlyRecords[key];
+                let recordBadge = '';
+                
+                if (records) {
+                    if (Math.abs(calc.prod - records.maxProd.value) < 0.1) {
+                        recordBadge = '<span class="record-badge">RECORD</span>';
+                    } else if (Math.abs(calc.usage - records.maxUse.value) < 0.1) {
+                        recordBadge = '<span class="record-badge">RECORD</span>';
+                    }
+                }
+                
+                // Create row
+                html += `
+                    <div class="data-row p-3 rounded-lg bg-white border border-gray-100" data-date="${date}">
+                        <div class="flex justify-between items-center mb-2">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-gray-800 text-[11px]">${dateStr}</span>
+                                <span class="text-[9px] text-gray-500">${dayName}</span>
+                                ${dayType}
+                                ${recordBadge}
+                            </div>
+                            <div class="text-right">
+                                <span class="text-[10px] font-bold ${calc.banking >= 0 ? 'text-green-600' : 'text-red-600'}">
+                                    ${calc.banking >= 0 ? '+' : ''}${calc.banking.toFixed(1)}
+                                </span>
+                                <p class="text-[8px] text-gray-500">Net Banking</p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-4 gap-1 mb-2">
+                            <div class="text-center">
+                                <p class="text-[8px] text-gray-500">Production</p>
+                                <p class="text-[10px] font-bold text-blue-600">${calc.prod.toFixed(1)}</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-[8px] text-gray-500">Usage</p>
+                                <p class="text-[10px] font-bold text-orange-600">${calc.usage.toFixed(1)}</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-[8px] text-gray-500">Export</p>
+                                <p class="text-[10px] font-bold text-green-600">${calc.exp.toFixed(1)}</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-[8px] text-gray-500">Import</p>
+                                <p class="text-[10px] font-bold text-red-600">${calc.imp.toFixed(1)}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-1">
+                            <div>
+                                <p class="text-[8px] text-gray-500">Source Split</p>
+                                <p class="text-[9px]">
+                                    <span class="solar-use">Solar: ${calc.solarUse.toFixed(1)}</span> | 
+                                    <span class="grid-use">Grid: ${calc.gridUse.toFixed(1)}</span>
+                                </p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[8px] text-gray-500">Efficiency</p>
+                                <p class="text-[9px] font-bold ${calc.efficiency >= 70 ? 'text-green-600' : calc.efficiency >= 50 ? 'text-yellow-600' : 'text-red-600'}">
+                                    ${calc.efficiency.toFixed(0)}%
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            table.innerHTML = html;
+        }
+
+        // Render Monthly Banking Chart
+        function renderMonthlyBankingChart(year) {
+            const ctx = document.getElementById('monthlyBankingChart').getContext('2d');
+            
+            if (monthlyBankingChart) {
+                monthlyBankingChart.destroy();
+            }
+            
+            // Group calculations by month for the year
+            const monthlyTotals = new Array(12).fill(0);
+            const monthDays = new Array(12).fill(0);
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+                               "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            
+            Object.entries(dailyCalculations).forEach(([date, calc]) => {
+                const dateObj = new Date(date);
+                if (dateObj.getFullYear() === year) {
+                    const month = dateObj.getMonth();
+                    monthlyTotals[month] += calc.banking;
+                    monthDays[month]++;
+                }
+            });
+            
+            // Calculate averages
+            const monthlyAvgBanking = monthlyTotals.map((total, index) => {
+                return monthDays[index] > 0 ? total / monthDays[index] : 0;
+            });
+            
+            monthlyBankingChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: monthNames,
+                    datasets: [{
+                        label: 'Avg Daily Banking',
+                        data: monthlyAvgBanking,
+                        backgroundColor: monthlyAvgBanking.map(value => 
+                            value >= 0 ? 'rgba(34, 197, 94, 0.7)' : 'rgba(239, 68, 68, 0.7)'
+                        ),
+                        borderColor: monthlyAvgBanking.map(value => 
+                            value >= 0 ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)'
+                        ),
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        barPercentage: 0.6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.raw;
+                                    return `${value >= 0 ? '+' : ''}${value.toFixed(2)} units/day`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + 'u';
+                                },
+                                font: { size: 9 }
+                            },
+                            grid: { color: 'rgba(0,0,0,0.05)' }
+                        },
+                        x: {
+                            ticks: {
+                                font: { size: 8 }
+                            },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Export to CSV
+        function exportToCSV() {
+            if (Object.keys(dailyCalculations).length === 0) {
+                showToast("No data to export", "warning");
+                return;
+            }
+            
+            // Get calculations for current month
+            const monthCalculations = Object.entries(dailyCalculations)
+                .filter(([date, calc]) => {
+                    const dateObj = new Date(date);
+                    return dateObj.getFullYear() === currentYear && 
+                           dateObj.getMonth() + 1 === currentMonth;
+                })
+                .sort((a, b) => new Date(a[0]) - new Date(b[0]));
+            
+            if (monthCalculations.length === 0) {
+                showToast("No data for selected month", "warning");
+                return;
+            }
+            
+            // Prepare CSV content
+            let csv = 'Date,Production,Export,Import,Usage,Solar Usage,Grid Usage,Efficiency%,Banking\n';
+            
+            monthCalculations.forEach(([date, calc]) => {
+                csv += `${date},${calc.prod.toFixed(2)},${calc.exp.toFixed(2)},${calc.imp.toFixed(2)},`;
+                csv += `${calc.usage.toFixed(2)},${calc.solarUse.toFixed(2)},${calc.gridUse.toFixed(2)},`;
+                csv += `${calc.efficiency.toFixed(2)},${calc.banking.toFixed(2)}\n`;
+            });
+            
+            // Create and download file
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const monthName = new Date(currentYear, currentMonth - 1).toLocaleDateString('en-GB', { month: 'long' });
+            a.href = url;
+            a.download = `Solar_Data_${monthName}_${currentYear}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            showToast("CSV file downloaded", "success");
+        }
+
+        // Show/Hide Month Picker
+        function showMonthPicker() {
+            updateMonthCounts();
+            document.getElementById('monthPicker').classList.remove('hidden');
+        }
+        
+        function hideMonthPicker() {
+            document.getElementById('monthPicker').classList.add('hidden');
+        }
+        
+        function changeYear() {
+            const year = parseInt(document.getElementById('yearSelect').value);
+            updateMonthCounts();
+        }
+
+        // Utility Functions
+        function getDiffDays(d1, d2) {
+            const dt1 = new Date(d1);
+            const dt2 = new Date(d2);
+            return Math.ceil(Math.abs(dt2 - dt1) / (1000 * 60 * 60 * 24));
+        }
+        
+        function showToast(message, type = "info") {
+            const colors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                info: 'bg-blue-500',
+                warning: 'bg-yellow-500'
+            };
+            
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `fixed top-16 left-1/2 transform -translate-x-1/2 text-white px-4 py-2 rounded-lg shadow-lg text-xs font-bold z-50 ${colors[type]}`;
+            toast.style.display = 'block';
+            toast.style.animation = 'slideIn 0.3s, slideOut 0.3s 2.7s';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
