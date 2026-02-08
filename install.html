@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Install CSL Calculations</title>
+    <link rel="manifest" href="manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --primary: #1e3a8a; 
+            --secondary: #2563eb;
+            --bg: #f0f7ff; 
+        }
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            text-align: center; 
+            background: var(--bg); 
+            color: #1a365d; 
+            padding: 40px 20px; 
+            min-height: 100vh; 
+            margin: 0; 
+            box-sizing: border-box; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .install-card { 
+            background: white; 
+            border-radius: 25px; 
+            padding: 35px 20px; 
+            max-width: 400px; 
+            margin: auto; 
+            box-shadow: 0 10px 25px rgba(30, 58, 138, 0.1); 
+            border: 1px solid #e2e8f0; 
+        }
+        .logo { 
+            width: 90px; height: 90px;
+            border-radius: 20px; 
+            margin-bottom: 15px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+        }
+        .badge { 
+            font-size: 0.6rem; 
+            background: #e0e7ff; 
+            padding: 4px 12px; 
+            border-radius: 20px; 
+            font-weight: 700; 
+            color: var(--primary); 
+            text-transform: uppercase; 
+        }
+        h2 { margin: 10px 0 5px 0; color: var(--primary); font-size: 1.4rem; }
+        p { font-size: 0.85rem; color: #64748b; line-height: 1.5; margin-bottom: 20px; padding: 0 10px; }
+        
+        .btn-install { 
+            background: linear-gradient(to right, var(--primary), var(--secondary)); 
+            color: white; border: none; padding: 14px; border-radius: 12px; 
+            font-weight: 600; cursor: pointer; width: 100%; font-size: 16px; 
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);
+        }
+        
+        #waitMsg { color: #94a3b8; font-size: 13px; margin-top: 15px; min-height: 20px; }
+
+        /* iOS Instructions Style */
+        .ios-instructions {
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px dashed #cbd5e1;
+            font-size: 0.75rem;
+            color: #64748b;
+            text-align: left;
+            line-height: 1.4;
+        }
+        .ios-instructions b { color: #334155; }
+        .footer-tag { margin-top: 20px; font-size: 0.7rem; color: #94a3b8; }
+    </style>
+</head>
+<body>
+
+    <div class="install-card">
+        <span class="badge">Professional Tools</span>
+        <br><br>
+        <img src="icon-192.png" class="logo" alt="CSL Logo">
+        
+        <h2>CSL Calculations</h2>
+        <p>Salary, Tax, Attendance തുടങ്ങി എല്ലാ സാമ്പത്തിക കണക്കുകൂട്ടലുകൾക്കുമുള്ള ഒരു സമ്പൂർണ്ണ ആപ്പ്.</p>
+        
+        <button id="installBtn" class="btn-install" style="display: none;">Install App</button>
+        <div id="waitMsg">ഇൻസ്റ്റാൾ ചെയ്യാൻ തയ്യാറെടുക്കുന്നു...</div>
+
+        <div class="ios-instructions" id="iosPrompt">
+            <b>iPhone ഉപയോക്താക്കൾക്കായി:</b><br>
+            1. താഴെയുള്ള <b>'Share'</b> ബട്ടൺ അമർത്തുക (ചതുരത്തിൽ മുകളിലേക്ക് അമ്പടയാളമുള്ള ചിഹ്നം).<br>
+            2. താഴേക്ക് സ്ക്രോൾ ചെയ്ത് <b>'Add to Home Screen'</b> എന്നത് തിരഞ്ഞെടുക്കുക.
+        </div>
+        
+        <div class="footer-tag">Powered by VTSoft</div>
+    </div>
+
+    <script>
+        let deferredPrompt;
+        const installBtn = document.getElementById('installBtn');
+        const waitMsg = document.getElementById('waitMsg');
+        const iosPrompt = document.getElementById('iosPrompt');
+
+        // iOS ആണോ എന്ന് പരിശോധിക്കുന്നു
+        const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        if (!isIos) {
+            iosPrompt.style.display = 'none'; // Android ആണെങ്കിൽ iOS ഇൻസ്ട്രക്ഷൻ മറയ്ക്കുന്നു
+        }
+
+        if ('serviceWorker' in navigator) { 
+            navigator.serviceWorker.register('./sw.js'); 
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.style.display = 'block';
+            waitMsg.style.display = 'none';
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                
+                if (outcome === 'accepted') {
+                    installBtn.style.display = 'none';
+                    waitMsg.style.display = 'block';
+                    waitMsg.style.color = '#2563eb';
+                    waitMsg.innerHTML = "<b>ഇൻസ്റ്റാൾ ചെയ്യുന്നു... ദയവായി കാത്തിരിക്കൂ</b>";
+                    
+                    setTimeout(() => {
+                        waitMsg.style.color = '#059669';
+                        waitMsg.innerHTML = "<b style='font-size:16px;'>വിജയകരമായി ഇൻസ്റ്റാൾ ചെയ്തു!</b>";
+                        
+                        // 6 സെക്കൻഡ് കഴിഞ്ഞ് റീഡയറക്ട് ചെയ്യുന്നു
+                        setTimeout(() => {
+                            window.location.href = 'index.html'; 
+                        }, 6000);
+                    }, 2000);
+                }
+                deferredPrompt = null;
+            }
+        });
+
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
