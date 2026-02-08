@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ml">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -57,11 +57,12 @@
             color: white; border: none; padding: 14px; border-radius: 12px; 
             font-weight: 600; cursor: pointer; width: 100%; font-size: 16px; 
             box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);
+            transition: 0.3s;
         }
+        .btn-install:active { transform: scale(0.97); }
         
         #waitMsg { color: #94a3b8; font-size: 13px; margin-top: 15px; min-height: 20px; }
 
-        /* iOS Instructions Style */
         .ios-instructions {
             margin-top: 25px;
             padding-top: 15px;
@@ -80,18 +81,18 @@
     <div class="install-card">
         <span class="badge">Professional Tools</span>
         <br><br>
-        <img src="icon-192.png" class="logo" alt="CSL Logo">
+        <img src="https://vishnuputhur.github.io/shipyardnagar/icon-512.png" class="logo" alt="CSL Logo">
         
         <h2>CSL Calculations</h2>
-        <p>Salary, Tax, Attendance തുടങ്ങി എല്ലാ സാമ്പത്തിക കണക്കുകൂട്ടലുകൾക്കുമുള്ള ഒരു സമ്പൂർണ്ണ ആപ്പ്.</p>
+        <p>A comprehensive utility tool for Salary, Tax, Attendance, and essential daily shipyard calculations.</p>
         
         <button id="installBtn" class="btn-install" style="display: none;">Install App</button>
-        <div id="waitMsg">ഇൻസ്റ്റാൾ ചെയ്യാൻ തയ്യാറെടുക്കുന്നു...</div>
+        <div id="waitMsg">Preparing for installation...</div>
 
         <div class="ios-instructions" id="iosPrompt">
-            <b>iPhone ഉപയോക്താക്കൾക്കായി:</b><br>
-            1. താഴെയുള്ള <b>'Share'</b> ബട്ടൺ അമർത്തുക (ചതുരത്തിൽ മുകളിലേക്ക് അമ്പടയാളമുള്ള ചിഹ്നം).<br>
-            2. താഴേക്ക് സ്ക്രോൾ ചെയ്ത് <b>'Add to Home Screen'</b> എന്നത് തിരഞ്ഞെടുക്കുക.
+            <b>For iPhone Users:</b><br>
+            1. Tap the <b>'Share'</b> button at the bottom (box with upward arrow).<br>
+            2. Scroll down and select <b>'Add to Home Screen'</b>.
         </div>
         
         <div class="footer-tag">Powered by VTSoft</div>
@@ -103,10 +104,10 @@
         const waitMsg = document.getElementById('waitMsg');
         const iosPrompt = document.getElementById('iosPrompt');
 
-        // iOS ആണോ എന്ന് പരിശോധിക്കുന്നു
+        // Check for iOS
         const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         if (!isIos) {
-            iosPrompt.style.display = 'none'; // Android ആണെങ്കിൽ iOS ഇൻസ്ട്രക്ഷൻ മറയ്ക്കുന്നു
+            iosPrompt.style.display = 'none';
         }
 
         if ('serviceWorker' in navigator) { 
@@ -129,15 +130,15 @@
                     installBtn.style.display = 'none';
                     waitMsg.style.display = 'block';
                     waitMsg.style.color = '#2563eb';
-                    waitMsg.innerHTML = "<b>ഇൻസ്റ്റാൾ ചെയ്യുന്നു... ദയവായി കാത്തിരിക്കൂ</b>";
+                    waitMsg.innerHTML = "<b>Installing... please wait</b>";
                     
                     setTimeout(() => {
                         waitMsg.style.color = '#059669';
-                        waitMsg.innerHTML = "<b style='font-size:16px;'>വിജയകരമായി ഇൻസ്റ്റാൾ ചെയ്തു!</b>";
+                        waitMsg.innerHTML = "<b style='font-size:16px;'>Successfully Installed!</b>";
                         
-                        // 6 സെക്കൻഡ് കഴിഞ്ഞ് റീഡയറക്ട് ചെയ്യുന്നു
+                        // Redirecting after 6 seconds
                         setTimeout(() => {
-                            window.location.href = 'index.html'; 
+                            window.location.href = 'https://vtsoft.onrender.com'; 
                         }, 6000);
                     }, 2000);
                 }
@@ -146,7 +147,7 @@
         });
 
         if (window.matchMedia('(display-mode: standalone)').matches) {
-            window.location.href = 'index.html';
+            window.location.href = 'https://vtsoft.onrender.com';
         }
     </script>
 </body>
