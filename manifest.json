@@ -1,0 +1,21 @@
+{
+  "name": "CSL Calculations",
+  "short_name": "CSL Calculations",
+  "description": "Efficient Financial Tools for CSL Employees",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#1e3a8a",
+  "theme_color": "#1e3a8a",
+  "icons": [
+    {
+      "src": "https://cslcalculations.netlify.app/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://cslcalculations.netlify.app/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
