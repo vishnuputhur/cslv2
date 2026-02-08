@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1e3a8a">
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-21G1BS7S3S"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -1075,5 +1077,28 @@
             console.log('%cCSL Calculations - Efficient Financial Tools', 'color: #1e3a8a; font-size: 16px; font-weight: bold; font-family: Times New Roman;');
         });
     </script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .then(reg => {
+          console.log('Service Worker Registered');
+          
+          // പുതിയ അപ്ഡേറ്റ് വന്നാൽ ഉടൻ തന്നെ പേജ് റീഫ്രഷ് ആകാൻ
+          reg.onupdatefound = () => {
+            const installingWorker = reg.installing;
+            installingWorker.onstatechange = () => {
+              if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                // പുതിയ വെർഷൻ റെഡിയാണ്, പേജ് റീലോഡ് ചെയ്യുന്നു
+                window.location.reload();
+              }
+            };
+          };
+        })
+        .catch(err => console.log('Service Worker Failed', err));
+    });
+  }
+</script>
+
 </body>
 </html>
