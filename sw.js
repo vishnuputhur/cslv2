@@ -1,4 +1,4 @@
-const CACHE_NAME = 'csl-calc-v1';
+const CACHE_NAME = 'csl-calc-v2';
 
 // ഇൻസ്റ്റാൾ ചെയ്യുമ്പോൾ ഒന്നും കാഷെ ചെയ്യുന്നില്ല, അതിനാൽ അപ്ഡേറ്റ് പ്രശ്നം ഉണ്ടാവില്ല
 self.addEventListener('install', (event) => {
