@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#1e3a8a">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1e3a8a">
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-21G1BS7S3S"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -41,7 +41,7 @@
             background-attachment: fixed;
         }
 
-        /* Modern color palette - keeping original header colors */
+        /* Modern color palette - Single color theme */
         :root {
             --primary: #1e3a8a;
             --primary-dark: #2563eb;
@@ -52,7 +52,6 @@
             --accent: #f59e0b;
             --danger: #ef4444;
             --purple: #8b5cf6;
-            --purple-soft: #ede9fe;
             --dark: #1a365d;
             --dark-light: #2d4a7a;
             --gray: #4a5568;
@@ -65,35 +64,37 @@
             --radius-md: 8px;
         }
 
-        /* --- News Bar with Header BG --- */
+        /* --- News Bar - No borders, no yellow background, seamless with header --- */
         #newsBar {
             position: fixed;
             top: 45px;
             left: 0;
             width: 100%;
-            background: linear-gradient(to right, #1e3a8a, #2563eb, #1e3a8a);
+            background: #1e3a8a;          /* Same solid blue as header */
             color: #fff;
             height: 28px;
             line-height: 28px;
             overflow: hidden;
             z-index: 1000;
             font-size: 0.7rem;
-            border-bottom: 1px solid rgba(255,255,255,0.15);
-            box-shadow: var(--shadow-sm);
+            /* No border, no shadow */
+            border: none;
+            box-shadow: none;
         }
 
         #newsBar strong {
-            background: #ffcc00;
-            color: #000;
+            background: transparent;        /* Removed yellow background */
+            color: white;                   /* Pure white text */
+            font-weight: 600;
             padding: 0 10px;
             position: absolute;
             z-index: 1002;
-            font-weight: 600;
-            box-shadow: 3px 0 8px rgba(0,0,0,0.2);
             height: 100%;
             display: flex;
             align-items: center;
             font-size: 0.7rem;
+            /* No box-shadow */
+            box-shadow: none;
         }
 
         #newsScroll {
@@ -121,21 +122,22 @@
             to { transform: translateX(-100%); }
         }
 
-        /* --- Original Header (unchanged - single color BG) --- */
+        /* --- Header - Single Color, no borders --- */
         header {
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 0 15px;
-            background: #1e3a8a;  /* Single color - removed gradient */
-            box-shadow: 0 2px 10px rgba(30, 58, 138, 0.2);
+            background: #1e3a8a;           /* Solid blue */
             position: fixed;
             top: 0;
             width: 100%;
             z-index: 1001;
             height: 45px;
             box-sizing: border-box;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            /* No border, no shadow */
+            border: none;
+            box-shadow: none;
         }
         
         .menu-container {
@@ -183,7 +185,7 @@
             font-style: italic;
         }
 
-        /* --- Compact Menu Drawer --- */
+        /* --- Compact Menu Drawer (unchanged) --- */
         .menu-drawer {
             position: fixed;
             top: 0;
@@ -287,7 +289,7 @@
         section {
             flex: 1;
             padding: 88px 12px 45px;
-            max-width: 450px;  /* Reduced width */
+            max-width: 450px;
             margin: 0 auto;
             width: 100%;
             box-sizing: border-box;
@@ -433,7 +435,7 @@
         .solar-box { border-left: 3px solid #f59e0b; background: linear-gradient(to right, #fffbeb, #ffffff); }
         .tax-box { border-left: 3px solid #10b981; background: linear-gradient(to right, #f0fdf4, #ffffff); }
         .attendance-box { border-left: 3px solid #2563eb; background: linear-gradient(to right, #f5f3ff, #ffffff); }
-        .pf-box { border-left: 3px solid #8b5cf6; background: linear-gradient(to right, #ede9fe, #ffffff); }  /* Purple for PF */
+        .pf-box { border-left: 3px solid #8b5cf6; background: linear-gradient(to right, #ede9fe, #ffffff); }
         .expense-box { border-left: 3px solid #10b981; background: linear-gradient(to right, #f0fdf4, #ffffff); }
 
         .blood-box h2, .solar-box h2, .tax-box h2, .attendance-box h2, .pf-box h2, .expense-box h2 {
@@ -448,7 +450,7 @@
         .solar-box h2 { color: #d97706; }
         .tax-box h2 { color: #047857; }
         .attendance-box h2 { color: #1e3a8a; }
-        .pf-box h2 { color: #6d28d9; }  /* Purple for PF */
+        .pf-box h2 { color: #6d28d9; }
         .expense-box h2 { color: #047857; }
 
         .blood-box h2::before, .solar-box h2::before, .tax-box h2::before, .attendance-box h2::before, .pf-box h2::before, .expense-box h2::before {
@@ -495,7 +497,7 @@
             background: rgba(37, 99, 235, 0.2);
         }
 
-        /* Compact Stats Box - Reduced width */
+        /* Compact Stats Box */
         .stats-box {
             background: rgba(37, 99, 235, 0.1);
             border-radius: var(--radius-md);
@@ -533,7 +535,7 @@
             margin-top: 3px;
         }
 
-        /* Share Button - New meaning */
+        /* Share Button */
         .wa-share-btn {
             background: linear-gradient(90deg, #10b981, #059669);
             color: white;
@@ -563,7 +565,7 @@
             box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
         }
 
-        /* VTSoft Section - Updated with web design */
+        /* VTSoft Section */
         .vtsoft-section {
             background: white;
             color: #1a365d;
@@ -598,7 +600,7 @@
         }
 
         .vtsoft-section a {
-            background: linear-gradient(to right, #1e3a8a, #2563eb); 
+            background: #1e3a8a;          /* Solid blue */
             color: white; 
             padding: 5px 15px;
             border-radius: 20px; 
@@ -607,13 +609,14 @@
             display: inline-block; 
             text-decoration: none;
             font-weight: 600;
+            border: none;
         }
 
-        /* Compact Footer */
+        /* Footer - No borders, solid blue */
         footer {
             text-align: center;
             padding: 5px 10px;
-            background: #1e3a8a;  /* Single color to match header */
+            background: #1e3a8a;
             color: white;
             font-size: 0.6rem;
             position: fixed;
@@ -621,12 +624,12 @@
             left: 0;
             width: 100%;
             z-index: 1000;
-            box-shadow: 0 -1px 5px rgba(0,0,0,0.1);
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
             height: 30px;
             display: flex;
             align-items: center;
             justify-content: center;
+            border: none;
+            box-shadow: none;
         }
         
         .footer-content {
@@ -656,9 +659,9 @@
         </div>
     </header>
 
-    <!-- Malayalam News Bar with Header BG -->
+    <!-- News Bar - No borders, no yellow background -->
     <div id="newsBar">
-        <strong>📰 NEWS</strong>
+        
         <span id="newsScroll">വാർത്തകൾ ലോഡ് ചെയ്യുന്നു...</span>
     </div>
 
@@ -689,10 +692,10 @@
             <div class="whats-new-label">UPDATES</div>
             <div class="marquee-wrapper">
                 <div class="marquee-content">
-                    • CSL Blood Donation • 2026 Calendar • Performance Payment • Water Level PDF • 2025-26 Tax • Expense Diary • DA 53.6 • New Tax Calculator •
+                    • June Diary • DA 53.6 • New Tax Calculation • Blood Donation •
                 </div>
                 <div class="marquee-content">
-                    • CSL Blood Donation • Solar Calculator • 2026 Calendar • Performance Payment • Water Level PDF • 2025-26 Tax • Expense Diary • DA 53.6 • New Tax Calculator •
+                    • June Diary • DA 53.6 • New Tax Calculation • Blood Donation •
                 </div>
             </div>
         </div>
@@ -739,7 +742,7 @@
         <div class="attendance-box">
             <h2>Attendance Register</h2>
             <p>Record leaves, save punching times. Calculate OT and manage Leave.</p>
-            <a href="atn.html">Open Register</a>
+            <a href="atn.html">Open Register →</a>
         </div>
 
         <div class="pf-box">
