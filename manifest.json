@@ -4,7 +4,7 @@
   "description": "Efficient Financial Tools for CSL Employees",
   "start_url": "/index.html",
   "display": "standalone",
-  "background_color": "#1e3a8a",
+  "background_color": "#ffffff",        /* 👈 ഇത് മാറ്റി */
   "theme_color": "#1e3a8a",
   "icons": [
     {
