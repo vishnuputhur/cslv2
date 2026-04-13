@@ -413,7 +413,7 @@
         }
     </style>
 </head>
-<body onload="initApp()">
+<body>
     <a href="index.html">
         <img src="https://i.ibb.co/BYPxNBB/Screenshot-20250529-141452-CSL-Calculations.jpg" alt="Top Image" class="top-img">
     </a>
@@ -517,9 +517,10 @@
     </div>
 
     <div class="bottom-padding"></div>
-    <div class="footer">Powered by VT@Soft © 2026 | Version 3.0</div>
+    <div class="footer">Powered by VT@Soft © 2026 | Version 3.2</div>
 
     <script>
+        // ======================= FIREBASE CONFIG =======================
         const firebaseConfig = {
             apiKey: "AIzaSyCCjWVI1hB3sbu0JiA4viW1BK81xbMML-U",
             authDomain: "csl-calculations.firebaseapp.com",
@@ -539,6 +540,7 @@
             console.log("Firebase error:", err);
         }
 
+        // ======================= HOLIDAYS & SHIFTS =======================
         const holidays2025 = {
             "2025-08-15": "Independence Day",
             "2025-09-04": "First Onam",
@@ -553,6 +555,8 @@
             "2026-01-26": "Republic Day",
             "2026-03-20": "Id-ul-Fitr (Ramzan)",
             "2026-04-03": "Good Friday",
+           "2026-04-09": "Vote",
+           "2026-04-14": "Ambekkar",
             "2026-04-15": "Vishu",
             "2026-05-01": "May Day",
             "2026-05-27": "Id-ul-Ad'ha (Bakrid)",
@@ -571,6 +575,7 @@
             "C1": { start: "08:00", end: "16:20", grace: "08:05" }
         };
 
+        // ======================= GLOBAL VARIABLES =======================
         const today = new Date();
         let currentYear = today.getFullYear();
         let currentMonth = today.getMonth();
@@ -580,10 +585,11 @@
             name: '', code: '', 
             clTotal: 0, elTotal: 0, hplTotal: 0, specialTotal: 3, 
             lastUpdate: "2025-12-01",
+            lastIncrementDate: "2025-12-01",
             settingsUpdated: false, userId: '', lastSync: 0
         };
         
-        // 🔥 FIX 1 — Backward compatibility patch
+        // Backward compatibility patch
         if (employeeData.cl !== undefined) {
             employeeData.clTotal = employeeData.cl || 0;
             delete employeeData.cl;
@@ -601,542 +607,126 @@
             delete employeeData.special;
         }
 
-        // Safety defaults
         employeeData.clTotal = employeeData.clTotal || 0;
         employeeData.elTotal = employeeData.elTotal || 0;
         employeeData.hplTotal = employeeData.hplTotal || 0;
         employeeData.specialTotal = employeeData.specialTotal || 0;
         employeeData.lastUpdate = employeeData.lastUpdate || "2025-12-01";
-
-        // Save migrated data back
+        if (!employeeData.lastIncrementDate) employeeData.lastIncrementDate = employeeData.lastUpdate;
+        
         localStorage.setItem('employeeData', JSON.stringify(employeeData));
         
         let syncInProgress = false;
         let lastSyncTime = parseInt(localStorage.getItem('lastSyncTime')) || 0;
         let pendingAction = null;
+        
+        // Cache for current month balance
+        let cachedBalance = null;
+        let cachedMonthKey = null;
 
-        // ✅ STEP 1: Calculate USED leaves from attendanceData (ആ മാസത്തെ മാത്രം)
-        function calculateUsedLeavesForCurrentMonth() {
+        // ======================= HELPER FUNCTIONS =======================
+        function getMonthKey(year, month) {
+            return `${year}-${String(month + 1).padStart(2, '0')}`;
+        }
+
+        // HPL deduction multiplier: full day = 2, half day = 1
+        function getLeaveDeduction(leaveType, halfDay) {
+            let base = halfDay === 'Yes' ? 0.5 : 1;
+            if (leaveType === 'HPL') return base * 2;
+            return base;
+        }
+
+        // Calculate used leaves for a given month (year, month) with HPL multiplier
+        function calculateUsedLeavesForMonth(year, month) {
             let used = { cl: 0, el: 0, hpl: 0, special: 0 };
-            const monthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
-
+            const monthKey = getMonthKey(year, month);
             for (let dateStr in attendanceData) {
                 if (!dateStr.startsWith(monthKey)) continue;
-                
                 const d = attendanceData[dateStr];
                 if (!d.leave) continue;
-
-                const deduction = d.halfDay === 'Yes' ? 0.5 : 1;
                 const lt = (d.leave || '').toUpperCase().trim();
-                
+                const deduction = getLeaveDeduction(lt, d.halfDay);
                 if (lt === 'CL') used.cl += deduction;
                 else if (lt === 'EL') used.el += deduction;
-              else if (lt === 'HPL') used.hpl += (deduction * 2);
-                else if (lt === 'SPECIAL' || lt === 'SPL' || lt === 'SPECIAL LEAVE') used.special += deduction;
+                else if (lt === 'HPL') used.hpl += deduction;
+                else if (lt === 'SPECIAL' || lt === 'SPL') used.special += deduction;
             }
             return used;
         }
 
-        // ✅ STEP 2: Calculate balance from THIS MONTH onwards (നിലവിലെ മാസം മുതൽ)
-        function calculateBalanceFromCurrentMonth() {
-            const monthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
-            let remainingBalance = {
-                cl: parseFloat(employeeData.clTotal) || 0,
-                el: parseFloat(employeeData.elTotal) || 0,
-                hpl: parseFloat(employeeData.hplTotal) || 0,
-                special: parseInt(employeeData.specialTotal) || 0
+        // Calculate remaining balance at the START of a given month (year, month)
+        function calculateBalanceAtMonthStart(year, month) {
+            let remaining = {
+                cl: employeeData.clTotal || 0,
+                el: employeeData.elTotal || 0,
+                hpl: employeeData.hplTotal || 0,
+                special: employeeData.specialTotal || 0
             };
-
-           
+            const targetMonthKey = getMonthKey(year, month);
             for (let dateStr in attendanceData) {
                 const date = new Date(dateStr);
-                const recordMonthYear = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-                
-                
-                if (recordMonthYear < monthKey) {
+                if (isNaN(date.getTime())) continue;
+                const recordMonthKey = getMonthKey(date.getFullYear(), date.getMonth());
+                if (recordMonthKey < targetMonthKey) {
                     const d = attendanceData[dateStr];
                     if (!d.leave) continue;
-
-                    const deduction = d.halfDay === 'Yes' ? 0.5 : 1;
                     const lt = (d.leave || '').toUpperCase().trim();
-                    
-                    if (lt === 'CL') remainingBalance.cl = Math.max(0, remainingBalance.cl - deduction);
-                    else if (lt === 'EL') remainingBalance.el = Math.max(0, remainingBalance.el - deduction);
-                    else if (lt === 'HPL') remainingBalance.hpl = Math.max(0, remainingBalance.hpl - deduction);
-                    else if (lt === 'SPECIAL' || lt === 'SPL') remainingBalance.special = Math.max(0, remainingBalance.special - deduction);
+                    const deduction = getLeaveDeduction(lt, d.halfDay);
+                    if (lt === 'CL') remaining.cl = Math.max(0, remaining.cl - deduction);
+                    else if (lt === 'EL') remaining.el = Math.max(0, remaining.el - deduction);
+                    else if (lt === 'HPL') remaining.hpl = Math.max(0, remaining.hpl - deduction);
+                    else if (lt === 'SPECIAL' || lt === 'SPL') remaining.special = Math.max(0, remaining.special - deduction);
                 }
             }
-            
-            return remainingBalance;
+            return remaining;
         }
 
-        // ✅ STEP 3: Get REAL balance for current month only
+        // Get current balance for the displayed month (with caching)
         function getLeaveBalanceForCurrentMonth() {
-            const startingBalance = calculateBalanceFromCurrentMonth();
-            const usedThisMonth = calculateUsedLeavesForCurrentMonth();
-
-            return {
+            const monthKey = getMonthKey(currentYear, currentMonth);
+            if (cachedBalance && cachedMonthKey === monthKey) {
+                return cachedBalance;
+            }
+            const startingBalance = calculateBalanceAtMonthStart(currentYear, currentMonth);
+            const usedThisMonth = calculateUsedLeavesForMonth(currentYear, currentMonth);
+            const balance = {
                 cl: Math.max(0, startingBalance.cl - usedThisMonth.cl),
                 el: Math.max(0, startingBalance.el - usedThisMonth.el),
                 hpl: Math.max(0, startingBalance.hpl - usedThisMonth.hpl),
                 special: Math.max(0, startingBalance.special - usedThisMonth.special)
             };
+            cachedBalance = balance;
+            cachedMonthKey = monthKey;
+            return balance;
         }
 
-        // Custom Alert Function
-        function showAlert(message, title = "Message") {
-            document.getElementById('alertTitle').textContent = title;
-            document.getElementById('alertMessage').textContent = message;
-            document.getElementById('alertModal').style.display = 'flex';
+        function invalidateBalanceCache() {
+            cachedBalance = null;
+            cachedMonthKey = null;
         }
 
-        function closeAlertModal() {
-            document.getElementById('alertModal').style.display = 'none';
-        }
-
-        // Custom Confirm Function
-        function showConfirm(action) {
-            pendingAction = action;
-            
-            if (action === 'loadCloud') {
-                document.getElementById('confirmTitle').textContent = "Load from Cloud";
-                document.getElementById('confirmMessage').textContent = "Load all data from cloud? This will replace your local data.";
-            } else if (action === 'saveCloud') {
-                document.getElementById('confirmTitle').textContent = "Save to Cloud";
-                document.getElementById('confirmMessage').textContent = "Save all data to cloud? This will overwrite your cloud data.";
-            } else if (action === 'saveSettings') {
-                document.getElementById('confirmTitle').textContent = "Save Settings";
-                document.getElementById('confirmMessage').textContent = "Save settings changes?";
-            }
-            
-            document.getElementById('confirmModal').style.display = 'flex';
-        }
-
-        function closeConfirmModal() {
-            document.getElementById('confirmModal').style.display = 'none';
-            pendingAction = null;
-        }
-
-        // ✅ FIX: Confirm button handler
-        document.getElementById('confirmOkBtn').onclick = function() {
-            if (pendingAction === 'loadCloud') {
-                loadFromCloud();
-            } else if (pendingAction === 'saveCloud') {
-                saveToCloud();
-            } else if (pendingAction === 'saveSettings') {
-                saveSettingsConfirmed();
-            }
-            closeConfirmModal();
-            pendingAction = null;
-        };
-
-        function packDayData(dayData) {
-            if (!dayData) return "";
-            const parts = [
-                dayData.shift || "",
-                dayData.inPunch || "",
-                dayData.outPunch || "",
-                dayData.ot || "0",
-                dayData.leave || "",
-                dayData.halfDay || "No"
-            ];
-            return parts.join("|");
-        }
-
-        function unpackDayData(packedString) {
-            if (!packedString) return null;
-            const parts = packedString.split("|");
-            return {
-                shift: parts[0] || "",
-                inPunch: parts[1] || "",
-                outPunch: parts[2] || "",
-                ot: parseFloat(parts[3]) || 0,
-                leave: parts[4] || "",
-                halfDay: parts[5] || "No"
-            };
-        }
-
-        function packMonthData(attendanceData, year, month) {
-            const packed = {};
-            const monthStr = `${year}-${String(month + 1).padStart(2, '0')}`;
-            
-            for (const dateStr in attendanceData) {
-                if (dateStr.startsWith(monthStr)) {
-                    packed[dateStr] = packDayData(attendanceData[dateStr]);
-                }
-            }
-            return packed;
-        }
-
-        function unpackMonthData(packedMonthData) {
-            const unpacked = {};
-            for (const dateStr in packedMonthData) {
-                const dayData = unpackDayData(packedMonthData[dateStr]);
-                if (dayData) {
-                    unpacked[dateStr] = dayData;
-                }
-            }
-            return unpacked;
-        }
-
-        // AUTO SYNC FUNCTION
-        async function autoSyncCurrentMonth() {
-            if (!db || !employeeData.userId) {
-                updateSyncStatus('Firebase not ready');
-                return false;
-            }
-            
-            const monthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
-            const lastAutoSync = localStorage.getItem(`lastAutoSync_${monthKey}`);
-            const now = Date.now();
-            const oneHour = 60 * 60 * 1000;
-            
-            // 1 മണിക്കൂറിൽ ഒരിക്കൽ മാത്രം auto-sync
-            if (lastAutoSync && (now - parseInt(lastAutoSync) < oneHour)) {
-                return false;
-            }
-            
-            try {
-                updateSyncStatus('Auto-syncing...');
-                
-                // Cloud ൽ നിന്ന് ഡാറ്റ ലോഡ് ചെയ്യുക
-                const docRef = db.collection("attendance_records")
-                    .doc(employeeData.userId)
-                    .collection("months")
-                    .doc(monthKey);
-                    
-                const doc = await docRef.get();
-                
-                let cloudDataLoaded = false;
-                
-                if (doc.exists) {
-                    const remoteData = doc.data();
-                    const remoteTimestamp = remoteData.lastUpdated || 0;
-                    
-                    // Local timestamp കണ്ടെത്തുക
-                    let localTimestamp = 0;
-                    for (const dateStr in attendanceData) {
-                        if (dateStr.startsWith(monthKey)) {
-                            localTimestamp = Math.max(localTimestamp, remoteTimestamp);
-                        }
-                    }
-                    
-                    // Cloud ൽ പുതിയതാണെങ്കിൽ മാത്രം update ചെയ്യുക
-                    if (remoteTimestamp > localTimestamp) {
-                        const packedMonthData = remoteData.monthData || {};
-                        const unpackedData = unpackMonthData(packedMonthData);
-                        
-                        for (const dateStr in unpackedData) {
-                            attendanceData[dateStr] = unpackedData[dateStr];
-                        }
-                        
-                        localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
-                        cloudDataLoaded = true;
-                    }
-                }
-                
-                // Local changes cloud ൽ save ചെയ്യുക
-                await saveCurrentMonthToCloud();
-                localStorage.setItem(`lastAutoSync_${monthKey}`, now.toString());
-                
-                updateSyncStatus('Auto-synced');
-                if (cloudDataLoaded) {
-                    showMonth(currentMonth); // കലണ്ടർ refresh ചെയ്യുക
-                }
-                
-                return true;
-            } catch (error) {
-                updateSyncStatus('Auto-sync failed');
-                return false;
-            }
-        }
-
-        async function initApp() {
-            if (!employeeData.name || !employeeData.code) {
-                showUserRegisterModal();
-                return;
-            }
-
-            if (!employeeData.userId) {
-                employeeData.userId = generateUserId(employeeData.name, employeeData.code);
+        // ======================= EL AUTO-INCREMENT (ONCE PER MONTH) =======================
+        function updateEarnedLeave() {
+            const todayDate = new Date();
+            const lastIncDate = new Date(employeeData.lastIncrementDate);
+            let monthsDiff = (todayDate.getFullYear() - lastIncDate.getFullYear()) * 12 + 
+                             (todayDate.getMonth() - lastIncDate.getMonth());
+            if (monthsDiff > 0) {
+                employeeData.elTotal += monthsDiff * 2.5;
+                const newIncDate = new Date(todayDate.getFullYear(), todayDate.getMonth(), 1);
+                employeeData.lastIncrementDate = newIncDate.toISOString().split('T')[0];
+                employeeData.lastUpdate = todayDate.toISOString().split('T')[0];
                 localStorage.setItem('employeeData', JSON.stringify(employeeData));
-            }
-
-            // ✅ FIX: EL auto increment
-            const currentDate = new Date();
-            const lastUpdateDate = new Date(employeeData.lastUpdate || "2025-12-01");
-            const monthsElapsed = (currentDate.getFullYear() - lastUpdateDate.getFullYear()) * 12 + 
-                                  (currentDate.getMonth() - lastUpdateDate.getMonth());
-
-            if (monthsElapsed > 0) {
-                employeeData.elTotal += (monthsElapsed * 2.5);
-                employeeData.lastUpdate = currentDate.toISOString().split('T')[0];
-                localStorage.setItem('employeeData', JSON.stringify(employeeData));
-            }
-
-            // Auto-sync ചെയ്യുക
-            try {
-                await autoSyncCurrentMonth();
-            } catch (err) {
-                console.log("Auto-sync failed on init:", err);
-            }
-            
-            loadSettings();
-            showMonth(currentMonth);
-            updateSyncStatus('Ready');
-        }
-
-        function showUserRegisterModal() {
-            document.getElementById('userRegisterModal').style.display = 'flex';
-        }
-
-        function registerUser() {
-            const name = document.getElementById('regName').value.trim();
-            const code = document.getElementById('regCode').value.trim();
-            
-            if (!name || !code) {
-                showAlert("Please enter both name and code", "Registration Error");
-                return;
-            }
-            
-            employeeData.name = name;
-            employeeData.code = code;
-            employeeData.userId = generateUserId(name, code);
-            employeeData.settingsUpdated = true;
-            
-            localStorage.setItem('employeeData', JSON.stringify(employeeData));
-            document.getElementById('userRegisterModal').style.display = 'none';
-            
-            loadSettings();
-            showMonth(currentMonth);
-            updateSyncStatus('Registered');
-        }
-
-        function generateUserId(name, code) {
-            const firstThreeLetters = name.substring(0, 3).toLowerCase().replace(/\s/g, '');
-            const cleanCode = code.replace(/\s/g, '');
-            return `${firstThreeLetters}_${cleanCode}`;
-        }
-
-        async function saveCurrentMonthToCloud() {
-            if (!db || !employeeData.userId) {
-                updateSyncStatus('Firebase not ready');
-                return;
-            }
-            
-            if (syncInProgress) {
-                return;
-            }
-            
-            syncInProgress = true;
-            const syncBtn = document.getElementById('syncBtn');
-            if (syncBtn) syncBtn.disabled = true;
-            
-            try {
-                updateSyncStatus('Saving...');
-                const monthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
-                
-                const timestamp = Date.now();
-                const packedMonthData = packMonthData(attendanceData, currentYear, currentMonth);
-                
-                const dataToSave = {
-                    userId: employeeData.userId,
-                    month: monthKey,
-                    monthData: packedMonthData,
-                    lastUpdated: timestamp
-                };
-                
-                await db.collection("attendance_records")
-                    .doc(employeeData.userId)
-                    .collection("months")
-                    .doc(monthKey)
-                    .set(dataToSave);
-                
-                lastSyncTime = timestamp;
-                localStorage.setItem('lastSyncTime', timestamp);
-                
-                updateSyncStatus('Saved to cloud');
-                setTimeout(() => updateSyncStatus('Ready'), 2000);
-                
-            } catch (error) {
-                let errorMsg = 'Save failed';
-                if (error.code) errorMsg += ' (' + error.code + ')';
-                updateSyncStatus(errorMsg);
-            } finally {
-                syncInProgress = false;
-                if (syncBtn) syncBtn.disabled = false;
+                invalidateBalanceCache();
             }
         }
 
-        async function loadFromCloud() {
-            if (!db || !employeeData.userId) {
-                showAlert("Firebase not ready", "Cloud Error");
-                return;
-            }
-            
-            try {
-                updateSyncStatus('Loading all...');
-                
-                const monthsRef = db.collection("attendance_records")
-                    .doc(employeeData.userId)
-                    .collection("months");
-                    
-                const snapshot = await monthsRef.get();
-                
-                if (snapshot.empty) {
-                    updateSyncStatus('No cloud data');
-                    showAlert("No data found in cloud", "Cloud Error");
-                    return;
-                }
-                
-                let latestTimestamp = 0;
-                let loadedCount = 0;
-                
-                snapshot.forEach(doc => {
-                    const monthData = doc.data();
-                    const packedMonthData = monthData.monthData || {};
-                    const unpackedData = unpackMonthData(packedMonthData);
-                    
-                    for (const dateStr in unpackedData) {
-                        attendanceData[dateStr] = unpackedData[dateStr];
-                    }
-                    
-                    if (monthData.lastUpdated > latestTimestamp) {
-                        latestTimestamp = monthData.lastUpdated;
-                    }
-                    
-                    loadedCount++;
-                });
-                
-                localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
-                lastSyncTime = latestTimestamp;
-                localStorage.setItem('lastSyncTime', latestTimestamp);
-                
-                showMonth(currentMonth);
-                updateSyncStatus(`Loaded ${loadedCount} months`);
-                setTimeout(() => updateSyncStatus('Ready'), 2000);
-                showAlert(`Successfully loaded ${loadedCount} months from cloud`, "Cloud Success");
-                
-            } catch (error) {
-                updateSyncStatus('Load failed');
-                showAlert("Failed to load from cloud: " + error.message, "Cloud Error");
-            }
-        }
-
-        async function saveToCloud() {
-            if (!db || !employeeData.userId) {
-                showAlert("Firebase not ready", "Cloud Error");
-                return;
-            }
-            
-            syncInProgress = true;
-            const syncBtn = document.getElementById('syncBtn');
-            if (syncBtn) syncBtn.disabled = true;
-            
-            try {
-                updateSyncStatus('Saving all...');
-                
-                const monthMap = {};
-                for (const dateStr in attendanceData) {
-                    const monthKey = dateStr.substring(0, 7);
-                    if (!monthMap[monthKey]) {
-                        monthMap[monthKey] = {};
-                    }
-                    monthMap[monthKey][dateStr] = attendanceData[dateStr];
-                }
-                
-                const timestamp = Date.now();
-                let savedCount = 0;
-                
-                for (const monthKey in monthMap) {
-                    const packedMonthData = {};
-                    for (const dateStr in monthMap[monthKey]) {
-                        packedMonthData[dateStr] = packDayData(monthMap[monthKey][dateStr]);
-                    }
-                    
-                    const dataToSave = {
-                        userId: employeeData.userId,
-                        month: monthKey,
-                        monthData: packedMonthData,
-                        lastUpdated: timestamp
-                    };
-                    
-                    await db.collection("attendance_records")
-                        .doc(employeeData.userId)
-                        .collection("months")
-                        .doc(monthKey)
-                        .set(dataToSave);
-                    
-                    savedCount++;
-                }
-                
-                lastSyncTime = timestamp;
-                localStorage.setItem('lastSyncTime', timestamp);
-                
-                updateSyncStatus(`Saved ${savedCount} months`);
-                setTimeout(() => updateSyncStatus('Ready'), 2000);
-                showAlert(`Successfully saved ${savedCount} months to cloud`, "Cloud Success");
-                
-            } catch (error) {
-                updateSyncStatus('Save failed');
-                showAlert("Failed to save to cloud: " + error.message, "Cloud Error");
-            } finally {
-                syncInProgress = false;
-                if (syncBtn) syncBtn.disabled = false;
-            }
-        }
-
-        async function autoSync() {
-            if (!db || !employeeData.userId) {
-                showAlert("Cloud sync not available", "Sync Error");
-                return;
-            }
-            
-            if (syncInProgress) return;
-            
-            syncInProgress = true;
-            updateSyncStatus('Syncing...');
-            
-            try {
-                // Current month മാത്രം sync ചെയ്യുക
-                await autoSyncCurrentMonth();
-                
-                updateSyncStatus('Synced successfully');
-                setTimeout(() => updateSyncStatus('Ready'), 2000);
-                
-            } catch (error) {
-                updateSyncStatus('Sync failed');
-                showAlert("Sync failed: " + error.message, "Sync Error");
-            } finally {
-                syncInProgress = false;
-            }
-        }
-
-        function updateSyncStatus(status) {
-            const statusElem = document.getElementById('syncStatus');
-            if (statusElem) {
-                statusElem.textContent = status || 'Offline';
-                
-                if (status === 'Ready' || status === 'Synced successfully' || status === 'Auto-synced') {
-                    statusElem.style.color = '#4CAF50';
-                } else if (status.includes('...') || status === 'Syncing...' || status === 'Auto-syncing...') {
-                    statusElem.style.color = '#FF9800';
-                } else if (status.includes('failed') || status.includes('Failed')) {
-                    statusElem.style.color = '#f44336';
-                } else {
-                    statusElem.style.color = '#ffffff';
-                }
-            }
-        }
-
+        // ======================= HOLIDAY / WEEKEND HELPERS =======================
         function getWeekendDates(year) {
             const weekends = [];
             for (let month = 0; month < 12; month++) {
                 const daysInMonth = new Date(year, month + 1, 0).getDate();
-                let secondSat = null;
-                let fourthSat = null;
-                let satCount = 0;
-                
+                let secondSat = null, fourthSat = null, satCount = 0;
                 for (let day = 1; day <= daysInMonth; day++) {
                     const date = new Date(year, month, day);
                     if (date.getDay() === 6) {
@@ -1145,13 +735,8 @@
                         if (satCount === 4) fourthSat = day;
                     }
                 }
-                
-                if (secondSat) {
-                    weekends.push(`${year}-${String(month + 1).padStart(2, '0')}-${String(secondSat).padStart(2, '0')}`);
-                }
-                if (fourthSat) {
-                    weekends.push(`${year}-${String(month + 1).padStart(2, '0')}-${String(fourthSat).padStart(2, '0')}`);
-                }
+                if (secondSat) weekends.push(`${year}-${String(month + 1).padStart(2, '0')}-${String(secondSat).padStart(2, '0')}`);
+                if (fourthSat) weekends.push(`${year}-${String(month + 1).padStart(2, '0')}-${String(fourthSat).padStart(2, '0')}`);
             }
             return weekends;
         }
@@ -1174,6 +759,88 @@
             return holidays[dateStr] || weekends.includes(dateStr);
         }
 
+        // ======================= UI & MODAL FUNCTIONS =======================
+        function showAlert(message, title = "Message") {
+            document.getElementById('alertTitle').textContent = title;
+            document.getElementById('alertMessage').textContent = message;
+            document.getElementById('alertModal').style.display = 'flex';
+        }
+
+        function closeAlertModal() {
+            document.getElementById('alertModal').style.display = 'none';
+        }
+
+        function showConfirm(action) {
+            pendingAction = action;
+            if (action === 'loadCloud') {
+                document.getElementById('confirmTitle').textContent = "Load from Cloud";
+                document.getElementById('confirmMessage').textContent = "Load all data from cloud? This will replace your local data.";
+            } else if (action === 'saveCloud') {
+                document.getElementById('confirmTitle').textContent = "Save to Cloud";
+                document.getElementById('confirmMessage').textContent = "Save all data to cloud? This will overwrite your cloud data.";
+            } else if (action === 'saveSettings') {
+                document.getElementById('confirmTitle').textContent = "Save Settings";
+                document.getElementById('confirmMessage').textContent = "Save settings changes?";
+            }
+            document.getElementById('confirmModal').style.display = 'flex';
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').style.display = 'none';
+            pendingAction = null;
+        }
+
+        document.getElementById('confirmOkBtn').onclick = function() {
+            if (pendingAction === 'loadCloud') loadFromCloud();
+            else if (pendingAction === 'saveCloud') saveToCloud();
+            else if (pendingAction === 'saveSettings') saveSettingsConfirmed();
+            closeConfirmModal();
+            pendingAction = null;
+        };
+
+        function packDayData(dayData) {
+            if (!dayData) return "";
+            return [
+                dayData.shift || "",
+                dayData.inPunch || "",
+                dayData.outPunch || "",
+                dayData.ot || "0",
+                dayData.leave || "",
+                dayData.halfDay || "No"
+            ].join("|");
+        }
+
+        function unpackDayData(packedString) {
+            if (!packedString) return null;
+            const parts = packedString.split("|");
+            return {
+                shift: parts[0] || "",
+                inPunch: parts[1] || "",
+                outPunch: parts[2] || "",
+                ot: parseFloat(parts[3]) || 0,
+                leave: parts[4] || "",
+                halfDay: parts[5] || "No"
+            };
+        }
+
+        function packMonthData(attendanceData, year, month) {
+            const packed = {};
+            const monthStr = getMonthKey(year, month);
+            for (const dateStr in attendanceData) {
+                if (dateStr.startsWith(monthStr)) packed[dateStr] = packDayData(attendanceData[dateStr]);
+            }
+            return packed;
+        }
+
+        function unpackMonthData(packedMonthData) {
+            const unpacked = {};
+            for (const dateStr in packedMonthData) {
+                const dayData = unpackDayData(packedMonthData[dateStr]);
+                if (dayData) unpacked[dateStr] = dayData;
+            }
+            return unpacked;
+        }
+
         function formatTimeFromHours(decimalHours) {
             if (!decimalHours || isNaN(decimalHours)) return '';
             const hours = Math.floor(decimalHours);
@@ -1181,45 +848,25 @@
             return `${hours}.${String(minutes).padStart(2, '0')}`;
         }
 
-        // ✅ FIX: OT enter ചെയ്യുമ്പോൾ 2 എന്ന് ടൈപ്പ് ചെയ്താൽ automatic ആയി 2:00 ആക്കുന്നു
         function parseTimeToHours(timeStr) {
             if (!timeStr) return 0;
-            
-            // Remove any spaces
             timeStr = timeStr.trim();
-            
-            // If it's just a number (like "2"), treat it as hours
-            if (/^\d+$/.test(timeStr)) {
-                return parseFloat(timeStr);
-            }
-            
-            // Replace colon with dot for decimal calculation
+            if (/^\d+$/.test(timeStr)) return parseFloat(timeStr);
             timeStr = timeStr.replace(':', '.');
             const [hours, minutes] = timeStr.split('.').map(Number);
-            
             if (isNaN(hours)) return 0;
             if (isNaN(minutes)) return hours;
-            
             return hours + (minutes / 60);
         }
 
+        // ======================= CALENDAR RENDERING =======================
         function showMonth(month) {
-            let newYear = currentYear;
-            let newMonth = month;
-            
-            if (month < 0) {
-                newMonth = 11;
-                newYear = currentYear - 1;
-            } else if (month > 11) {
-                newMonth = 0;
-                newYear = currentYear + 1;
-            } else {
-                newMonth = month;
-            }
-            
+            let newYear = currentYear, newMonth = month;
+            if (month < 0) { newMonth = 11; newYear = currentYear - 1; }
+            else if (month > 11) { newMonth = 0; newYear = currentYear + 1; }
+            else { newMonth = month; }
             if (newYear < 2025) newYear = 2025;
             if (newYear > 2026) newYear = 2026;
-            
             currentYear = newYear;
             currentMonth = newMonth;
             
@@ -1229,7 +876,7 @@
             const monthName = new Date(currentYear, currentMonth).toLocaleString('default', { month: 'long' });
 
             calendarHTML += `
-                <div class="month-container" id="month-${currentMonth}">
+                <div class="month-container">
                     <button class="month-nav-btn" onclick="showMonth(currentMonth - 1)">&larr;</button>
                     <span>${monthName} ${currentYear}</span>
                     <button class="month-nav-btn" onclick="showMonth(currentMonth + 1)">&rarr;</button>
@@ -1256,21 +903,16 @@
                         if (today.getFullYear() === currentYear && today.getMonth() === currentMonth && today.getDate() === date) {
                             classes += ' today';
                         }
-                        if (attendanceData[dateStr]) {
-                            if (attendanceData[dateStr].leave) {
-                                const leaveType = attendanceData[dateStr].leave.toLowerCase();
-                                if (attendanceData[dateStr].halfDay === 'Yes') {
-                                    classes += ` half-day half-day-${leaveType}`;
-                                } else {
-                                    classes += ` leave leave-${leaveType}`;
-                                }
-                            } else if (attendanceData[dateStr].inPunch && attendanceData[dateStr].outPunch) {
-                                classes += ' present-full';
-                            } else if (attendanceData[dateStr].inPunch) {
-                                classes += ' present-in';
-                            }
+                        const dayData = attendanceData[dateStr];
+                        if (dayData) {
+                            if (dayData.leave) {
+                                const leaveType = dayData.leave.toLowerCase();
+                                if (dayData.halfDay === 'Yes') classes += ` half-day half-day-${leaveType}`;
+                                else classes += ` leave leave-${leaveType}`;
+                            } else if (dayData.inPunch && dayData.outPunch) classes += ' present-full';
+                            else if (dayData.inPunch) classes += ' present-in';
                         }
-                        const otDisplay = attendanceData[dateStr]?.ot && attendanceData[dateStr].ot != 0 ? `<span class="ot-display">${formatTimeFromHours(attendanceData[dateStr].ot)}h</span>` : '';
+                        const otDisplay = dayData?.ot && dayData.ot != 0 ? `<span class="ot-display">${formatTimeFromHours(dayData.ot)}h</span>` : '';
                         calendarHTML += `<div class="${classes}" onclick="showAttendancePopup('${dateStr}')">${date}${otDisplay}</div>`;
                         date++;
                     }
@@ -1282,56 +924,40 @@
             window.scrollTo({ top: document.getElementById('calendar-container').offsetTop - 130, behavior: 'smooth' });
         }
 
+        // Optimized summary update (single loop)
         function updateSummaryBox() {
-            let totalOT = 0, quarterlyOT = 0, nextMonthTotalOT = 0;
-            let presentDays = 0;
-            
+            let totalOT = 0, quarterlyOT = 0, nextMonthTotalOT = 0, presentDays = 0;
             const prevMonth = (currentMonth === 0 ? 11 : currentMonth - 1);
             const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
-            
             const otStartDate = new Date(prevYear, prevMonth, 20);
             const otEndDate = new Date(currentYear, currentMonth, 20);
-            
             const nextMonthStart = new Date(currentYear, currentMonth, 20);
             const nextMonthEnd = new Date(currentYear, currentMonth + 1, 20);
-            
             const quarter = Math.floor(currentMonth / 3);
             const quarterStartMonth = quarter * 3;
             const quarterEndMonth = quarterStartMonth + 2;
             const quarterStart = new Date(currentYear, quarterStartMonth - 1, 20);
             const quarterEnd = new Date(currentYear, quarterEndMonth, 20);
-
             let hasNextMonthEntries = false;
 
             for (let dateStr in attendanceData) {
                 const date = new Date(dateStr);
-                
-                if (date >= otStartDate && date < otEndDate) {
-                    if (attendanceData[dateStr].ot) totalOT += parseFloat(attendanceData[dateStr].ot) || 0;
-                }
-                
-                if (date >= quarterStart && date < quarterEnd) {
-                    if (attendanceData[dateStr].ot) quarterlyOT += parseFloat(attendanceData[dateStr].ot) || 0;
-                }
-                
+                if (isNaN(date.getTime())) continue;
+                const otVal = parseFloat(attendanceData[dateStr].ot) || 0;
+                if (date >= otStartDate && date < otEndDate) totalOT += otVal;
+                if (date >= quarterStart && date < quarterEnd) quarterlyOT += otVal;
                 if (date >= nextMonthStart && date < nextMonthEnd) {
-                    if (attendanceData[dateStr].ot) {
-                        nextMonthTotalOT += parseFloat(attendanceData[dateStr].ot) || 0;
-                        hasNextMonthEntries = true;
-                    }
+                    nextMonthTotalOT += otVal;
+                    hasNextMonthEntries = true;
                 }
-                
                 if (date.getFullYear() === currentYear && date.getMonth() === currentMonth) {
-                    if (attendanceData[dateStr].inPunch && attendanceData[dateStr].outPunch && !isHoliday(dateStr)) {
-                        presentDays += 1;
-                    }
+                    const d = attendanceData[dateStr];
+                    if (d.inPunch && d.outPunch && !isHoliday(dateStr, date.getDay(), date)) presentDays++;
                 }
             }
-            
-            // ✅ FIX: Summary box - ആ മാസത്തെ ലീവ് മാത്രം കാണിക്കുക
-            const usedThisMonth = calculateUsedLeavesForCurrentMonth();
+
+            const usedThisMonth = calculateUsedLeavesForMonth(currentYear, currentMonth);
             const balThisMonth = getLeaveBalanceForCurrentMonth();
-            
             const otRemaining = 75 - quarterlyOT;
             const otRemainingDisplay = otRemaining >= 0 ? `(-${otRemaining.toFixed(2)}hr)` : `(+${Math.abs(otRemaining).toFixed(2)}hr)`;
             
@@ -1339,78 +965,32 @@
                 <p>Total OT: ${formatTimeFromHours(totalOT)} hrs</p>
                 <p>Quarterly OT: ${formatTimeFromHours(quarterlyOT)} hrs <span class="ot-remaining">${otRemainingDisplay}</span></p>
             `;
-            
-            if (hasNextMonthEntries) {
-                summaryHTML += `<p>Next Month Total OT: ${formatTimeFromHours(nextMonthTotalOT)} hrs</p>`;
-            }
-            
-            // ✅ FIX: ആ മാസത്തെ ലീവ് ബാലൻസ് മാത്രം കാണിക്കുക (Used (Balance))
-            const clUsed = isNaN(usedThisMonth.cl) ? 0 : usedThisMonth.cl;
-            const elUsed = isNaN(usedThisMonth.el) ? 0 : usedThisMonth.el;
-            const hplUsed = isNaN(usedThisMonth.hpl) ? 0 : usedThisMonth.hpl;
-            const specialUsed = isNaN(usedThisMonth.special) ? 0 : usedThisMonth.special;
-            
-            const clBalance = isNaN(balThisMonth.cl) ? 0 : balThisMonth.cl;
-            const elBalance = isNaN(balThisMonth.el) ? 0 : balThisMonth.el;
-            const hplBalance = isNaN(balThisMonth.hpl) ? 0 : balThisMonth.hpl;
-            const specialBalance = isNaN(balThisMonth.special) ? 0 : balThisMonth.special;
-            
+            if (hasNextMonthEntries) summaryHTML += `<p>Next Month Total OT: ${formatTimeFromHours(nextMonthTotalOT)} hrs</p>`;
             summaryHTML += `
-                <p>CL: ${clUsed.toFixed(1)} (${clBalance.toFixed(1)})</p>
-                <p>EL: ${elUsed.toFixed(1)} (${elBalance.toFixed(1)})</p>
-                <p>HPL: ${hplUsed.toFixed(1)} (${hplBalance.toFixed(1)})</p>
-                <p>Special: ${specialUsed} (${specialBalance})</p>
+                <p>CL: ${usedThisMonth.cl.toFixed(1)} (${balThisMonth.cl.toFixed(1)})</p>
+                <p>EL: ${usedThisMonth.el.toFixed(1)} (${balThisMonth.el.toFixed(1)})</p>
+                <p>HPL: ${usedThisMonth.hpl.toFixed(1)} (${balThisMonth.hpl.toFixed(1)})</p>
+                <p>Special: ${usedThisMonth.special} (${balThisMonth.special})</p>
                 <p>Total Present Days: ${presentDays}</p>
             `;
-            
             document.getElementById('summary-box').innerHTML = summaryHTML;
         }
 
-        function applyHolidayLeaveRule() {
-            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-            for (let d = 1; d <= daysInMonth; d++) {
-                const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-                const prevDate = new Date(currentYear, currentMonth, d - 1);
-                const nextDate = new Date(currentYear, currentMonth, d + 1);
-                const prevDateStr = `${prevDate.getFullYear()}-${String(prevDate.getMonth() + 1).padStart(2, '0')}-${String(prevDate.getDate()).padStart(2, '0')}`;
-                const nextDateStr = `${nextDate.getFullYear()}-${String(nextDate.getMonth() + 1).padStart(2, '0')}-${String(nextDate.getDate()).padStart(2, '0')}`;
-                
-                if (isHoliday(dateStr) && attendanceData[prevDateStr] && attendanceData[nextDateStr]) {
-                    const prevData = attendanceData[prevDateStr];
-                    const nextData = attendanceData[nextDateStr];
-                    if (prevData.leave === nextData.leave && (prevData.leave === 'EL' || prevData.leave === 'HPL') && prevData.halfDay !== 'Yes' && nextData.halfDay !== 'Yes') {
-                        attendanceData[dateStr] = { ...attendanceData[dateStr], leave: prevData.leave, halfDay: 'No' };
-                    }
-                }
-            }
-            localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
-        }
-
+        // ======================= ATTENDANCE POPUP =======================
         function showAttendancePopup(dateStr) {
             const data = attendanceData[dateStr] || {};
             const defaultTimes = shiftTimes[data.shift] || { start: '', end: '' };
-            
-            // ✅ FIX: ആ മാസത്തെ ബാലൻസ് മാത്രം ഉപയോഗിക്കുക
             const bal = getLeaveBalanceForCurrentMonth();
-            
-            // ✅ FIX: Existing leave എഡിറ്റ് ചെയ്യുമ്പോൾ restore ചെയ്യുക
-            let adjustedBal = {...bal};
+            // Adjust balance to show correct available including current leave if editing
+            let adjustedBal = { ...bal };
             if (data.leave) {
                 const lt = data.leave.toUpperCase();
-                let restore = data.halfDay === 'Yes' ? 0.5 : 1;
-                if (lt === 'HPL') restore *= 2;
-
+                const restore = getLeaveDeduction(lt, data.halfDay);
                 if (lt === 'CL') adjustedBal.cl += restore;
                 else if (lt === 'EL') adjustedBal.el += restore;
                 else if (lt === 'HPL') adjustedBal.hpl += restore;
                 else if (lt === 'SPECIAL') adjustedBal.special += restore;
             }
-            
-            // Ensure numbers are valid
-            const clBalance = isNaN(adjustedBal.cl) ? 0 : adjustedBal.cl;
-            const elBalance = isNaN(adjustedBal.el) ? 0 : adjustedBal.el;
-            const hplBalance = isNaN(adjustedBal.hpl) ? 0 : adjustedBal.hpl;
-            const specialBalance = isNaN(adjustedBal.special) ? 0 : adjustedBal.special;
             
             let popupHTML = `
                 <div class="modal-content">
@@ -1441,10 +1021,10 @@
                         <label for="leave">Leave:</label>
                         <select id="leave" onchange="updateHalfDayOptions()">
                             <option value="" ${!data.leave ? 'selected' : ''}>None</option>
-                            <option value="CL" ${data.leave === 'CL' ? 'selected' : ''} ${clBalance <= 0 ? 'disabled' : ''}>CL (${clBalance.toFixed(1)})</option>
-                            <option value="EL" ${data.leave === 'EL' ? 'selected' : ''} ${elBalance <= 0 ? 'disabled' : ''}>EL (${elBalance.toFixed(1)})</option>
-                            <option value="HPL" ${data.leave === 'HPL' ? 'selected' : ''} ${hplBalance <= 0 ? 'disabled' : ''}>HPL (${hplBalance.toFixed(1)})</option>
-                            <option value="Special" ${data.leave === 'Special' ? 'selected' : ''} ${specialBalance <= 0 ? 'disabled' : ''}>Special (${specialBalance})</option>
+                            <option value="CL" ${data.leave === 'CL' ? 'selected' : ''} ${adjustedBal.cl <= 0 ? 'disabled' : ''}>CL (${adjustedBal.cl.toFixed(1)})</option>
+                            <option value="EL" ${data.leave === 'EL' ? 'selected' : ''} ${adjustedBal.el <= 0 ? 'disabled' : ''}>EL (${adjustedBal.el.toFixed(1)})</option>
+                            <option value="HPL" ${data.leave === 'HPL' ? 'selected' : ''} ${adjustedBal.hpl <= 0 ? 'disabled' : ''}>HPL (${adjustedBal.hpl.toFixed(1)})</option>
+                            <option value="Special" ${data.leave === 'Special' ? 'selected' : ''} ${adjustedBal.special <= 0 ? 'disabled' : ''}>Special (${adjustedBal.special})</option>
                         </select>
                     </div>
                     <div class="settings-row">
@@ -1455,9 +1035,7 @@
                         </select>
                     </div>
             `;
-            if (!employeeData.settingsUpdated) {
-                popupHTML += `<p class="leave-msg">Please update leave balance in settings tab</p>`;
-            }
+            if (!employeeData.settingsUpdated) popupHTML += `<p class="leave-msg">Please update leave balance in settings tab</p>`;
             popupHTML += `
                     <div>
                         <button class="btn save-btn" onclick="saveAttendance('${dateStr}')">Save</button>
@@ -1480,9 +1058,7 @@
             if (leave === 'EL' || leave === 'Special') {
                 halfDaySelect.value = 'No';
                 halfDaySelect.disabled = true;
-            } else {
-                halfDaySelect.disabled = false;
-            }
+            } else halfDaySelect.disabled = false;
         }
 
         function setDefaultTimes() {
@@ -1490,11 +1066,8 @@
             const inPunch = document.getElementById('inPunch');
             const outPunch = document.getElementById('outPunch');
             if (shift && shiftTimes[shift]) {
-                inPunch.value = inPunch.value || shiftTimes[shift].start;
-                outPunch.value = outPunch.value || shiftTimes[shift].end;
-            } else {
-                if (!inPunch.value) inPunch.value = '';
-                if (!outPunch.value) outPunch.value = '';
+                if (!inPunch.value) inPunch.value = shiftTimes[shift].start;
+                if (!outPunch.value) outPunch.value = shiftTimes[shift].end;
             }
         }
 
@@ -1505,96 +1078,203 @@
             const leave = document.getElementById('leave').value;
             const halfDay = document.getElementById('halfDay').value;
             const shift = document.getElementById('shift').value;
-
-            // ✅ FIX: OT input process - "2" എന്ന് ടൈപ്പ് ചെയ്താൽ "2:00" ആയി convert
             let ot = parseTimeToHours(otInput);
             
-            // ✅ FIX: Balance check using current month balance only
             const bal = getLeaveBalanceForCurrentMonth();
-            
             if (leave && leave !== '') {
-                let deduction = halfDay === 'Yes' ? 0.5 : 1;
-                if (leave === 'HPL') deduction *= 2;
-                
-                // Check if enough balance
+                const deductionNeeded = getLeaveDeduction(leave, halfDay);
                 const checkBalance = (type, required) => {
-                    const balance = type === 'CL' ? bal.cl : 
-                                   type === 'EL' ? bal.el : 
-                                   type === 'HPL' ? bal.hpl : 
-                                   bal.special;
+                    const balance = type === 'CL' ? bal.cl : type === 'EL' ? bal.el : type === 'HPL' ? bal.hpl : bal.special;
                     return (balance || 0) >= required;
                 };
-                
-                // ✅ FIX: Existing leave restore ചെയ്യുക
                 const existingData = attendanceData[dateStr] || {};
                 if (existingData.leave) {
                     const existingLeave = existingData.leave.toUpperCase();
-                    let existingDeduction = existingData.halfDay === 'Yes' ? 0.5 : 1;
-                    if (existingLeave === 'HPL') existingDeduction *= 2;
-                    
-                    // Existing leave അഡ്ജസ്റ്റ് ചെയ്യുക
+                    const existingDeduction = getLeaveDeduction(existingLeave, existingData.halfDay);
                     if (existingLeave === leave) {
-                        // Same leave type - only check net difference
-                        if (deduction > existingDeduction) {
-                            const needed = deduction - existingDeduction;
-                            if (!checkBalance(leave, needed)) {
-                                showAlert(`Insufficient ${leave} balance for this change!`, "Leave Error");
-                                return;
-                            }
-                        }
-                    } else {
-                        // Different leave type - check new leave
-                        if (!checkBalance(leave, deduction)) {
-                            showAlert(`Insufficient ${leave} balance!`, "Leave Error");
+                        if (deductionNeeded > existingDeduction && !checkBalance(leave, deductionNeeded - existingDeduction)) {
+                            showAlert(`Insufficient ${leave} balance for this change!`, "Leave Error");
                             return;
                         }
+                    } else if (!checkBalance(leave, deductionNeeded)) {
+                        showAlert(`Insufficient ${leave} balance!`, "Leave Error");
+                        return;
                     }
-                } else if (!checkBalance(leave, deduction)) {
+                } else if (!checkBalance(leave, deductionNeeded)) {
                     showAlert(`Insufficient ${leave} balance!`, "Leave Error");
                     return;
                 }
             }
 
-            // Save attendance data
             attendanceData[dateStr] = { inPunch, outPunch, ot, leave, halfDay, shift };
-            
-            // Save to local storage
             localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
-            
+            invalidateBalanceCache();
             closeAttendancePopup();
-            applyHolidayLeaveRule();
             showMonth(currentMonth);
-            
             updateSyncStatus('Changes pending');
-            
-            // Auto-sync ചെയ്യുക
-            setTimeout(() => {
-                autoSyncCurrentMonth();
-            }, 1000);
-            
-            // ✅ FIX: Summary box പുതുക്കുക
+            setTimeout(() => autoSyncCurrentMonth(), 1000);
             updateSummaryBox();
         }
 
-        // ✅ FIX: ടാബുകൾ മാറുമ്പോൾ ഡാറ്റ പുതുക്കുന്നു
-        function showTab(tab) {
-            document.getElementById('calendar-tab').style.display = tab === 'calendar' ? 'block' : 'none';
-            document.getElementById('settings-tab').style.display = tab === 'settings' ? 'block' : 'none';
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelector(`.tab-btn[onclick="showTab('${tab}')"]`).classList.add('active');
-            
-            // കലണ്ടർ ടാബിലേക്ക് വരുമ്പോൾ വിവരങ്ങൾ പുതുക്കുന്നു
-            if (tab === 'calendar') {
-                updateSummaryBox();
+        // ======================= CLOUD SYNC FUNCTIONS =======================
+        async function autoSyncCurrentMonth() {
+            if (!db || !employeeData.userId) return false;
+            const monthKey = getMonthKey(currentYear, currentMonth);
+            const lastAutoSync = localStorage.getItem(`lastAutoSync_${monthKey}`);
+            const now = Date.now();
+            const oneHour = 60 * 60 * 1000;
+            if (lastAutoSync && (now - parseInt(lastAutoSync) < oneHour)) return false;
+            try {
+                updateSyncStatus('Auto-syncing...');
+                const docRef = db.collection("attendance_records").doc(employeeData.userId).collection("months").doc(monthKey);
+                const doc = await docRef.get();
+                let cloudDataLoaded = false;
+                if (doc.exists) {
+                    const remoteData = doc.data();
+                    const remoteTimestamp = remoteData.lastUpdated || 0;
+                    let localTimestamp = 0;
+                    for (let dateStr in attendanceData) {
+                        if (dateStr.startsWith(monthKey)) localTimestamp = Math.max(localTimestamp, remoteTimestamp);
+                    }
+                    if (remoteTimestamp > localTimestamp) {
+                        const packedMonthData = remoteData.monthData || {};
+                        const unpackedData = unpackMonthData(packedMonthData);
+                        for (let dateStr in unpackedData) attendanceData[dateStr] = unpackedData[dateStr];
+                        localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
+                        invalidateBalanceCache();
+                        cloudDataLoaded = true;
+                    }
+                }
+                await saveCurrentMonthToCloud();
+                localStorage.setItem(`lastAutoSync_${monthKey}`, now.toString());
+                updateSyncStatus('Auto-synced');
+                if (cloudDataLoaded) showMonth(currentMonth);
+                return true;
+            } catch (error) {
+                updateSyncStatus('Auto-sync failed');
+                return false;
             }
         }
 
-        function saveSettings() {
-            showConfirm('saveSettings');
+        async function saveCurrentMonthToCloud() {
+            if (!db || !employeeData.userId) return;
+            if (syncInProgress) return;
+            syncInProgress = true;
+            const syncBtn = document.getElementById('syncBtn');
+            if (syncBtn) syncBtn.disabled = true;
+            try {
+                updateSyncStatus('Saving...');
+                const monthKey = getMonthKey(currentYear, currentMonth);
+                const packedMonthData = packMonthData(attendanceData, currentYear, currentMonth);
+                await db.collection("attendance_records").doc(employeeData.userId).collection("months").doc(monthKey).set({
+                    userId: employeeData.userId,
+                    month: monthKey,
+                    monthData: packedMonthData,
+                    lastUpdated: Date.now()
+                });
+                updateSyncStatus('Saved to cloud');
+                setTimeout(() => updateSyncStatus('Ready'), 2000);
+            } catch (error) {
+                updateSyncStatus('Save failed');
+            } finally {
+                syncInProgress = false;
+                if (syncBtn) syncBtn.disabled = false;
+            }
         }
 
+        async function loadFromCloud() {
+            if (!db || !employeeData.userId) { showAlert("Firebase not ready", "Cloud Error"); return; }
+            try {
+                updateSyncStatus('Loading all...');
+                const snapshot = await db.collection("attendance_records").doc(employeeData.userId).collection("months").get();
+                if (snapshot.empty) { updateSyncStatus('No cloud data'); showAlert("No data found in cloud", "Cloud Error"); return; }
+                let loadedCount = 0;
+                snapshot.forEach(doc => {
+                    const monthData = doc.data();
+                    const unpackedData = unpackMonthData(monthData.monthData || {});
+                    for (let dateStr in unpackedData) attendanceData[dateStr] = unpackedData[dateStr];
+                    loadedCount++;
+                });
+                localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
+                invalidateBalanceCache();
+                showMonth(currentMonth);
+                updateSyncStatus(`Loaded ${loadedCount} months`);
+                setTimeout(() => updateSyncStatus('Ready'), 2000);
+                showAlert(`Successfully loaded ${loadedCount} months from cloud`, "Cloud Success");
+            } catch (error) {
+                updateSyncStatus('Load failed');
+                showAlert("Failed to load from cloud: " + error.message, "Cloud Error");
+            }
+        }
+
+        async function saveToCloud() {
+            if (!db || !employeeData.userId) { showAlert("Firebase not ready", "Cloud Error"); return; }
+            syncInProgress = true;
+            const syncBtn = document.getElementById('syncBtn');
+            if (syncBtn) syncBtn.disabled = true;
+            try {
+                updateSyncStatus('Saving all...');
+                const monthMap = {};
+                for (let dateStr in attendanceData) {
+                    const monthKey = dateStr.substring(0, 7);
+                    if (!monthMap[monthKey]) monthMap[monthKey] = {};
+                    monthMap[monthKey][dateStr] = attendanceData[dateStr];
+                }
+                let savedCount = 0;
+                for (let monthKey in monthMap) {
+                    const packedMonthData = {};
+                    for (let dateStr in monthMap[monthKey]) packedMonthData[dateStr] = packDayData(monthMap[monthKey][dateStr]);
+                    await db.collection("attendance_records").doc(employeeData.userId).collection("months").doc(monthKey).set({
+                        userId: employeeData.userId,
+                        month: monthKey,
+                        monthData: packedMonthData,
+                        lastUpdated: Date.now()
+                    });
+                    savedCount++;
+                }
+                updateSyncStatus(`Saved ${savedCount} months`);
+                setTimeout(() => updateSyncStatus('Ready'), 2000);
+                showAlert(`Successfully saved ${savedCount} months to cloud`, "Cloud Success");
+            } catch (error) {
+                updateSyncStatus('Save failed');
+                showAlert("Failed to save to cloud: " + error.message, "Cloud Error");
+            } finally {
+                syncInProgress = false;
+                if (syncBtn) syncBtn.disabled = false;
+            }
+        }
+
+        async function autoSync() {
+            if (!db || !employeeData.userId) { showAlert("Cloud sync not available", "Sync Error"); return; }
+            if (syncInProgress) return;
+            syncInProgress = true;
+            updateSyncStatus('Syncing...');
+            try {
+                await autoSyncCurrentMonth();
+                updateSyncStatus('Synced successfully');
+                setTimeout(() => updateSyncStatus('Ready'), 2000);
+            } catch (error) {
+                updateSyncStatus('Sync failed');
+                showAlert("Sync failed: " + error.message, "Sync Error");
+            } finally {
+                syncInProgress = false;
+            }
+        }
+
+        function updateSyncStatus(status) {
+            const statusElem = document.getElementById('syncStatus');
+            if (statusElem) {
+                statusElem.textContent = status || 'Offline';
+                if (status === 'Ready' || status === 'Synced successfully' || status === 'Auto-synced') statusElem.style.color = '#4CAF50';
+                else if (status.includes('...') || status === 'Syncing...' || status === 'Auto-syncing...') statusElem.style.color = '#FF9800';
+                else if (status.includes('failed') || status.includes('Failed')) statusElem.style.color = '#f44336';
+                else statusElem.style.color = '#ffffff';
+            }
+        }
+
+        // ======================= SETTINGS & INIT =======================
+        function saveSettings() { showConfirm('saveSettings'); }
         function saveSettingsConfirmed() {
-            // ✅ FIX: Settings Save - TOTAL only
             employeeData.name = document.getElementById('empName').value;
             employeeData.code = document.getElementById('empCode').value;
             employeeData.clTotal = parseFloat(document.getElementById('clBalance').value) || 0;
@@ -1602,18 +1282,12 @@
             employeeData.hplTotal = parseFloat(document.getElementById('hplBalance').value) || 0;
             employeeData.specialTotal = parseInt(document.getElementById('specialLeave').value) || 0;
             employeeData.settingsUpdated = true;
-            
-            if (!employeeData.userId) {
-                employeeData.userId = generateUserId(employeeData.name, employeeData.code);
-            }
-            
+            if (!employeeData.userId) employeeData.userId = generateUserId(employeeData.name, employeeData.code);
             localStorage.setItem('employeeData', JSON.stringify(employeeData));
+            invalidateBalanceCache();
             showAlert('Settings saved successfully!', "Success");
             loadSettings();
-            
-            // ✅ FIX: സെറ്റിംഗ്സ് സേവ് ചെയ്യുമ്പോൾ കലണ്ടർ പുതുക്കുന്നു
             updateSummaryBox();
-            
             updateSyncStatus('Changes pending');
         }
 
@@ -1626,68 +1300,97 @@
             document.getElementById('specialLeave').value = employeeData.specialTotal || 0;
         }
 
+        function generateUserId(name, code) {
+            const firstThreeLetters = name.substring(0, 3).toLowerCase().replace(/\s/g, '');
+            const cleanCode = code.replace(/\s/g, '');
+            return `${firstThreeLetters}_${cleanCode}`;
+        }
+
+        function showUserRegisterModal() {
+            document.getElementById('userRegisterModal').style.display = 'flex';
+        }
+
+        function registerUser() {
+            const name = document.getElementById('regName').value.trim();
+            const code = document.getElementById('regCode').value.trim();
+            if (!name || !code) { showAlert("Please enter both name and code", "Registration Error"); return; }
+            employeeData.name = name;
+            employeeData.code = code;
+            employeeData.userId = generateUserId(name, code);
+            employeeData.settingsUpdated = true;
+            localStorage.setItem('employeeData', JSON.stringify(employeeData));
+            document.getElementById('userRegisterModal').style.display = 'none';
+            loadSettings();
+            showMonth(currentMonth);
+            updateSyncStatus('Registered');
+        }
+
+        function showTab(tab) {
+            document.getElementById('calendar-tab').style.display = tab === 'calendar' ? 'block' : 'none';
+            document.getElementById('settings-tab').style.display = tab === 'settings' ? 'block' : 'none';
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.tab-btn[onclick="showTab('${tab}')"]`).classList.add('active');
+            if (tab === 'calendar') updateSummaryBox();
+        }
+
         function generateMonthlyPDF() {
             try {
                 const monthName = new Date(currentYear, currentMonth).toLocaleString('default', { month: 'long' });
                 let tableData = [];
                 let totalLeave = 0, totalOT = 0, totalPresent = 0;
                 const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-
                 for (let d = 1; d <= daysInMonth; d++) {
                     const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
                     const data = attendanceData[dateStr] || {};
                     const dateObj = new Date(currentYear, currentMonth, d);
                     const isHol = isHoliday(dateStr, dateObj.getDay(), dateObj);
                     const leaveStr = data.leave ? `${data.leave}${data.halfDay === 'Yes' ? ' (Half)' : ''}` : (isHol ? 'Holiday' : '');
-                    const leaveType = data.leave ? data.leave.toLowerCase() : '';
-
-                    if (data.leave) {
-                        const deduction = data.halfDay === 'Yes' ? 0.5 : 1;
-                        totalLeave += deduction;
-                    } else if (data.inPunch && data.outPunch && !isHol) {
-                        totalPresent += 1;
-                    }
+                    if (data.leave) totalLeave += getLeaveDeduction(data.leave, data.halfDay);
+                    else if (data.inPunch && data.outPunch && !isHol) totalPresent += 1;
                     if (data.ot) totalOT += parseFloat(data.ot) || 0;
-
                     tableData.push({
-                        date: dateStr,
-                        shift: data.shift || '',
-                        inTime: data.inPunch || '',
-                        outTime: data.outPunch || '',
-                        leave: leaveStr,
+                        date: dateStr, shift: data.shift || '', inTime: data.inPunch || '',
+                        outTime: data.outPunch || '', leave: leaveStr,
                         ot: data.ot ? `${formatTimeFromHours(data.ot)} hrs` : '0',
-                        isHoliday: isHol,
-                        leaveType: leaveType
+                        isHoliday: isHol, leaveType: (data.leave || '').toLowerCase()
                     });
                 }
-
                 const pdfData = {
-                    name: employeeData.name || 'Unknown',
-                    code: employeeData.code || 'Unknown',
-                    month: `${monthName} ${currentYear}`,
-                    table: tableData,
-                    totalLeave: totalLeave.toFixed(1),
-                    totalOT: formatTimeFromHours(totalOT),
+                    name: employeeData.name || 'Unknown', code: employeeData.code || 'Unknown',
+                    month: `${monthName} ${currentYear}`, table: tableData,
+                    totalLeave: totalLeave.toFixed(1), totalOT: formatTimeFromHours(totalOT),
                     totalPresent: totalPresent
                 };
-
                 const encodedData = encodeURIComponent(JSON.stringify(pdfData));
-                const redirectUrl = `openchrome://vishnuputhur.github.io/cslv2/atnpdf.html?data=${encodedData}`;
-                
-                window.location.href = redirectUrl;
-            } catch (error) {
-                showAlert('Failed to generate PDF: ' + error.message, "PDF Error");
+                window.location.href = `openchrome://vishnuputhur.github.io/cslv2/atnpdf.html?data=${encodedData}`;
+            } catch (error) { showAlert('Failed to generate PDF: ' + error.message, "PDF Error"); }
+        }
+
+        // ======================= APP INITIALIZATION =======================
+        function initApp() {
+            if (!employeeData.name || !employeeData.code) {
+                showUserRegisterModal();
+                return;
             }
+            if (!employeeData.userId) {
+                employeeData.userId = generateUserId(employeeData.name, employeeData.code);
+                localStorage.setItem('employeeData', JSON.stringify(employeeData));
+            }
+            updateEarnedLeave();
+            loadSettings();
+            showMonth(currentMonth);
+            updateSyncStatus('Ready');
+            setTimeout(() => {
+                autoSyncCurrentMonth().catch(e => console.log("Auto-sync deferred failed", e));
+            }, 500);
         }
 
         document.addEventListener('click', function (e) {
-            if (e.target.classList.contains('custom-modal')) {
-                e.target.style.display = 'none';
-            }
-            if (e.target.classList.contains('custom-message-modal')) {
-                e.target.style.display = 'none';
-            }
+            if (e.target.classList.contains('custom-modal')) e.target.style.display = 'none';
+            if (e.target.classList.contains('custom-message-modal')) e.target.style.display = 'none';
         });
+
+        window.addEventListener('DOMContentLoaded', initApp);
     </script>
 
 <script>
