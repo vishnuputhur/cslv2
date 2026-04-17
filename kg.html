@@ -153,6 +153,7 @@
             <option value="rectangle">Square / Rectangle</option>
             <option value="circle">Round / Circle</option>
             <option value="triangle">Triangle</option>
+            <option value="pipe">Pipe (Hollow Cylinder)</option>
         </select>
 
         <div id="inputs"></div>
@@ -202,6 +203,15 @@
                     <label class="input-label">Thickness (mm) <small>(Input in mm)</small></label>
                     <input type="number" id="thickness">
                 `;
+            } else if (shape === 'pipe') {
+                inputsDiv.innerHTML = `
+                    <label class="input-label">Outer Diameter (mm) <small>(Input in mm)</small></label>
+                    <input type="number" id="outerDiameter">
+                    <label class="input-label">Wall Thickness (mm) <small>(Input in mm)</small></label>
+                    <input type="number" id="wallThickness">
+                    <label class="input-label">Length (mm) <small>(Input in mm)</small></label>
+                    <input type="number" id="lengthPipe">
+                `;
             }
         });
 
@@ -232,6 +242,25 @@
                 const t = parseFloat(document.getElementById('thickness').value) / 10;
                 if (!b || !h || !t) return;
                 volume_cm3 = 0.5 * b * h * t;
+            } else if (shape === 'pipe') {
+                // Pipe (hollow cylinder) volume calculation
+                const OD_mm = parseFloat(document.getElementById('outerDiameter').value);
+                const thick_mm = parseFloat(document.getElementById('wallThickness').value);
+                const length_mm = parseFloat(document.getElementById('lengthPipe').value);
+                
+                if (!OD_mm || !thick_mm || !length_mm) return;
+                
+                // Convert mm to cm
+                const OD_cm = OD_mm / 10;
+                const thick_cm = thick_mm / 10;
+                const length_cm = length_mm / 10;
+                
+                // Inner diameter in cm
+                const ID_cm = OD_cm - 2 * thick_cm;
+                
+                // Cross-sectional area of hollow circle: π/4 * (OD² - ID²)
+                const area_cm2 = (Math.PI / 4) * ((OD_cm ** 2) - (ID_cm ** 2));
+                volume_cm3 = area_cm2 * length_cm;
             }
 
             const weight = volume_cm3 * materialDensity / 1000;
