@@ -27,11 +27,23 @@
             min-height: 100vh;
         }
 
+        /* Fixed top image */
         .top-img {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
             max-height: 200px;
             object-fit: cover;
             cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        /* Add spacer to push content below fixed image */
+        .fixed-spacer {
+            height: 200px; /* same as max-height of image */
+            width: 100%;
         }
 
         .sub-title {
@@ -105,20 +117,23 @@
             min-height: 40px;
         }
 
+        /* Footer - height reduced by 50% (original padding 20px → 10px, font-size slightly smaller) */
         .footer {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: normal;
-            padding: 20px;
+            padding: 10px;  /* reduced from 20px */
             background-color: #0F2A45;
             width: 100%;
             position: fixed;
             bottom: 0;
             left: 0;
             z-index: 100;
+            line-height: 1.3;
         }
 
+        /* Bottom padding reduced because footer is smaller */
         .bottom-padding {
-            height: 80px;
+            height: 50px;  /* adjusted to match smaller footer */
         }
 
         small {
@@ -129,9 +144,13 @@
 </head>
 <body>
 
+    <!-- Fixed image with link to index.html -->
     <a href="index.html">
         <img src="https://i.ibb.co/BYPxNBB/Screenshot-20250529-141452-CSL-Calculations.jpg" alt="Top Image" class="top-img" />
     </a>
+
+    <!-- Spacer to prevent content from hiding under fixed image -->
+    <div class="fixed-spacer"></div>
 
     <div class="sub-title">Weight Calculator</div>
 
@@ -168,7 +187,8 @@
 
     <div class="bottom-padding"></div>
 
-    <div class="footer">Powered by VT@Soft © 2025 | Version 1.0</div>
+    <!-- Footer with updated version and year, reduced height -->
+    <div class="footer">Powered by VT@Soft © 2026 | Version 2.0</div>
 
     <script>
         const shapeSelect = document.getElementById('shape');
