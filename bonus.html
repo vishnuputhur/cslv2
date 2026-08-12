@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CSL Performance Pay Calculator</title>
+  <title>Performance Pay 2025-26</title>
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-21G1BS7S3S"></script>
   <script>
@@ -48,6 +48,15 @@
       color: #ffffff;
       font-weight: bold;
       text-align: center;
+    }
+
+    .onam-greeting {
+      font-size: 18px;
+      color: #FFD700;
+      text-shadow: 1px 1px 2px #000000;
+      margin: 0 0 8px 0;
+      text-align: center;
+      letter-spacing: 1px;
     }
 
     .container {
@@ -145,6 +154,12 @@
       width: 70%;
     }
 
+    .copy-btn:disabled {
+      background-color: #6c7a8d;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
     .footer {
       font-size: 14px;
       padding: 15px;
@@ -173,14 +188,15 @@
 
   <div class="container">
     <!-- Heading outside the box -->
-    <h1>Performance Pay Calculator</h1>
+    <h1>Performance Pay (2025-26)</h1>
+    <div class="onam-greeting">🌾 Happy Onam! 🌾</div>
 
     <div class="box">
-      <label>Basic Pay (April 2024):</label>
-      <input type="number" id="bp2024" min="0">
-
-      <label>Basic Pay (March 2025):</label>
+      <label>Basic Pay (April 2025):</label>
       <input type="number" id="bp2025" min="0">
+
+      <label>Basic Pay (March 2026):</label>
+      <input type="number" id="bp2026" min="0">
 
       <label>Is Annual Increment in January?</label>
       <select id="increment_month">
@@ -198,7 +214,7 @@
 
     <div id="result">
       <p>Performance Pay: <span id="pp_amount"></span></p>
-      <p>Additional Pay: 11000</p>
+      <p>Additional Pay: 10000</p>
       <p class="total">Total: <span id="total_amount"></span></p>
       <p class="disclaimer">There might be slight changes in the above amount due to your late punch, LOP, etc.</p>
     </div>
@@ -206,7 +222,7 @@
     <div class="bottom-space"></div>
   </div>
 
-  <div class="footer">Powered by VT@Soft © 2025 | Version 1.0</div>
+  <div class="footer">Powered by VT@Soft © 2026 | Version 2.0</div>
 
   <script>
     function checkLOP() {
@@ -225,8 +241,8 @@
     }
 
     function calculatePP() {
-      const bp2024 = parseFloat(document.getElementById('bp2024').value) || 0;
       const bp2025 = parseFloat(document.getElementById('bp2025').value) || 0;
+      const bp2026 = parseFloat(document.getElementById('bp2026').value) || 0;
       const incMonth = document.getElementById('increment_month').value;
       const lop = parseFloat(document.getElementById('lop').value) || 0;
 
@@ -234,15 +250,15 @@
       let monthsNew = 0;
 
       if (incMonth === 'yes') {
-        monthsOld = 9; // Apr 2024 to Dec 2024
-        monthsNew = 3; // Jan 2025 to Mar 2025
+        monthsOld = 9; // Apr 2025 to Dec 2025
+        monthsNew = 3; // Jan 2026 to Mar 2026
       } else {
-        monthsOld = 3; // Apr 2024 to Jun 2024
-        monthsNew = 9; // Jul 2024 to Mar 2025
+        monthsOld = 3; // Apr 2025 to Jun 2025
+        monthsNew = 9; // Jul 2025 to Mar 2026
       }
 
-      const totalBasic = (monthsOld * bp2024) + (monthsNew * bp2025);
-      const lopDeduction = (bp2025 / 30) * lop;
+      const totalBasic = (monthsOld * bp2025) + (monthsNew * bp2026);
+      const lopDeduction = (bp2026 / 30) * lop;
       const effectiveBasic = totalBasic - lopDeduction;
 
       let performancePay = 0;
@@ -250,7 +266,7 @@
         performancePay = 0.19 * effectiveBasic;
       }
 
-      const additionalPay = 11000;
+      const additionalPay = 10000; // Updated from 11000 to 10000
       const totalPay = performancePay + additionalPay;
 
       document.getElementById('pp_amount').innerText = Math.round(performancePay);
@@ -261,6 +277,5 @@
       document.getElementById('result').scrollIntoView({behavior: 'smooth'});
     }
   </script>
-
 </body>
 </html>
