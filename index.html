@@ -31,7 +31,8 @@
             font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #f0f7ff 0%, #e6f0ff 100%);
+            /* Independence Day Theme Background: Saffron to White to Green */
+            background: linear-gradient(135deg, #fff3e0 0%, #ffffff 50%, #e8f5e9 100%);
             color: #1a365d;
             display: flex;
             flex-direction: column;
@@ -70,7 +71,7 @@
             top: 45px;
             left: 0;
             width: 100%;
-            background: #1e3a8a;          /* Same solid blue as header */
+            background: #FF9933;          /* Saffron - Independence Day Theme */
             color: #fff;
             height: 28px;
             line-height: 28px;
@@ -128,7 +129,7 @@
             justify-content: center;
             align-items: center;
             padding: 0 15px;
-            background: #1e3a8a;           /* Solid blue */
+            background: #FF9933;           /* Saffron - Independence Day Theme */
             position: fixed;
             top: 0;
             width: 100%;
@@ -317,10 +318,10 @@
         .whats-new-label {
             font-size: 0.65rem;
             font-weight: 600;
-            color: #1e3a8a;
+            color: #d97706; /* Saffron tone */
             margin-right: 10px;
             z-index: 2;
-            background: rgba(37, 99, 235, 0.1);
+            background: #fff3e0; /* Saffron tint */
             padding: 3px 8px;
             border-radius: 12px;
             white-space: nowrap;
@@ -343,6 +344,118 @@
         @keyframes scroll {
             0% { transform: translateX(0); }
             100% { transform: translateX(-100%); }
+        }
+
+        /* --- NEW: Independence Day Banner with Animations --- */
+        .independence-banner {
+            background: linear-gradient(135deg, #ffffff, #fef9f0, #ffffff);
+            border: 2px solid #FF9933;
+            border-radius: var(--radius-md);
+            padding: 10px 12px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            box-shadow: 0 0 25px rgba(255, 153, 51, 0.15);
+            animation: floatBanner 3s ease-in-out infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes floatBanner {
+            0%, 100% { transform: translateY(0); box-shadow: 0 0 25px rgba(255, 153, 51, 0.15); }
+            50% { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(255, 153, 51, 0.25); }
+        }
+
+        .flag-emoji {
+            font-size: 2rem;
+            display: inline-block;
+            animation: waveFlag 2s ease-in-out infinite;
+            line-height: 1;
+        }
+
+        @keyframes waveFlag {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(6deg) scale(1.05); }
+            75% { transform: rotate(-6deg) scale(1.05); }
+        }
+
+        .greeting-text {
+            text-align: center;
+            flex: 1;
+        }
+
+        .greeting-main {
+            font-size: 0.95rem;
+            font-weight: 700;
+            display: block;
+            background: linear-gradient(to right, #FF9933, #138808);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.3;
+        }
+
+        .greeting-sub {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #1e3a8a;
+            display: block;
+            -webkit-text-fill-color: #1e3a8a;
+            background: none;
+        }
+
+        .chakra-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+        }
+
+        .chakra-spin {
+            animation: spinChakra 6s linear infinite;
+            width: 40px;
+            height: 40px;
+        }
+
+        @keyframes spinChakra {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Confetti inside banner */
+        .confetti-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .confetti-piece {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            opacity: 0.8;
+            animation: confettiFall linear infinite;
+            z-index: 1;
+        }
+
+        @keyframes confettiFall {
+            0% { transform: translateY(-10px) rotate(0deg); opacity: 0.9; }
+            100% { transform: translateY(110px) rotate(720deg); opacity: 0; }
+        }
+
+        /* Ensure banner content is above confetti */
+        .independence-banner > *:not(.confetti-container) {
+            position: relative;
+            z-index: 2;
         }
 
         /* Compact Quick Links */
@@ -396,10 +509,11 @@
             transform: scale(0.98);
         }
 
-        .quick-link-button:nth-child(1) { border-top: 2px solid #2563eb; }
-        .quick-link-button:nth-child(2) { border-top: 2px solid #10b981; }
-        .quick-link-button:nth-child(3) { border-top: 2px solid #8b5cf6; }
-        .quick-link-button:nth-child(4) { border-top: 2px solid #f59e0b; }
+        /* Independence Day Theme Quick Links */
+        .quick-link-button:nth-child(1) { border-top: 2px solid #FF9933; } /* Saffron */
+        .quick-link-button:nth-child(2) { border-top: 2px solid #138808; } /* Green */
+        .quick-link-button:nth-child(3) { border-top: 2px solid #138808; } /* Green */
+        .quick-link-button:nth-child(4) { border-top: 2px solid #FF9933; } /* Saffron */
 
         .quick-link-icon { 
             font-size: 1.2rem; 
@@ -438,8 +552,8 @@
         .attendance-box { border-left: 3px solid #2563eb; background: linear-gradient(to right, #f5f3ff, #ffffff); }
         .pf-box { border-left: 3px solid #8b5cf6; background: linear-gradient(to right, #ede9fe, #ffffff); }
         .expense-box { border-left: 3px solid #10b981; background: linear-gradient(to right, #f0fdf4, #ffffff); }
-        /* New Bonus Box Style */
-        .bonus-box { border-left: 3px solid #0d9488; background: linear-gradient(to right, #ecfdf5, #ffffff); }
+        /* New Bonus Box Style - Updated to Saffron for theme */
+        .bonus-box { border-left: 3px solid #FF9933; background: linear-gradient(to right, #fff3e0, #ffffff); }
 
         .blood-box h2, .solar-box h2, .tax-box h2, .attendance-box h2, .pf-box h2, .expense-box h2, .bonus-box h2 {
             font-size: 0.9rem;
@@ -455,7 +569,7 @@
         .attendance-box h2 { color: #1e3a8a; }
         .pf-box h2 { color: #6d28d9; }
         .expense-box h2 { color: #047857; }
-        .bonus-box h2 { color: #0d9488; }
+        .bonus-box h2 { color: #d97706; } /* Saffron tone */
 
         .blood-box h2::before, .solar-box h2::before, .tax-box h2::before, .attendance-box h2::before, .pf-box h2::before, .expense-box h2::before, .bonus-box h2::before {
             content: "";
@@ -473,7 +587,7 @@
         .pf-box h2::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%238b5cf6'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2Z'%3E%3C/path%3E%3C/svg%3E"); }
         .expense-box h2::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2310b981'%3E%3Cpath d='M20 4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4Z'%3E%3C/path%3E%3C/svg%3E"); }
         /* New Bonus Box icon (Gift/Star) */
-        .bonus-box h2::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230d9488'%3E%3Cpath d='M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z'%3E%3C/path%3E%3C/svg%3E"); }
+        .bonus-box h2::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23d97706'%3E%3Cpath d='M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z'%3E%3C/path%3E%3C/svg%3E"); }
 
         .blood-box p, .solar-box p, .tax-box p, .attendance-box p, .pf-box p, .expense-box p, .bonus-box p {
             margin: 5px 0 8px;
@@ -498,7 +612,7 @@
         .attendance-box a { background: rgba(37, 99, 235, 0.1); color: #2563eb; border: 1px solid rgba(37, 99, 235, 0.2); }
         .pf-box a { background: rgba(139, 92, 246, 0.1); color: #6d28d9; border: 1px solid rgba(139, 92, 246, 0.2); }
         .expense-box a { background: rgba(16, 185, 129, 0.1); color: #059669; border: 1px solid rgba(16, 185, 129, 0.2); }
-        .bonus-box a { background: rgba(13, 148, 136, 0.1); color: #0d9488; border: 1px solid rgba(13, 148, 136, 0.2); }
+        .bonus-box a { background: rgba(255, 153, 51, 0.1); color: #d97706; border: 1px solid rgba(255, 153, 51, 0.2); }
 
         .blood-box a:hover, .solar-box a:hover, .tax-box a:hover, .attendance-box a:hover, .pf-box a:hover, .expense-box a:hover, .bonus-box a:hover {
             background: rgba(37, 99, 235, 0.2);
@@ -582,7 +696,7 @@
             text-align: center;
             box-shadow: var(--shadow-sm);
             border: 1px solid #d1d5db;
-            border-top: 2px solid #2563eb;
+            border-top: 2px solid #138808; /* Green - Independence Day Theme */
         }
 
         .vtsoft-section h2 { 
@@ -607,7 +721,7 @@
         }
 
         .vtsoft-section a {
-            background: #1e3a8a;          /* Solid blue */
+            background: #FF9933;          /* Saffron - Independence Day Theme */
             color: white; 
             padding: 5px 15px;
             border-radius: 20px; 
@@ -619,11 +733,11 @@
             border: none;
         }
 
-        /* Footer - No borders, solid blue */
+        /* Footer - No borders, Green */
         footer {
             text-align: center;
             padding: 5px 10px;
-            background: #1e3a8a;
+            background: #138808; /* Green - Independence Day Theme */
             color: white;
             font-size: 0.6rem;
             position: fixed;
@@ -709,6 +823,28 @@
             </div>
         </div>
         
+        <!-- NEW INDEPENDENCE DAY BANNER WITH FLAG, GREETING & ANIMATIONS -->
+        <div class="independence-banner" id="independenceBanner">
+            <div class="confetti-container" id="confettiContainer"></div>
+            
+            <span class="flag-emoji">🇮🇳</span>
+            
+            <div class="greeting-text">
+                <span class="greeting-main">Happy 80th Independence Day! 🎉</span>
+                <span class="greeting-sub">സ്വാതന്ത്ര്യ ദിനാശംസകൾ! 🇮🇳</span>
+            </div>
+
+            <div class="chakra-wrapper">
+                <svg class="chakra-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                    <!-- Outer ring -->
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="#000080" stroke-width="4"/>
+                    <!-- Inner solid circle -->
+                    <circle cx="50" cy="50" r="6" fill="#000080"/>
+                    <!-- 24 Spokes using dashed stroke trick -->
+                    <circle cx="50" cy="50" r="25" fill="none" stroke="#000080" stroke-width="15" stroke-dasharray="2.5 4.5"/>
+                </svg>
+            </div>
+        </div>
 
         <h3 class="quick-links-header">Quick Access</h3>
         <div class="quick-links-container">
@@ -733,7 +869,7 @@
         <!-- NEW BONUS BOX - Placed at the top of the card list -->
         <div class="bonus-box">
             <h2>🎉 Performance Pay Bonus 2025-26</h2>
-            <p>Calculate your estimated performance pay bonus for the 2025-26 financial year with the updated additional pay.</p>
+            <p>Calculate your estimated performance pay bonus for the 2025-26 financial year with the new DA 54.1 and updated additional pay.</p>
             <a href="bonus.html">Calculate Now →</a>
         </div>
 
@@ -859,6 +995,34 @@
             e.preventDefault();
             window.open("https://wa.me/919037383927", "_blank");
         }
+
+        // --- Generate Confetti inside the banner ---
+        function createConfetti() {
+            const container = document.getElementById('confettiContainer');
+            if (!container) return;
+            const colors = ['#FF9933', '#FFFFFF', '#138808', '#000080'];
+            for (let i = 0; i < 20; i++) {
+                const piece = document.createElement('div');
+                piece.classList.add('confetti-piece');
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                const left = Math.random() * 100;
+                const delay = Math.random() * 5;
+                const duration = 3 + Math.random() * 4;
+                const size = 4 + Math.random() * 6;
+                
+                piece.style.cssText = `
+                    left: ${left}%;
+                    background-color: ${color};
+                    width: ${size}px;
+                    height: ${size}px;
+                    animation-delay: ${delay}s;
+                    animation-duration: ${duration}s;
+                    border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+                `;
+                container.appendChild(piece);
+            }
+        }
+        createConfetti();
     </script>
     <script>
         if ('serviceWorker' in navigator) {
