@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1e3a8a">
+    <meta name="theme-color" content="#2E7D32">
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-21G1BS7S3S"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -31,8 +31,8 @@
             font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             margin: 0;
             padding: 0;
-            /* Independence Day Theme Background: Saffron to White to Green */
-            background: linear-gradient(135deg, #fff3e0 0%, #ffffff 50%, #e8f5e9 100%);
+            /* Onam Theme Background: Soft Green, Gold, Orange tints */
+            background: linear-gradient(135deg, #f1f8e9 0%, #fff8e1 50%, #fff3e0 100%);
             color: #1a365d;
             display: flex;
             flex-direction: column;
@@ -42,15 +42,16 @@
             background-attachment: fixed;
         }
 
-        /* Modern color palette - Single color theme */
+        /* Modern color palette - Onam Theme */
         :root {
-            --primary: #1e3a8a;
-            --primary-dark: #2563eb;
-            --primary-light: #3b82f6;
-            --primary-soft: #dbeafe;
-            --secondary: #10b981;
-            --secondary-dark: #059669;
-            --accent: #f59e0b;
+            --primary: #2E7D32;
+            --primary-dark: #1B5E20;
+            --primary-light: #4CAF50;
+            --primary-soft: #e8f5e9;
+            --gold: #F9A825;
+            --gold-light: #FFD54F;
+            --orange: #FF8F00;
+            --accent: #FF6F00;
             --danger: #ef4444;
             --purple: #8b5cf6;
             --dark: #1a365d;
@@ -65,27 +66,26 @@
             --radius-md: 8px;
         }
 
-        /* --- News Bar - No borders, no yellow background, seamless with header --- */
+        /* --- News Bar - Onam Theme --- */
         #newsBar {
             position: fixed;
             top: 45px;
             left: 0;
             width: 100%;
-            background: #FF9933;          /* Saffron - Independence Day Theme */
+            background: #2E7D32;          /* Green - Onam Theme */
             color: #fff;
             height: 28px;
             line-height: 28px;
             overflow: hidden;
             z-index: 1000;
             font-size: 0.7rem;
-            /* No border, no shadow */
             border: none;
             box-shadow: none;
         }
 
         #newsBar strong {
-            background: transparent;        /* Removed yellow background */
-            color: white;                   /* Pure white text */
+            background: transparent;
+            color: #FFD54F;               /* Gold text */
             font-weight: 600;
             padding: 0 10px;
             position: absolute;
@@ -94,7 +94,6 @@
             display: flex;
             align-items: center;
             font-size: 0.7rem;
-            /* No box-shadow */
             box-shadow: none;
         }
 
@@ -115,7 +114,7 @@
         }
 
         #newsScroll a:hover {
-            color: #ffcc00;
+            color: #FFD54F;
         }
 
         @keyframes scrollNews {
@@ -123,20 +122,19 @@
             to { transform: translateX(-100%); }
         }
 
-        /* --- Header - Single Color, no borders --- */
+        /* --- Header - Onam Theme --- */
         header {
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 0 15px;
-            background: #FF9933;           /* Saffron - Independence Day Theme */
+            background: #2E7D32;           /* Green - Onam Theme */
             position: fixed;
             top: 0;
             width: 100%;
             z-index: 1001;
             height: 45px;
             box-sizing: border-box;
-            /* No border, no shadow */
             border: none;
             box-shadow: none;
         }
@@ -173,9 +171,9 @@
             font-weight: bold;
             font-family: 'Georgia', 'Times New Roman', serif;
             margin: 0;
-            color: white;
+            color: #FFD54F;               /* Gold */
             letter-spacing: normal;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            text-shadow: 0 0 10px rgba(255, 213, 79, 0.4);
         }
         
         .header-subtitle {
@@ -299,7 +297,7 @@
             z-index: 2;
         }
 
-        /* Compact Updates Bar */
+        /* Compact Updates Bar - Onam Theme */
         .whats-new {
             background: white;
             border-radius: var(--radius-md);
@@ -318,10 +316,10 @@
         .whats-new-label {
             font-size: 0.65rem;
             font-weight: 600;
-            color: #d97706; /* Saffron tone */
+            color: #F9A825;               /* Gold */
             margin-right: 10px;
             z-index: 2;
-            background: #fff3e0; /* Saffron tint */
+            background: #e8f5e9;           /* Light green */
             padding: 3px 8px;
             border-radius: 12px;
             white-space: nowrap;
@@ -346,10 +344,10 @@
             100% { transform: translateX(-100%); }
         }
 
-        /* --- NEW: Independence Day Banner with Animations --- */
-        .independence-banner {
-            background: linear-gradient(135deg, #ffffff, #fef9f0, #ffffff);
-            border: 2px solid #FF9933;
+        /* --- Onam Banner with Pookkalam, Maveli, Flowers --- */
+        .onam-banner {
+            background: linear-gradient(135deg, #e8f5e9, #fff8e1, #fff3e0);
+            border: 2px solid #F9A825;
             border-radius: var(--radius-md);
             padding: 10px 12px;
             margin-bottom: 16px;
@@ -358,28 +356,45 @@
             justify-content: center;
             gap: 8px;
             flex-wrap: wrap;
-            box-shadow: 0 0 25px rgba(255, 153, 51, 0.15);
+            box-shadow: 0 0 25px rgba(249, 168, 37, 0.15);
             animation: floatBanner 3s ease-in-out infinite;
             position: relative;
             overflow: hidden;
         }
 
         @keyframes floatBanner {
-            0%, 100% { transform: translateY(0); box-shadow: 0 0 25px rgba(255, 153, 51, 0.15); }
-            50% { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(255, 153, 51, 0.25); }
+            0%, 100% { transform: translateY(0); box-shadow: 0 0 25px rgba(249, 168, 37, 0.15); }
+            50% { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(249, 168, 37, 0.25); }
         }
 
-        .flag-emoji {
-            font-size: 2rem;
-            display: inline-block;
-            animation: waveFlag 2s ease-in-out infinite;
+        /* Pookkalam (Floral Rangoli) */
+        .pookkalam {
+            width: 50px;
+            height: 50px;
+            flex-shrink: 0;
+            animation: spinPookkalam 20s linear infinite;
+        }
+
+        @keyframes spinPookkalam {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .pookkalam svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .maveli-emoji {
+            font-size: 1.8rem;
             line-height: 1;
+            animation: waveFlag 2.5s ease-in-out infinite;
         }
 
         @keyframes waveFlag {
             0%, 100% { transform: rotate(0deg) scale(1); }
-            25% { transform: rotate(6deg) scale(1.05); }
-            75% { transform: rotate(-6deg) scale(1.05); }
+            25% { transform: rotate(5deg) scale(1.05); }
+            75% { transform: rotate(-5deg) scale(1.05); }
         }
 
         .greeting-text {
@@ -391,43 +406,19 @@
             font-size: 0.95rem;
             font-weight: 700;
             display: block;
-            background: linear-gradient(to right, #FF9933, #138808);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: #2E7D32;               /* Green */
             line-height: 1.3;
         }
 
         .greeting-sub {
             font-size: 0.75rem;
             font-weight: 600;
-            color: #1e3a8a;
+            color: #F9A825;               /* Gold */
             display: block;
-            -webkit-text-fill-color: #1e3a8a;
-            background: none;
         }
 
-        .chakra-wrapper {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-        }
-
-        .chakra-spin {
-            animation: spinChakra 6s linear infinite;
-            width: 40px;
-            height: 40px;
-        }
-
-        @keyframes spinChakra {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Confetti inside banner */
-        .confetti-container {
+        /* Floating flowers (petals) inside banner */
+        .flower-container {
             position: absolute;
             top: 0;
             left: 0;
@@ -438,33 +429,31 @@
             z-index: 0;
         }
 
-        .confetti-piece {
+        .flower {
             position: absolute;
-            width: 6px;
-            height: 6px;
-            opacity: 0.8;
-            animation: confettiFall linear infinite;
+            font-size: 14px;
+            opacity: 0.7;
+            animation: flowerFall linear infinite;
             z-index: 1;
         }
 
-        @keyframes confettiFall {
-            0% { transform: translateY(-10px) rotate(0deg); opacity: 0.9; }
-            100% { transform: translateY(110px) rotate(720deg); opacity: 0; }
+        @keyframes flowerFall {
+            0% { transform: translateY(-15px) rotate(0deg); opacity: 0.8; }
+            100% { transform: translateY(120px) rotate(720deg); opacity: 0; }
         }
 
-        /* Ensure banner content is above confetti */
-        .independence-banner > *:not(.confetti-container) {
+        .onam-banner > *:not(.flower-container) {
             position: relative;
             z-index: 2;
         }
 
-        /* Compact Quick Links */
+        /* Compact Quick Links - Onam Theme */
         .quick-links-header {
             font-size: 0.8rem;
             margin: 8px 0 10px;
             font-weight: 600;
             text-align: left;
-            color: #1e3a8a;
+            color: #2E7D32;
             display: flex;
             align-items: center;
         }
@@ -502,18 +491,18 @@
         .quick-link-button:hover {
             transform: translateY(-2px);
             box-shadow: var(--shadow-md);
-            border-color: #2563eb;
+            border-color: #F9A825;
         }
 
         .quick-link-button:active {
             transform: scale(0.98);
         }
 
-        /* Independence Day Theme Quick Links */
-        .quick-link-button:nth-child(1) { border-top: 2px solid #FF9933; } /* Saffron */
-        .quick-link-button:nth-child(2) { border-top: 2px solid #138808; } /* Green */
-        .quick-link-button:nth-child(3) { border-top: 2px solid #138808; } /* Green */
-        .quick-link-button:nth-child(4) { border-top: 2px solid #FF9933; } /* Saffron */
+        /* Onam Theme Quick Links */
+        .quick-link-button:nth-child(1) { border-top: 2px solid #F9A825; } /* Gold */
+        .quick-link-button:nth-child(2) { border-top: 2px solid #2E7D32; } /* Green */
+        .quick-link-button:nth-child(3) { border-top: 2px solid #2E7D32; } /* Green */
+        .quick-link-button:nth-child(4) { border-top: 2px solid #F9A825; } /* Gold */
 
         .quick-link-icon { 
             font-size: 1.2rem; 
@@ -526,7 +515,7 @@
             line-height: 1.2; 
         }
 
-        /* Compact Card Styles */
+        /* Compact Card Styles - unchanged except bonus box color */
         .blood-box, .solar-box, .tax-box, .attendance-box, .pf-box, .expense-box, .bonus-box {
             background: white;
             border-radius: var(--radius-md);
@@ -552,8 +541,8 @@
         .attendance-box { border-left: 3px solid #2563eb; background: linear-gradient(to right, #f5f3ff, #ffffff); }
         .pf-box { border-left: 3px solid #8b5cf6; background: linear-gradient(to right, #ede9fe, #ffffff); }
         .expense-box { border-left: 3px solid #10b981; background: linear-gradient(to right, #f0fdf4, #ffffff); }
-        /* New Bonus Box Style - Updated to Saffron for theme */
-        .bonus-box { border-left: 3px solid #FF9933; background: linear-gradient(to right, #fff3e0, #ffffff); }
+        /* Bonus Box - Onam Theme */
+        .bonus-box { border-left: 3px solid #F9A825; background: linear-gradient(to right, #fff8e1, #ffffff); }
 
         .blood-box h2, .solar-box h2, .tax-box h2, .attendance-box h2, .pf-box h2, .expense-box h2, .bonus-box h2 {
             font-size: 0.9rem;
@@ -569,7 +558,7 @@
         .attendance-box h2 { color: #1e3a8a; }
         .pf-box h2 { color: #6d28d9; }
         .expense-box h2 { color: #047857; }
-        .bonus-box h2 { color: #d97706; } /* Saffron tone */
+        .bonus-box h2 { color: #2E7D32; } /* Green */
 
         .blood-box h2::before, .solar-box h2::before, .tax-box h2::before, .attendance-box h2::before, .pf-box h2::before, .expense-box h2::before, .bonus-box h2::before {
             content: "";
@@ -586,8 +575,7 @@
         .attendance-box h2::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563eb'%3E%3Cpath d='M9 4C9 2.9 9.9 2 11 2H13C14.1 2 15 2.9 15 4V5H9V4ZM7 7C6.45 7 6 7.45 6 8C6 8.55 6.45 9 7 9H17C17.55 9 18 8.55 18 8C18 7.45 17.55 7 17 7H7ZM18 20C18 21.1 17.1 22 16 22H8C6.9 22 6 21.1 6 20V10H18V20Z'%3E%3C/path%3E%3C/svg%3E"); }
         .pf-box h2::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%238b5cf6'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2Z'%3E%3C/path%3E%3C/svg%3E"); }
         .expense-box h2::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2310b981'%3E%3Cpath d='M20 4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4Z'%3E%3C/path%3E%3C/svg%3E"); }
-        /* New Bonus Box icon (Gift/Star) */
-        .bonus-box h2::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23d97706'%3E%3Cpath d='M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z'%3E%3C/path%3E%3C/svg%3E"); }
+        .bonus-box h2::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232E7D32'%3E%3Cpath d='M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z'%3E%3C/path%3E%3C/svg%3E"); }
 
         .blood-box p, .solar-box p, .tax-box p, .attendance-box p, .pf-box p, .expense-box p, .bonus-box p {
             margin: 5px 0 8px;
@@ -612,7 +600,7 @@
         .attendance-box a { background: rgba(37, 99, 235, 0.1); color: #2563eb; border: 1px solid rgba(37, 99, 235, 0.2); }
         .pf-box a { background: rgba(139, 92, 246, 0.1); color: #6d28d9; border: 1px solid rgba(139, 92, 246, 0.2); }
         .expense-box a { background: rgba(16, 185, 129, 0.1); color: #059669; border: 1px solid rgba(16, 185, 129, 0.2); }
-        .bonus-box a { background: rgba(255, 153, 51, 0.1); color: #d97706; border: 1px solid rgba(255, 153, 51, 0.2); }
+        .bonus-box a { background: rgba(249, 168, 37, 0.1); color: #2E7D32; border: 1px solid rgba(249, 168, 37, 0.2); }
 
         .blood-box a:hover, .solar-box a:hover, .tax-box a:hover, .attendance-box a:hover, .pf-box a:hover, .expense-box a:hover, .bonus-box a:hover {
             background: rgba(37, 99, 235, 0.2);
@@ -620,11 +608,11 @@
 
         /* Compact Stats Box */
         .stats-box {
-            background: rgba(37, 99, 235, 0.1);
+            background: rgba(46, 125, 50, 0.1);
             border-radius: var(--radius-md);
             padding: 10px 12px;
             margin-bottom: 12px;
-            border: 1px solid rgba(37, 99, 235, 0.2);
+            border: 1px solid rgba(46, 125, 50, 0.2);
             text-align: center;
             max-width: 300px;
             margin-left: auto;
@@ -634,7 +622,7 @@
         .stats-box h2 {
             font-size: 0.8rem;
             margin: 0 0 5px 0;
-            color: #1e3a8a;
+            color: #2E7D32;
             font-weight: 600;
         }
 
@@ -645,7 +633,7 @@
         }
 
         .stats-box strong {
-            color: #1e3a8a;
+            color: #2E7D32;
             font-weight: 700;
             font-size: 0.75rem;
         }
@@ -658,7 +646,7 @@
 
         /* Share Button */
         .wa-share-btn {
-            background: linear-gradient(90deg, #10b981, #059669);
+            background: linear-gradient(90deg, #2E7D32, #1B5E20);
             color: white;
             border: none;
             width: 100%;
@@ -673,7 +661,7 @@
             align-items: center;
             justify-content: center;
             gap: 5px;
-            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+            box-shadow: 0 2px 8px rgba(46, 125, 50, 0.2);
         }
 
         .wa-share-btn::before {
@@ -683,10 +671,10 @@
 
         .wa-share-btn:hover {
             transform: translateY(-1px);
-            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+            box-shadow: 0 4px 10px rgba(46, 125, 50, 0.3);
         }
 
-        /* VTSoft Section */
+        /* VTSoft Section - Onam Theme */
         .vtsoft-section {
             background: white;
             color: #1a365d;
@@ -696,13 +684,13 @@
             text-align: center;
             box-shadow: var(--shadow-sm);
             border: 1px solid #d1d5db;
-            border-top: 2px solid #138808; /* Green - Independence Day Theme */
+            border-top: 2px solid #F9A825;
         }
 
         .vtsoft-section h2 { 
             margin: 0 0 5px; 
             font-size: 0.9rem; 
-            color: #1e3a8a;
+            color: #2E7D32;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -721,7 +709,7 @@
         }
 
         .vtsoft-section a {
-            background: #FF9933;          /* Saffron - Independence Day Theme */
+            background: #2E7D32;
             color: white; 
             padding: 5px 15px;
             border-radius: 20px; 
@@ -733,12 +721,12 @@
             border: none;
         }
 
-        /* Footer - No borders, Green */
+        /* Footer - Onam Theme */
         footer {
             text-align: center;
             padding: 5px 10px;
-            background: #138808; /* Green - Independence Day Theme */
-            color: white;
+            background: #2E7D32;
+            color: #FFD54F;
             font-size: 0.6rem;
             position: fixed;
             bottom: 0;
@@ -780,15 +768,13 @@
         </div>
     </header>
 
-    <!-- News Bar - No borders, no yellow background -->
+    <!-- News Bar -->
     <div id="newsBar">
-        
         <span id="newsScroll">വാർത്തകൾ ലോഡ് ചെയ്യുന്നു...</span>
     </div>
 
     <div class="menu-drawer" id="menu-drawer">
         <a href="solar.html">Solar Calculator</a>
-        <!-- New Performance Pay Link added here -->
         <a href="bonus.html">Performance Pay</a>
         <a href="di.html">Ship Theory Dictionary</a>
         <a href="atn.html">Attendance Register</a>
@@ -823,26 +809,39 @@
             </div>
         </div>
         
-        <!-- NEW INDEPENDENCE DAY BANNER WITH FLAG, GREETING & ANIMATIONS -->
-        <div class="independence-banner" id="independenceBanner">
-            <div class="confetti-container" id="confettiContainer"></div>
+        <!-- ONAM BANNER - with Pookkalam, Maveli, Greeting, Flowers -->
+        <div class="onam-banner" id="onamBanner">
+            <div class="flower-container" id="flowerContainer"></div>
             
-            <span class="flag-emoji">🇮🇳</span>
-            
-            <div class="greeting-text">
-                <span class="greeting-main">Happy 80th Independence Day! 🎉</span>
-                <span class="greeting-sub">സ്വാതന്ത്ര്യ ദിനാശംസകൾ! 🇮🇳</span>
+            <!-- Pookkalam (Floral Rangoli SVG) -->
+            <div class="pookkalam">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                    <!-- Outer petals -->
+                    <circle cx="50" cy="50" r="45" fill="#F9A825" opacity="0.3"/>
+                    <circle cx="50" cy="50" r="35" fill="#FFD54F" opacity="0.4"/>
+                    <circle cx="50" cy="50" r="25" fill="#F9A825" opacity="0.5"/>
+                    <!-- Inner flower pattern -->
+                    <circle cx="50" cy="50" r="15" fill="#FF8F00"/>
+                    <!-- Petals (8-fold symmetry) -->
+                    <g fill="#FFD54F" stroke="#F9A825" stroke-width="0.5">
+                        <ellipse cx="50" cy="5" rx="8" ry="12" transform="rotate(0 50 50)"/>
+                        <ellipse cx="50" cy="5" rx="8" ry="12" transform="rotate(45 50 50)"/>
+                        <ellipse cx="50" cy="5" rx="8" ry="12" transform="rotate(90 50 50)"/>
+                        <ellipse cx="50" cy="5" rx="8" ry="12" transform="rotate(135 50 50)"/>
+                        <ellipse cx="50" cy="5" rx="8" ry="12" transform="rotate(180 50 50)"/>
+                        <ellipse cx="50" cy="5" rx="8" ry="12" transform="rotate(225 50 50)"/>
+                        <ellipse cx="50" cy="5" rx="8" ry="12" transform="rotate(270 50 50)"/>
+                        <ellipse cx="50" cy="5" rx="8" ry="12" transform="rotate(315 50 50)"/>
+                    </g>
+                    <circle cx="50" cy="50" r="5" fill="#FF6F00"/>
+                </svg>
             </div>
 
-            <div class="chakra-wrapper">
-                <svg class="chakra-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-                    <!-- Outer ring -->
-                    <circle cx="50" cy="50" r="40" fill="none" stroke="#000080" stroke-width="4"/>
-                    <!-- Inner solid circle -->
-                    <circle cx="50" cy="50" r="6" fill="#000080"/>
-                    <!-- 24 Spokes using dashed stroke trick -->
-                    <circle cx="50" cy="50" r="25" fill="none" stroke="#000080" stroke-width="15" stroke-dasharray="2.5 4.5"/>
-                </svg>
+            <span class="maveli-emoji">👑</span>
+            
+            <div class="greeting-text">
+                <span class="greeting-main">🌺 Happy Onam 2026 🌺</span>
+                <span class="greeting-sub">ഓണാശംസകൾ! 🎉</span>
             </div>
         </div>
 
@@ -866,7 +865,7 @@
             </a>
         </div>
 
-        <!-- NEW BONUS BOX - Placed at the top of the card list -->
+        <!-- Bonus Box -->
         <div class="bonus-box">
             <h2>🎉 Performance Pay Bonus 2025-26</h2>
             <p>Calculate your estimated performance pay bonus for the 2025-26 financial year with the new DA 54.1 and updated additional pay.</p>
@@ -923,7 +922,7 @@
             <h2>VTsoft Mobile Apps & Web Design</h2>
             <p>For Funds, financial institutions & societies</p>
             <p>Custom mobile apps and professional web design at very low cost</p>
-            <p style="color: #1e3a8a; font-weight: 600;">Complete digital solutions for your business</p>
+            <p style="color: #2E7D32; font-weight: 600;">Complete digital solutions for your business</p>
             <a href="https://wa.me/919037383927" onclick="goToWhatsApp(event)">Chat on WhatsApp</a>
         </div>
     </section>
@@ -996,33 +995,31 @@
             window.open("https://wa.me/919037383927", "_blank");
         }
 
-        // --- Generate Confetti inside the banner ---
-        function createConfetti() {
-            const container = document.getElementById('confettiContainer');
+        // --- Generate floating flowers inside Onam banner ---
+        function createFlowers() {
+            const container = document.getElementById('flowerContainer');
             if (!container) return;
-            const colors = ['#FF9933', '#FFFFFF', '#138808', '#000080'];
-            for (let i = 0; i < 20; i++) {
-                const piece = document.createElement('div');
-                piece.classList.add('confetti-piece');
-                const color = colors[Math.floor(Math.random() * colors.length)];
+            const flowers = ['🌸', '🌺', '🌼', '🏵️', '🌻'];
+            for (let i = 0; i < 15; i++) {
+                const flower = document.createElement('div');
+                flower.classList.add('flower');
+                const emoji = flowers[Math.floor(Math.random() * flowers.length)];
                 const left = Math.random() * 100;
                 const delay = Math.random() * 5;
-                const duration = 3 + Math.random() * 4;
-                const size = 4 + Math.random() * 6;
+                const duration = 4 + Math.random() * 4;
+                const size = 14 + Math.random() * 10;
                 
-                piece.style.cssText = `
+                flower.style.cssText = `
                     left: ${left}%;
-                    background-color: ${color};
-                    width: ${size}px;
-                    height: ${size}px;
+                    font-size: ${size}px;
                     animation-delay: ${delay}s;
                     animation-duration: ${duration}s;
-                    border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
                 `;
-                container.appendChild(piece);
+                flower.textContent = emoji;
+                container.appendChild(flower);
             }
         }
-        createConfetti();
+        createFlowers();
     </script>
     <script>
         if ('serviceWorker' in navigator) {
