@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<link rel="manifest" href="manifest-atn.json">
+    <link rel="manifest" href="manifest-atn.json?v=3.4">
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-21G1BS7S3S"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -14,111 +14,142 @@
     <title>Attendance Register 2025-2026</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg-dark: #0f1e36;
+            --card-bg: #ffffff;
+            --primary: #19355e;
+            --primary-accent: #23487d;
+            --gold: #d4a342;
+            --gold-light: #fef8eb;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --danger: #dc2626;
+            --success: #16a34a;
+        }
+
         body {
-            background-color: #1E3A5F;
-            font-family: 'Poppins', sans-serif;
-            color: #F5E6C4;
-            text-align: center;
+            background-color: var(--bg-dark);
+            font-family: 'Inter', sans-serif;
+            color: var(--text-dark);
             margin: 0;
             padding: 0;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .top-img {
             width: 100%;
-            max-height: 150px;
+            max-height: 120px;
             object-fit: cover;
             cursor: pointer;
             position: fixed;
             top: 0;
             left: 0;
             z-index: 99;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
 
         .sub-title {
-            font-size: 18px;
-            margin-top: 60px;
-            font-weight: bold;
-            font-family: 'Times New Roman', serif;
-            color: #ffffff;
+            font-size: 17px;
+            margin-top: 75px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #f1f5f9;
+            text-align: center;
         }
 
         .container {
-            background-color: #F5E6C4;
-            color: #1E3A5F;
-            width: 87%;
-            max-width: 350px;
-            padding: 15px;
-            margin: 5px auto;
-            border-radius: 8px;
-            box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.3);
+            background: #f8fafc;
+            width: 92%;
+            max-width: 400px;
+            padding: 16px;
+            margin: 10px auto 20px auto;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
             flex-grow: 1;
+            box-sizing: border-box;
         }
 
         .tabs {
             display: flex;
-            justify-content: space-around;
-            margin-bottom: 10px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            padding: 3px;
+            margin-bottom: 15px;
         }
 
         .tab-btn {
-            width: 45%;
-            padding: 8px;
-            font-size: 14px;
-            font-weight: bold;
+            flex: 1;
+            padding: 9px;
+            font-size: 13px;
+            font-weight: 600;
             border: none;
             cursor: pointer;
-            border-radius: 5px;
-            color: white;
-            background-color: #1E3A5F;
-            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+            border-radius: 8px;
+            color: var(--text-light);
+            background: transparent;
+            transition: all 0.2s ease;
         }
 
         .tab-btn.active {
-            background-color: #8B1E3F;
+            background-color: var(--primary);
+            color: #ffffff;
+            box-shadow: 0 2px 6px rgba(25, 53, 94, 0.25);
         }
 
         .month-container {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin: 10px 0;
-            padding: 8px;
-            background: #1E3A5F;
+            margin: 5px 0 10px 0;
+            padding: 10px 14px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-accent));
             color: white;
-            border-radius: 5px;
-            position: sticky;
-            top: 150px;
-            z-index: 900;
-            font-size: 14px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(25, 53, 94, 0.2);
         }
 
         .month-nav-btn {
-            background: none;
+            background: rgba(255, 255, 255, 0.15);
             border: none;
             color: white;
-            font-size: 16px;
+            font-size: 15px;
             cursor: pointer;
-            padding: 0 10px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            line-height: 1;
         }
 
         .week-header {
             display: flex;
-            background: #e0e0e0;
-            padding: 5px;
-            font-weight: bold;
-            position: sticky;
-            top: 190px;
-            z-index: 800;
-            font-size: 12px;
+            background: #ffffff;
+            border-radius: 8px 8px 0 0;
+            padding: 8px 0;
+            font-weight: 600;
+            font-size: 11px;
+            color: var(--text-light);
+            border-bottom: 1px solid var(--border);
         }
 
         .week-header div, .day {
-            width: 14%;
+            width: 14.28%;
             text-align: center;
+            box-sizing: border-box;
+        }
+
+        .calendar-body {
+            background: #ffffff;
+            border-radius: 0 0 10px 10px;
+            padding-bottom: 6px;
+            border: 1px solid var(--border);
+            border-top: none;
         }
 
         .week {
@@ -126,177 +157,345 @@
         }
 
         .day {
-            padding: 8px;
-            border: 1px solid #ddd;
-            margin: 1px;
-            background: white;
+            min-height: 40px;
+            padding: 5px 2px;
+            margin: 2px;
+            background: #ffffff;
+            border-radius: 6px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 600;
             font-size: 12px;
             position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            border: 1px solid #f1f5f9;
+        }
+
+        .day:active {
+            transform: scale(0.95);
         }
 
         .day.holiday {
-            color: red;
+            color: var(--danger);
         }
 
         .day.today {
-            border: 2px solid blue;
-            border-radius: 50%;
-            box-sizing: border-box;
+            border: 2px solid #2563eb !important;
+            box-shadow: 0 0 5px rgba(37, 99, 235, 0.4);
         }
 
         .day.present-in {
-            background: #FFFF99 !important;
-            color: black;
+            background: #fef08a !important;
+            color: #854d0e;
         }
 
         .day.present-full {
-            background: #90EE90 !important;
-            color: black;
+            background: #bbf7d0 !important;
+            color: #14532d;
         }
 
         .leave-cl {
-            background: #ADD8E6 !important;
-            color: white;
+            background: #bae6fd !important;
+            color: #0369a1;
         }
 
         .leave-el {
-            background: #C04070 !important;
-            color: white;
+            background: #fbcfe8 !important;
+            color: #9d174d;
         }
 
         .leave-hpl {
-            background: #FFA07A !important;
-            color: white;
+            background: #fed7aa !important;
+            color: #9a3412;
         }
 
         .leave-special {
-            background: #FFC0CB !important;
-            color: white;
+            background: #e9d5ff !important;
+            color: #6b21a8;
         }
 
         .half-day-cl {
-            background: linear-gradient(to right, #90EE90 50%, #ADD8E6 50%) !important;
-            color: white;
+            background: linear-gradient(135deg, #bbf7d0 50%, #bae6fd 50%) !important;
+            color: #0f172a;
         }
 
         .half-day-el {
-            background: linear-gradient(to right, #90EE90 50%, #C04070 50%) !important;
-            color: white;
+            background: linear-gradient(135deg, #bbf7d0 50%, #fbcfe8 50%) !important;
+            color: #0f172a;
         }
 
         .half-day-hpl {
-            background: linear-gradient(to right, #90EE90 50%, #FFA07A 50%) !important;
-            color: white;
+            background: linear-gradient(135deg, #bbf7d0 50%, #fed7aa 50%) !important;
+            color: #0f172a;
         }
 
         .half-day-special {
-            background: linear-gradient(to right, #90EE90 50%, #FFC0CB 50%) !important;
-            color: white;
-        }
-
-        .day.present-in.holiday, .day.present-full.holiday {
-            color: red;
+            background: linear-gradient(135deg, #bbf7d0 50%, #e9d5ff 50%) !important;
+            color: #0f172a;
         }
 
         .ot-display {
-            position: absolute;
-            bottom: 2px;
-            right: 2px;
             font-size: 8px;
-            color: #1E3A5F;
-            font-weight: normal;
+            color: #1e3a8a;
+            font-weight: 700;
+            margin-top: auto;
+            line-height: 1;
         }
 
-        .custom-modal {
+        /* Summary Dashboard Cards */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .summary-card {
+            background: #ffffff;
+            padding: 8px 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            text-align: left;
+        }
+
+        .summary-card.full-width {
+            grid-column: span 2;
+        }
+
+        .summary-card .label {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+        }
+
+        .summary-card .val {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-top: 2px;
+        }
+
+        .leaves-badge-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 4px;
+            margin-top: 5px;
+        }
+
+        .leave-badge {
+            flex: 1;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 4px 2px;
+            text-align: center;
+        }
+
+        .leave-badge .lbl {
+            font-size: 9px;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        .leave-badge .count {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .pdf-btn {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            margin-top: 12px;
+            box-shadow: 0 4px 8px rgba(25, 53, 94, 0.2);
+            transition: 0.2s;
+        }
+
+        .pdf-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Forms & Inputs */
+        .form-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 15px;
+            border: 1px solid var(--border);
+        }
+
+        .settings-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .settings-row label {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 12px;
+            width: 70px;
+            text-align: left;
+        }
+
+        .settings-row input, .settings-row select {
+            flex: 1;
+            max-width: 180px;
+            padding: 7px 10px;
+            font-size: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            background: #ffffff;
+            color: var(--text-dark);
+            outline: none;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            border-radius: 6px;
+            color: white;
+        }
+
+        .save-btn { background-color: var(--primary); }
+        .clear-btn { background-color: #64748b; }
+
+        .cloud-btn-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .cloud-btn {
+            flex: 1;
+            background-color: #0284c7;
+            padding: 8px;
+            font-size: 11px;
+            border-radius: 6px;
+            border: none;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Modals */
+        .custom-modal, .custom-message-modal {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.7);
+            background: rgba(15, 30, 54, 0.7);
+            backdrop-filter: blur(2px);
             z-index: 2000;
             justify-content: center;
             align-items: center;
         }
 
-        .modal-content {
-            background: #F5E6C4;
-            color: #1E3A5F;
+        .modal-content, .message-content {
+            background: #ffffff;
+            color: var(--text-dark);
             padding: 20px;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 300px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            border-radius: 14px;
+            width: 88%;
+            max-width: 320px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+            box-sizing: border-box;
         }
 
         .modal-header {
-            font-weight: bold;
-            margin-bottom: 15px;
-            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            font-size: 15px;
+            color: var(--primary);
         }
 
-        .settings-row {
+        .message-buttons {
             display: flex;
-            align-items: center;
-            margin: 5px 0;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 18px;
         }
 
-        .settings-row label {
-            margin-right: 5px;
-            font-weight: bold;
-            color: #1E3A5F;
-            font-size: 12px;
-            width: 50px;
-            text-align: right;
-        }
-
-        .settings-row input, .settings-row select {
-            width: 120px;
-            padding: 5px;
-            font-size: 12px;
-            margin: 0;
-            border: 1px solid #1E3A5F;
-            border-radius: 4px;
-            background: #FAF8E3;
-        }
-
-        .btn {
-            padding: 8px;
-            margin: 5px;
-            font-size: 12px;
-            font-weight: bold;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
+        .ok-btn {
+            background-color: var(--primary);
             color: white;
-            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
-        }
-
-        .save-btn {
-            background-color: #1E3A5F;
-        }
-
-        .clear-btn {
-            background-color: #8B1E3F;
-        }
-
-        .result {
-            margin-top: 10px;
+            padding: 7px 18px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
             font-size: 12px;
-            color: #1E3A5F;
-            background: #FAF8E3;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.15);
+            cursor: pointer;
+        }
+
+        .cancel-btn {
+            background-color: #e2e8f0;
+            color: var(--text-dark);
+            padding: 7px 18px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .sync-container {
+            position: fixed;
+            bottom: 30px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            z-index: 99;
+            pointer-events: none;
+        }
+
+        .sync-btn {
+            pointer-events: auto;
+            background: #059669;
+            padding: 6px 14px;
+            font-size: 11px;
+            border-radius: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            border: none;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .sync-status {
+            font-size: 9px;
+            margin-top: 2px;
+            color: #94a3b8;
+            font-weight: 500;
         }
 
         .footer {
-            font-size: 14px;
-            padding: 4.5px;
-            background-color: #0F2A44;
+            font-size: 11px;
+            padding: 5px;
+            background-color: #0b1526;
+            color: #64748b;
+            text-align: center;
             width: 100%;
             position: fixed;
             bottom: 0;
@@ -304,113 +503,9 @@
             z-index: 100;
         }
 
-        .bottom-padding {
-            height: 40px;
-        }
-
-        .leave-msg {
-            color: red;
-            font-size: 10px;
-            margin: 5px 0;
-        }
-
-        .ot-remaining {
-            color: red;
-            font-size: 10px;
-        }
-
-        .sync-container {
-            position: fixed;
-            bottom: 35px;
-            left: 0;
-            width: 100%;
-            text-align: center;
-            z-index: 99;
-        }
-
-        .sync-btn {
-            background-color: #4CAF50;
-            padding: 6px 15px;
-            font-size: 12px;
-            border-radius: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-            border: none;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .sync-btn:disabled {
-            background-color: #888;
-            cursor: not-allowed;
-        }
-
-        .sync-status {
-            font-size: 10px;
-            margin-top: 3px;
-            color: white;
-        }
-
-        .cloud-btn {
-            background-color: #2196F3;
-            padding: 6px 12px;
-            font-size: 11px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-            border: none;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            margin: 2px;
-        }
-
-        /* Custom Message Modal */
-        .custom-message-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 3000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .message-content {
-            background: #F5E6C4;
-            color: #1E3A5F;
-            padding: 20px;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 300px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
-        }
-
-        .message-buttons {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 15px;
-        }
-
-        .ok-btn {
-            background-color: #4CAF50;
-            color: white;
-            padding: 8px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .cancel-btn {
-            background-color: #f44336;
-            color: white;
-            padding: 8px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+        .bottom-padding { height: 45px; }
+        .leave-msg { color: var(--danger); font-size: 10px; margin: 5px 0; }
+        .ot-remaining { font-size: 11px; font-weight: 600; color: #d97706; }
     </style>
 </head>
 <body>
@@ -427,65 +522,68 @@
         </div>
 
         <div id="calendar-tab">
-            <div class="calendar-container" id="calendar-container"></div>
-            <button class="btn save-btn" onclick="generateMonthlyPDF()">Monthly Details PDF</button>
-            <div class="result" id="summary-box"></div>
+            <div id="calendar-container"></div>
+            <button class="pdf-btn" onclick="generateMonthlyPDF()">Download Monthly Details PDF</button>
+            <div id="summary-box"></div>
         </div>
 
         <div id="settings-tab" style="display: none;">
-            <form id="settingsForm">
-                <div class="settings-row">
-                    <label for="empName">Name:</label>
-                    <input type="text" id="empName" required>
-                </div>
-                <div class="settings-row">
-                    <label for="empCode">Code:</label>
-                    <input type="text" id="empCode" required>
-                </div>
-                <div class="settings-row">
-                    <label for="clBalance">CL:</label>
-                    <input type="number" id="clBalance" step="0.5" required>
-                </div>
-                <div class="settings-row">
-                    <label for="elBalance">EL:</label>
-                    <input type="number" id="elBalance" step="0.5" required>
-                </div>
-                <div class="settings-row">
-                    <label for="hplBalance">HPL:</label>
-                    <input type="number" id="hplBalance" step="0.5" required>
-                </div>
-                <div class="settings-row">
-                    <label for="specialLeave">Special:</label>
-                    <input type="number" id="specialLeave" max="3" required>
-                </div>
-                <div>
-                    <button type="button" class="btn save-btn" onclick="saveSettings()">Save</button>
-                    <button type="reset" class="btn clear-btn">Clear</button>
-                </div>
-                <div style="margin-top:15px;">
-                    <button type="button" class="cloud-btn" onclick="showConfirm('loadCloud')">Load from Cloud</button>
-                    <button type="button" class="cloud-btn" onclick="showConfirm('saveCloud')">Save to Cloud</button>
-                </div>
-            </form>
+            <div class="form-card">
+                <form id="settingsForm">
+                    <div class="settings-row">
+                        <label for="empName">Name:</label>
+                        <input type="text" id="empName" required>
+                    </div>
+                    <div class="settings-row">
+                        <label for="empCode">Code:</label>
+                        <input type="text" id="empCode" required>
+                    </div>
+                    <div class="settings-row">
+                        <label for="clBalance">CL Total:</label>
+                        <input type="number" id="clBalance" step="0.5" required>
+                    </div>
+                    <div class="settings-row">
+                        <label for="elBalance">EL Total:</label>
+                        <input type="number" id="elBalance" step="0.5" required>
+                    </div>
+                    <div class="settings-row">
+                        <label for="hplBalance">HPL Total:</label>
+                        <input type="number" id="hplBalance" step="0.5" required>
+                    </div>
+                    <div class="settings-row">
+                        <label for="specialLeave">Special:</label>
+                        <input type="number" id="specialLeave" max="3" required>
+                    </div>
+                    <div class="btn-group">
+                        <button type="button" class="btn save-btn" onclick="saveSettings()">Save</button>
+                        <button type="reset" class="btn clear-btn">Clear</button>
+                    </div>
+                    <div class="cloud-btn-group">
+                        <button type="button" class="cloud-btn" onclick="showConfirm('loadCloud')">Cloud Load</button>
+                        <button type="button" class="cloud-btn" onclick="showConfirm('saveCloud')">Cloud Save</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
+    <!-- Modals -->
     <div class="custom-modal" id="attendance-popup"></div>
     
     <div class="custom-modal" id="userRegisterModal">
         <div class="modal-content">
-            <div class="modal-header">Please Register First</div>
-            <p style="font-size:12px;margin-bottom:15px;">Enter your name and code to continue</p>
+            <div class="modal-header">Register User</div>
+            <p style="font-size:12px;color:#64748b;margin-bottom:12px;">Enter your details to initialize profile</p>
             <div class="settings-row">
                 <label for="regName">Name:</label>
-                <input type="text" id="regName" placeholder="Enter your name" required>
+                <input type="text" id="regName" placeholder="Full Name" required>
             </div>
             <div class="settings-row">
                 <label for="regCode">Code:</label>
-                <input type="text" id="regCode" placeholder="Enter code number" required>
+                <input type="text" id="regCode" placeholder="Emp Code" required>
             </div>
             <div style="margin-top:15px;">
-                <button class="btn save-btn" onclick="registerUser()">Register & Continue</button>
+                <button class="btn save-btn" style="width:100%" onclick="registerUser()">Register & Continue</button>
             </div>
         </div>
     </div>
@@ -493,18 +591,18 @@
     <div class="custom-message-modal" id="confirmModal">
         <div class="message-content">
             <div class="modal-header" id="confirmTitle">Confirm</div>
-            <p id="confirmMessage">Are you sure?</p>
+            <p id="confirmMessage" style="font-size:13px;"></p>
             <div class="message-buttons">
-                <button class="ok-btn" id="confirmOkBtn">OK</button>
                 <button class="cancel-btn" onclick="closeConfirmModal()">Cancel</button>
+                <button class="ok-btn" id="confirmOkBtn">OK</button>
             </div>
         </div>
     </div>
 
     <div class="custom-message-modal" id="alertModal">
         <div class="message-content">
-            <div class="modal-header" id="alertTitle">Message</div>
-            <p id="alertMessage"></p>
+            <div class="modal-header" id="alertTitle">Notice</div>
+            <p id="alertMessage" style="font-size:13px;"></p>
             <div class="message-buttons">
                 <button class="ok-btn" onclick="closeAlertModal()">OK</button>
             </div>
@@ -517,7 +615,7 @@
     </div>
 
     <div class="bottom-padding"></div>
-    <div class="footer">Powered by VT@Soft © 2026 | Version 3.2</div>
+    <div class="footer">VT@Soft Systems © 2026 | Version 3.4</div>
 
     <script>
         // ======================= FIREBASE CONFIG =======================
@@ -555,8 +653,8 @@
             "2026-01-26": "Republic Day",
             "2026-03-20": "Id-ul-Fitr (Ramzan)",
             "2026-04-03": "Good Friday",
-           "2026-04-09": "Vote",
-           "2026-04-14": "Ambekkar",
+            "2026-04-09": "Vote",
+            "2026-04-14": "Ambedkar Jayanti",
             "2026-04-15": "Vishu",
             "2026-05-01": "May Day",
             "2026-05-27": "Id-ul-Ad'ha (Bakrid)",
@@ -569,43 +667,41 @@
         };
 
         const shiftTimes = {
-            "A2": { start: "07:00", end: "15:20", grace: "07:05" },
-            "B2": { start: "13:40", end: "22:00", grace: "13:45" },
-            "C2": { start: "06:00", end: "14:00", grace: "06:05" },
-            "C1": { start: "08:00", end: "16:20", grace: "08:05" }
+            "A2": { start: "07:00", end: "15:20" },
+            "B2": { start: "13:40", end: "22:00" },
+            "C2": { start: "06:00", end: "14:00" },
+            "C1": { start: "08:00", end: "16:20" }
         };
 
-        // ======================= GLOBAL VARIABLES =======================
+        // ======================= STATE & STORAGE =======================
         const today = new Date();
         let currentYear = today.getFullYear();
         let currentMonth = today.getMonth();
         
-        let attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || {};
-        let employeeData = JSON.parse(localStorage.getItem('employeeData')) || {
+        let attendanceData = {};
+        let employeeData = {
             name: '', code: '', 
             clTotal: 0, elTotal: 0, hplTotal: 0, specialTotal: 3, 
             lastUpdate: "2025-12-01",
             lastIncrementDate: "2025-12-01",
             settingsUpdated: false, userId: '', lastSync: 0
         };
+
+        try {
+            attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || {};
+            const storedEmp = JSON.parse(localStorage.getItem('employeeData'));
+            if (storedEmp && typeof storedEmp === 'object') {
+                employeeData = storedEmp;
+            }
+        } catch (e) {
+            console.warn("Storage error:", e);
+        }
         
-        // Backward compatibility patch
-        if (employeeData.cl !== undefined) {
-            employeeData.clTotal = employeeData.cl || 0;
-            delete employeeData.cl;
-        }
-        if (employeeData.el !== undefined) {
-            employeeData.elTotal = employeeData.el || 0;
-            delete employeeData.el;
-        }
-        if (employeeData.hpl !== undefined) {
-            employeeData.hplTotal = employeeData.hpl || 0;
-            delete employeeData.hpl;
-        }
-        if (employeeData.special !== undefined) {
-            employeeData.specialTotal = employeeData.special || 0;
-            delete employeeData.special;
-        }
+        // Backward compatibility
+        if (employeeData.cl !== undefined) { employeeData.clTotal = employeeData.cl || 0; delete employeeData.cl; }
+        if (employeeData.el !== undefined) { employeeData.elTotal = employeeData.el || 0; delete employeeData.el; }
+        if (employeeData.hpl !== undefined) { employeeData.hplTotal = employeeData.hpl || 0; delete employeeData.hpl; }
+        if (employeeData.special !== undefined) { employeeData.specialTotal = employeeData.special || 0; delete employeeData.special; }
 
         employeeData.clTotal = employeeData.clTotal || 0;
         employeeData.elTotal = employeeData.elTotal || 0;
@@ -614,53 +710,57 @@
         employeeData.lastUpdate = employeeData.lastUpdate || "2025-12-01";
         if (!employeeData.lastIncrementDate) employeeData.lastIncrementDate = employeeData.lastUpdate;
         
-        localStorage.setItem('employeeData', JSON.stringify(employeeData));
-        
         let syncInProgress = false;
-        let lastSyncTime = parseInt(localStorage.getItem('lastSyncTime')) || 0;
         let pendingAction = null;
-        
-        // Cache for current month balance
         let cachedBalance = null;
         let cachedMonthKey = null;
 
         // ======================= HELPER FUNCTIONS =======================
         function getMonthKey(year, month) {
-            return `${year}-${String(month + 1).padStart(2, '0')}`;
+            return year + '-' + String(month + 1).padStart(2, '0');
         }
 
-        // HPL deduction multiplier: full day = 2, half day = 1
+        // Clean leave string matching
+        function normalizeLeaveType(type) {
+            if (!type) return '';
+            const t = type.toString().toUpperCase().trim();
+            if (t === 'CL') return 'CL';
+            if (t === 'EL') return 'EL';
+            if (t === 'HPL') return 'HPL';
+            if (t === 'SPECIAL' || t === 'SPL') return 'SPECIAL';
+            return '';
+        }
+
         function getLeaveDeduction(leaveType, halfDay) {
+            const norm = normalizeLeaveType(leaveType);
             let base = halfDay === 'Yes' ? 0.5 : 1;
-            if (leaveType === 'HPL') return base * 2;
+            if (norm === 'HPL') return base * 2;
             return base;
         }
 
-        // Calculate used leaves for a given month (year, month) with HPL multiplier
         function calculateUsedLeavesForMonth(year, month) {
             let used = { cl: 0, el: 0, hpl: 0, special: 0 };
             const monthKey = getMonthKey(year, month);
             for (let dateStr in attendanceData) {
-                if (!dateStr.startsWith(monthKey)) continue;
+                if (dateStr.indexOf(monthKey) !== 0) continue;
                 const d = attendanceData[dateStr];
-                if (!d.leave) continue;
-                const lt = (d.leave || '').toUpperCase().trim();
-                const deduction = getLeaveDeduction(lt, d.halfDay);
-                if (lt === 'CL') used.cl += deduction;
-                else if (lt === 'EL') used.el += deduction;
-                else if (lt === 'HPL') used.hpl += deduction;
-                else if (lt === 'SPECIAL' || lt === 'SPL') used.special += deduction;
+                if (!d || !d.leave) continue;
+                const norm = normalizeLeaveType(d.leave);
+                const deduction = getLeaveDeduction(norm, d.halfDay);
+                if (norm === 'CL') used.cl += deduction;
+                else if (norm === 'EL') used.el += deduction;
+                else if (norm === 'HPL') used.hpl += deduction;
+                else if (norm === 'SPECIAL') used.special += deduction;
             }
             return used;
         }
 
-        // Calculate remaining balance at the START of a given month (year, month)
         function calculateBalanceAtMonthStart(year, month) {
             let remaining = {
-                cl: employeeData.clTotal || 0,
-                el: employeeData.elTotal || 0,
-                hpl: employeeData.hplTotal || 0,
-                special: employeeData.specialTotal || 0
+                cl: parseFloat(employeeData.clTotal) || 0,
+                el: parseFloat(employeeData.elTotal) || 0,
+                hpl: parseFloat(employeeData.hplTotal) || 0,
+                special: parseInt(employeeData.specialTotal) || 0
             };
             const targetMonthKey = getMonthKey(year, month);
             for (let dateStr in attendanceData) {
@@ -669,19 +769,18 @@
                 const recordMonthKey = getMonthKey(date.getFullYear(), date.getMonth());
                 if (recordMonthKey < targetMonthKey) {
                     const d = attendanceData[dateStr];
-                    if (!d.leave) continue;
-                    const lt = (d.leave || '').toUpperCase().trim();
-                    const deduction = getLeaveDeduction(lt, d.halfDay);
-                    if (lt === 'CL') remaining.cl = Math.max(0, remaining.cl - deduction);
-                    else if (lt === 'EL') remaining.el = Math.max(0, remaining.el - deduction);
-                    else if (lt === 'HPL') remaining.hpl = Math.max(0, remaining.hpl - deduction);
-                    else if (lt === 'SPECIAL' || lt === 'SPL') remaining.special = Math.max(0, remaining.special - deduction);
+                    if (!d || !d.leave) continue;
+                    const norm = normalizeLeaveType(d.leave);
+                    const deduction = getLeaveDeduction(norm, d.halfDay);
+                    if (norm === 'CL') remaining.cl = Math.max(0, remaining.cl - deduction);
+                    else if (norm === 'EL') remaining.el = Math.max(0, remaining.el - deduction);
+                    else if (norm === 'HPL') remaining.hpl = Math.max(0, remaining.hpl - deduction);
+                    else if (norm === 'SPECIAL') remaining.special = Math.max(0, remaining.special - deduction);
                 }
             }
             return remaining;
         }
 
-        // Get current balance for the displayed month (with caching)
         function getLeaveBalanceForCurrentMonth() {
             const monthKey = getMonthKey(currentYear, currentMonth);
             if (cachedBalance && cachedMonthKey === monthKey) {
@@ -705,18 +804,20 @@
             cachedMonthKey = null;
         }
 
-        // ======================= EL AUTO-INCREMENT (ONCE PER MONTH) =======================
+        // ======================= EL AUTO-INCREMENT =======================
         function updateEarnedLeave() {
             const todayDate = new Date();
             const lastIncDate = new Date(employeeData.lastIncrementDate);
             let monthsDiff = (todayDate.getFullYear() - lastIncDate.getFullYear()) * 12 + 
                              (todayDate.getMonth() - lastIncDate.getMonth());
             if (monthsDiff > 0) {
-                employeeData.elTotal += monthsDiff * 2.5;
+                employeeData.elTotal = (parseFloat(employeeData.elTotal) || 0) + (monthsDiff * 2.5);
                 const newIncDate = new Date(todayDate.getFullYear(), todayDate.getMonth(), 1);
                 employeeData.lastIncrementDate = newIncDate.toISOString().split('T')[0];
                 employeeData.lastUpdate = todayDate.toISOString().split('T')[0];
-                localStorage.setItem('employeeData', JSON.stringify(employeeData));
+                try {
+                    localStorage.setItem('employeeData', JSON.stringify(employeeData));
+                } catch(e) {}
                 invalidateBalanceCache();
             }
         }
@@ -735,8 +836,8 @@
                         if (satCount === 4) fourthSat = day;
                     }
                 }
-                if (secondSat) weekends.push(`${year}-${String(month + 1).padStart(2, '0')}-${String(secondSat).padStart(2, '0')}`);
-                if (fourthSat) weekends.push(`${year}-${String(month + 1).padStart(2, '0')}-${String(fourthSat).padStart(2, '0')}`);
+                if (secondSat) weekends.push(year + '-' + String(month + 1).padStart(2, '0') + '-' + String(secondSat).padStart(2, '0'));
+                if (fourthSat) weekends.push(year + '-' + String(month + 1).padStart(2, '0') + '-' + String(fourthSat).padStart(2, '0'));
             }
             return weekends;
         }
@@ -744,24 +845,16 @@
         const weekends2025 = getWeekendDates(2025);
         const weekends2026 = getWeekendDates(2026);
 
-        function getHolidaysForYear(year) {
-            return year === 2025 ? holidays2025 : holidays2026;
-        }
-
-        function getWeekendsForYear(year) {
-            return year === 2025 ? weekends2025 : weekends2026;
-        }
-
-        function isHoliday(dateStr, dayOfWeek, date) {
+        function isHoliday(dateStr, dayOfWeek) {
             if (dayOfWeek === 0) return true;
-            const holidays = getHolidaysForYear(currentYear);
-            const weekends = getWeekendsForYear(currentYear);
-            return holidays[dateStr] || weekends.includes(dateStr);
+            const holidays = currentYear === 2025 ? holidays2025 : holidays2026;
+            const weekends = currentYear === 2025 ? weekends2025 : weekends2026;
+            return holidays[dateStr] || (weekends.indexOf(dateStr) !== -1);
         }
 
-        // ======================= UI & MODAL FUNCTIONS =======================
-        function showAlert(message, title = "Message") {
-            document.getElementById('alertTitle').textContent = title;
+        // ======================= UI & MODAL HELPERS =======================
+        function showAlert(message, title) {
+            document.getElementById('alertTitle').textContent = title || "Notice";
             document.getElementById('alertMessage').textContent = message;
             document.getElementById('alertModal').style.display = 'flex';
         }
@@ -774,13 +867,13 @@
             pendingAction = action;
             if (action === 'loadCloud') {
                 document.getElementById('confirmTitle').textContent = "Load from Cloud";
-                document.getElementById('confirmMessage').textContent = "Load all data from cloud? This will replace your local data.";
+                document.getElementById('confirmMessage').textContent = "Replace local data with latest cloud backup?";
             } else if (action === 'saveCloud') {
                 document.getElementById('confirmTitle').textContent = "Save to Cloud";
-                document.getElementById('confirmMessage').textContent = "Save all data to cloud? This will overwrite your cloud data.";
+                document.getElementById('confirmMessage').textContent = "Overwrite cloud storage with current phone data?";
             } else if (action === 'saveSettings') {
                 document.getElementById('confirmTitle').textContent = "Save Settings";
-                document.getElementById('confirmMessage').textContent = "Save settings changes?";
+                document.getElementById('confirmMessage').textContent = "Save updated balance and profile details?";
             }
             document.getElementById('confirmModal').style.display = 'flex';
         }
@@ -795,7 +888,6 @@
             else if (pendingAction === 'saveCloud') saveToCloud();
             else if (pendingAction === 'saveSettings') saveSettingsConfirmed();
             closeConfirmModal();
-            pendingAction = null;
         };
 
         function packDayData(dayData) {
@@ -823,11 +915,11 @@
             };
         }
 
-        function packMonthData(attendanceData, year, month) {
+        function packMonthData(data, year, month) {
             const packed = {};
             const monthStr = getMonthKey(year, month);
-            for (const dateStr in attendanceData) {
-                if (dateStr.startsWith(monthStr)) packed[dateStr] = packDayData(attendanceData[dateStr]);
+            for (const dateStr in data) {
+                if (dateStr.indexOf(monthStr) === 0) packed[dateStr] = packDayData(data[dateStr]);
             }
             return packed;
         }
@@ -845,7 +937,7 @@
             if (!decimalHours || isNaN(decimalHours)) return '';
             const hours = Math.floor(decimalHours);
             const minutes = Math.round((decimalHours - hours) * 60);
-            return `${hours}.${String(minutes).padStart(2, '0')}`;
+            return hours + '.' + String(minutes).padStart(2, '0');
         }
 
         function parseTimeToHours(timeStr) {
@@ -853,10 +945,11 @@
             timeStr = timeStr.trim();
             if (/^\d+$/.test(timeStr)) return parseFloat(timeStr);
             timeStr = timeStr.replace(':', '.');
-            const [hours, minutes] = timeStr.split('.').map(Number);
+            const parts = timeStr.split('.');
+            const hours = Number(parts[0]);
+            const minutes = parts[1] !== undefined ? Number(parts[1]) : 0;
             if (isNaN(hours)) return 0;
-            if (isNaN(minutes)) return hours;
-            return hours + (minutes / 60);
+            return isNaN(minutes) ? hours : hours + (minutes / 60);
         }
 
         // ======================= CALENDAR RENDERING =======================
@@ -886,20 +979,20 @@
                     <div>Wed</div><div>Thu</div><div>Fri</div>
                     <div>Sat</div>
                 </div>
+                <div class="calendar-body">
             `;
 
             let date = 1;
             for (let i = 0; i < 6; i++) {
                 if (date > daysInMonth) break;
-                calendarHTML += `<div class="week">`;
+                calendarHTML += '<div class="week">';
                 for (let j = 0; j < 7; j++) {
                     if ((i === 0 && j < firstDay) || date > daysInMonth) {
-                        calendarHTML += '<div class="day"></div>';
+                        calendarHTML += '<div class="day" style="background:#f8fafc;border-color:transparent;"></div>';
                     } else {
-                        const currentDate = new Date(currentYear, currentMonth, date);
-                        const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
+                        const dateStr = currentYear + '-' + String(currentMonth + 1).padStart(2, '0') + '-' + String(date).padStart(2, '0');
                         let classes = 'day';
-                        if (isHoliday(dateStr, j, currentDate)) classes += ' holiday';
+                        if (isHoliday(dateStr, j)) classes += ' holiday';
                         if (today.getFullYear() === currentYear && today.getMonth() === currentMonth && today.getDate() === date) {
                             classes += ' today';
                         }
@@ -907,24 +1000,32 @@
                         if (dayData) {
                             if (dayData.leave) {
                                 const leaveType = dayData.leave.toLowerCase();
-                                if (dayData.halfDay === 'Yes') classes += ` half-day half-day-${leaveType}`;
-                                else classes += ` leave leave-${leaveType}`;
+                                if (dayData.halfDay === 'Yes') classes += ' half-day half-day-' + leaveType;
+                                else classes += ' leave leave-' + leaveType;
                             } else if (dayData.inPunch && dayData.outPunch) classes += ' present-full';
                             else if (dayData.inPunch) classes += ' present-in';
                         }
-                        const otDisplay = dayData?.ot && dayData.ot != 0 ? `<span class="ot-display">${formatTimeFromHours(dayData.ot)}h</span>` : '';
-                        calendarHTML += `<div class="${classes}" onclick="showAttendancePopup('${dateStr}')">${date}${otDisplay}</div>`;
+                        
+                        let otDisplay = '';
+                        if (dayData && dayData.ot && dayData.ot != 0) {
+                            otDisplay = '<span class="ot-display">' + formatTimeFromHours(dayData.ot) + 'h</span>';
+                        }
+
+                        calendarHTML += '<div class="' + classes + '" onclick="showAttendancePopup(\'' + dateStr + '\')">' + date + otDisplay + '</div>';
                         date++;
                     }
                 }
                 calendarHTML += '</div>';
             }
-            document.getElementById('calendar-container').innerHTML = calendarHTML;
-            updateSummaryBox();
-            window.scrollTo({ top: document.getElementById('calendar-container').offsetTop - 130, behavior: 'smooth' });
+            calendarHTML += '</div>';
+            
+            const calendarContainer = document.getElementById('calendar-container');
+            if (calendarContainer) {
+                calendarContainer.innerHTML = calendarHTML;
+                updateSummaryBox();
+            }
         }
 
-        // Optimized summary update (single loop)
         function updateSummaryBox() {
             let totalOT = 0, quarterlyOT = 0, nextMonthTotalOT = 0, presentDays = 0;
             const prevMonth = (currentMonth === 0 ? 11 : currentMonth - 1);
@@ -952,28 +1053,47 @@
                 }
                 if (date.getFullYear() === currentYear && date.getMonth() === currentMonth) {
                     const d = attendanceData[dateStr];
-                    if (d.inPunch && d.outPunch && !isHoliday(dateStr, date.getDay(), date)) presentDays++;
+                    if (d.inPunch && d.outPunch && !isHoliday(dateStr, date.getDay())) presentDays++;
                 }
             }
 
             const usedThisMonth = calculateUsedLeavesForMonth(currentYear, currentMonth);
             const balThisMonth = getLeaveBalanceForCurrentMonth();
             const otRemaining = 75 - quarterlyOT;
-            const otRemainingDisplay = otRemaining >= 0 ? `(-${otRemaining.toFixed(2)}hr)` : `(+${Math.abs(otRemaining).toFixed(2)}hr)`;
+            const otRemainingDisplay = otRemaining >= 0 ? '(-' + otRemaining.toFixed(2) + 'h)' : '(+' + Math.abs(otRemaining).toFixed(2) + 'h)';
             
             let summaryHTML = `
-                <p>Total OT: ${formatTimeFromHours(totalOT)} hrs</p>
-                <p>Quarterly OT: ${formatTimeFromHours(quarterlyOT)} hrs <span class="ot-remaining">${otRemainingDisplay}</span></p>
+                <div class="summary-grid">
+                    <div class="summary-card">
+                        <div class="label">Monthly OT</div>
+                        <div class="val">${formatTimeFromHours(totalOT)} hrs</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="label">Quarterly OT</div>
+                        <div class="val">${formatTimeFromHours(quarterlyOT)} hrs <span class="ot-remaining">${otRemainingDisplay}</span></div>
+                    </div>
+                    ${hasNextMonthEntries ? `
+                    <div class="summary-card full-width">
+                        <div class="label">Next Month OT</div>
+                        <div class="val">${formatTimeFromHours(nextMonthTotalOT)} hrs</div>
+                    </div>` : ''}
+                    <div class="summary-card full-width">
+                        <div class="label">Leave Status (Used / Balance)</div>
+                        <div class="leaves-badge-container">
+                            <div class="leave-badge"><div class="lbl">CL</div><div class="count">${usedThisMonth.cl.toFixed(1)} / ${balThisMonth.cl.toFixed(1)}</div></div>
+                            <div class="leave-badge"><div class="lbl">EL</div><div class="count">${usedThisMonth.el.toFixed(1)} / ${balThisMonth.el.toFixed(1)}</div></div>
+                            <div class="leave-badge"><div class="lbl">HPL</div><div class="count">${usedThisMonth.hpl.toFixed(1)} / ${balThisMonth.hpl.toFixed(1)}</div></div>
+                            <div class="leave-badge"><div class="lbl">SPL</div><div class="count">${usedThisMonth.special} / ${balThisMonth.special}</div></div>
+                        </div>
+                    </div>
+                    <div class="summary-card full-width">
+                        <div class="label">Present Days</div>
+                        <div class="val">${presentDays} Days</div>
+                    </div>
+                </div>
             `;
-            if (hasNextMonthEntries) summaryHTML += `<p>Next Month Total OT: ${formatTimeFromHours(nextMonthTotalOT)} hrs</p>`;
-            summaryHTML += `
-                <p>CL: ${usedThisMonth.cl.toFixed(1)} (${balThisMonth.cl.toFixed(1)})</p>
-                <p>EL: ${usedThisMonth.el.toFixed(1)} (${balThisMonth.el.toFixed(1)})</p>
-                <p>HPL: ${usedThisMonth.hpl.toFixed(1)} (${balThisMonth.hpl.toFixed(1)})</p>
-                <p>Special: ${usedThisMonth.special} (${balThisMonth.special})</p>
-                <p>Total Present Days: ${presentDays}</p>
-            `;
-            document.getElementById('summary-box').innerHTML = summaryHTML;
+            const summaryBox = document.getElementById('summary-box');
+            if (summaryBox) summaryBox.innerHTML = summaryHTML;
         }
 
         // ======================= ATTENDANCE POPUP =======================
@@ -981,20 +1101,21 @@
             const data = attendanceData[dateStr] || {};
             const defaultTimes = shiftTimes[data.shift] || { start: '', end: '' };
             const bal = getLeaveBalanceForCurrentMonth();
-            // Adjust balance to show correct available including current leave if editing
+            
+            // Adjust balance for the selected day in case user wants to change existing leave
             let adjustedBal = { ...bal };
             if (data.leave) {
-                const lt = data.leave.toUpperCase();
-                const restore = getLeaveDeduction(lt, data.halfDay);
-                if (lt === 'CL') adjustedBal.cl += restore;
-                else if (lt === 'EL') adjustedBal.el += restore;
-                else if (lt === 'HPL') adjustedBal.hpl += restore;
-                else if (lt === 'SPECIAL') adjustedBal.special += restore;
+                const norm = normalizeLeaveType(data.leave);
+                const restore = getLeaveDeduction(norm, data.halfDay);
+                if (norm === 'CL') adjustedBal.cl += restore;
+                else if (norm === 'EL') adjustedBal.el += restore;
+                else if (norm === 'HPL') adjustedBal.hpl += restore;
+                else if (norm === 'SPECIAL') adjustedBal.special += restore;
             }
             
             let popupHTML = `
                 <div class="modal-content">
-                    <h3 style="font-size: 14px; margin: 5px 0;">${dateStr}</h3>
+                    <div class="modal-header">Duty Punch: ${dateStr}</div>
                     <div class="settings-row">
                         <label for="shift">Shift:</label>
                         <select id="shift" onchange="setDefaultTimes()">
@@ -1035,9 +1156,9 @@
                         </select>
                     </div>
             `;
-            if (!employeeData.settingsUpdated) popupHTML += `<p class="leave-msg">Please update leave balance in settings tab</p>`;
+            if (!employeeData.settingsUpdated) popupHTML += `<p class="leave-msg">Please initialize leave total in Settings tab</p>`;
             popupHTML += `
-                    <div>
+                    <div class="btn-group">
                         <button class="btn save-btn" onclick="saveAttendance('${dateStr}')">Save</button>
                         <button class="btn clear-btn" onclick="closeAttendancePopup()">Close</button>
                     </div>
@@ -1058,7 +1179,9 @@
             if (leave === 'EL' || leave === 'Special') {
                 halfDaySelect.value = 'No';
                 halfDaySelect.disabled = true;
-            } else halfDaySelect.disabled = false;
+            } else {
+                halfDaySelect.disabled = false;
+            }
         }
 
         function setDefaultTimes() {
@@ -1080,34 +1203,33 @@
             const shift = document.getElementById('shift').value;
             let ot = parseTimeToHours(otInput);
             
-            const bal = getLeaveBalanceForCurrentMonth();
+            // Check Available Balance Accurately
             if (leave && leave !== '') {
-                const deductionNeeded = getLeaveDeduction(leave, halfDay);
-                const checkBalance = (type, required) => {
-                    const balance = type === 'CL' ? bal.cl : type === 'EL' ? bal.el : type === 'HPL' ? bal.hpl : bal.special;
-                    return (balance || 0) >= required;
-                };
+                const norm = normalizeLeaveType(leave);
+                const deductionNeeded = getLeaveDeduction(norm, halfDay);
+                const bal = getLeaveBalanceForCurrentMonth();
                 const existingData = attendanceData[dateStr] || {};
+                
+                let currentBalForType = norm === 'CL' ? bal.cl : (norm === 'EL' ? bal.el : (norm === 'HPL' ? bal.hpl : bal.special));
+                
                 if (existingData.leave) {
-                    const existingLeave = existingData.leave.toUpperCase();
-                    const existingDeduction = getLeaveDeduction(existingLeave, existingData.halfDay);
-                    if (existingLeave === leave) {
-                        if (deductionNeeded > existingDeduction && !checkBalance(leave, deductionNeeded - existingDeduction)) {
-                            showAlert(`Insufficient ${leave} balance for this change!`, "Leave Error");
-                            return;
-                        }
-                    } else if (!checkBalance(leave, deductionNeeded)) {
-                        showAlert(`Insufficient ${leave} balance!`, "Leave Error");
-                        return;
+                    const existNorm = normalizeLeaveType(existingData.leave);
+                    if (existNorm === norm) {
+                        currentBalForType += getLeaveDeduction(existNorm, existingData.halfDay);
                     }
-                } else if (!checkBalance(leave, deductionNeeded)) {
-                    showAlert(`Insufficient ${leave} balance!`, "Leave Error");
+                }
+
+                if (currentBalForType < deductionNeeded) {
+                    showAlert("Insufficient " + leave + " balance remaining!", "Leave Warning");
                     return;
                 }
             }
 
             attendanceData[dateStr] = { inPunch, outPunch, ot, leave, halfDay, shift };
-            localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
+            try {
+                localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
+            } catch(e) {}
+            
             invalidateBalanceCache();
             closeAttendancePopup();
             showMonth(currentMonth);
@@ -1116,14 +1238,17 @@
             updateSummaryBox();
         }
 
-        // ======================= CLOUD SYNC FUNCTIONS =======================
+        // ======================= CLOUD SYNC =======================
         async function autoSyncCurrentMonth() {
             if (!db || !employeeData.userId) return false;
             const monthKey = getMonthKey(currentYear, currentMonth);
-            const lastAutoSync = localStorage.getItem(`lastAutoSync_${monthKey}`);
+            let lastAutoSync = null;
+            try {
+                lastAutoSync = localStorage.getItem('lastAutoSync_' + monthKey);
+            } catch(e) {}
+            
             const now = Date.now();
-            const oneHour = 60 * 60 * 1000;
-            if (lastAutoSync && (now - parseInt(lastAutoSync) < oneHour)) return false;
+            if (lastAutoSync && (now - parseInt(lastAutoSync) < 3600000)) return false;
             try {
                 updateSyncStatus('Auto-syncing...');
                 const docRef = db.collection("attendance_records").doc(employeeData.userId).collection("months").doc(monthKey);
@@ -1134,19 +1259,22 @@
                     const remoteTimestamp = remoteData.lastUpdated || 0;
                     let localTimestamp = 0;
                     for (let dateStr in attendanceData) {
-                        if (dateStr.startsWith(monthKey)) localTimestamp = Math.max(localTimestamp, remoteTimestamp);
+                        if (dateStr.indexOf(monthKey) === 0) localTimestamp = Math.max(localTimestamp, remoteTimestamp);
                     }
                     if (remoteTimestamp > localTimestamp) {
-                        const packedMonthData = remoteData.monthData || {};
-                        const unpackedData = unpackMonthData(packedMonthData);
+                        const unpackedData = unpackMonthData(remoteData.monthData || {});
                         for (let dateStr in unpackedData) attendanceData[dateStr] = unpackedData[dateStr];
-                        localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
+                        try {
+                            localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
+                        } catch(e) {}
                         invalidateBalanceCache();
                         cloudDataLoaded = true;
                     }
                 }
                 await saveCurrentMonthToCloud();
-                localStorage.setItem(`lastAutoSync_${monthKey}`, now.toString());
+                try {
+                    localStorage.setItem('lastAutoSync_' + monthKey, now.toString());
+                } catch(e) {}
                 updateSyncStatus('Auto-synced');
                 if (cloudDataLoaded) showMonth(currentMonth);
                 return true;
@@ -1157,8 +1285,7 @@
         }
 
         async function saveCurrentMonthToCloud() {
-            if (!db || !employeeData.userId) return;
-            if (syncInProgress) return;
+            if (!db || !employeeData.userId || syncInProgress) return;
             syncInProgress = true;
             const syncBtn = document.getElementById('syncBtn');
             if (syncBtn) syncBtn.disabled = true;
@@ -1183,11 +1310,11 @@
         }
 
         async function loadFromCloud() {
-            if (!db || !employeeData.userId) { showAlert("Firebase not ready", "Cloud Error"); return; }
+            if (!db || !employeeData.userId) { showAlert("Firebase not connected", "Sync Error"); return; }
             try {
-                updateSyncStatus('Loading all...');
+                updateSyncStatus('Loading...');
                 const snapshot = await db.collection("attendance_records").doc(employeeData.userId).collection("months").get();
-                if (snapshot.empty) { updateSyncStatus('No cloud data'); showAlert("No data found in cloud", "Cloud Error"); return; }
+                if (snapshot.empty) { updateSyncStatus('No data'); showAlert("No records in cloud database", "Sync Notice"); return; }
                 let loadedCount = 0;
                 snapshot.forEach(doc => {
                     const monthData = doc.data();
@@ -1195,20 +1322,22 @@
                     for (let dateStr in unpackedData) attendanceData[dateStr] = unpackedData[dateStr];
                     loadedCount++;
                 });
-                localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
+                try {
+                    localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
+                } catch(e) {}
                 invalidateBalanceCache();
                 showMonth(currentMonth);
-                updateSyncStatus(`Loaded ${loadedCount} months`);
+                updateSyncStatus('Loaded (' + loadedCount + 'm)');
                 setTimeout(() => updateSyncStatus('Ready'), 2000);
-                showAlert(`Successfully loaded ${loadedCount} months from cloud`, "Cloud Success");
+                showAlert('Loaded records for ' + loadedCount + ' months.', "Sync Success");
             } catch (error) {
                 updateSyncStatus('Load failed');
-                showAlert("Failed to load from cloud: " + error.message, "Cloud Error");
+                showAlert(error.message, "Sync Error");
             }
         }
 
         async function saveToCloud() {
-            if (!db || !employeeData.userId) { showAlert("Firebase not ready", "Cloud Error"); return; }
+            if (!db || !employeeData.userId) { showAlert("Firebase not connected", "Sync Error"); return; }
             syncInProgress = true;
             const syncBtn = document.getElementById('syncBtn');
             if (syncBtn) syncBtn.disabled = true;
@@ -1232,12 +1361,12 @@
                     });
                     savedCount++;
                 }
-                updateSyncStatus(`Saved ${savedCount} months`);
+                updateSyncStatus('Saved (' + savedCount + 'm)');
                 setTimeout(() => updateSyncStatus('Ready'), 2000);
-                showAlert(`Successfully saved ${savedCount} months to cloud`, "Cloud Success");
+                showAlert('Saved records for ' + savedCount + ' months.', "Sync Success");
             } catch (error) {
                 updateSyncStatus('Save failed');
-                showAlert("Failed to save to cloud: " + error.message, "Cloud Error");
+                showAlert(error.message, "Sync Error");
             } finally {
                 syncInProgress = false;
                 if (syncBtn) syncBtn.disabled = false;
@@ -1245,7 +1374,7 @@
         }
 
         async function autoSync() {
-            if (!db || !employeeData.userId) { showAlert("Cloud sync not available", "Sync Error"); return; }
+            if (!db || !employeeData.userId) { showAlert("Cloud connection offline", "Sync Error"); return; }
             if (syncInProgress) return;
             syncInProgress = true;
             updateSyncStatus('Syncing...');
@@ -1255,7 +1384,7 @@
                 setTimeout(() => updateSyncStatus('Ready'), 2000);
             } catch (error) {
                 updateSyncStatus('Sync failed');
-                showAlert("Sync failed: " + error.message, "Sync Error");
+                showAlert(error.message, "Sync Error");
             } finally {
                 syncInProgress = false;
             }
@@ -1265,14 +1394,14 @@
             const statusElem = document.getElementById('syncStatus');
             if (statusElem) {
                 statusElem.textContent = status || 'Offline';
-                if (status === 'Ready' || status === 'Synced successfully' || status === 'Auto-synced') statusElem.style.color = '#4CAF50';
-                else if (status.includes('...') || status === 'Syncing...' || status === 'Auto-syncing...') statusElem.style.color = '#FF9800';
-                else if (status.includes('failed') || status.includes('Failed')) statusElem.style.color = '#f44336';
-                else statusElem.style.color = '#ffffff';
+                if (status === 'Ready' || status === 'Synced successfully' || status === 'Auto-synced') statusElem.style.color = '#10b981';
+                else if (status.indexOf('...') !== -1) statusElem.style.color = '#f59e0b';
+                else if (status.indexOf('failed') !== -1 || status.indexOf('Failed') !== -1) statusElem.style.color = '#ef4444';
+                else statusElem.style.color = '#94a3b8';
             }
         }
 
-        // ======================= SETTINGS & INIT =======================
+        // ======================= SETTINGS & PROFILE =======================
         function saveSettings() { showConfirm('saveSettings'); }
         function saveSettingsConfirmed() {
             employeeData.name = document.getElementById('empName').value;
@@ -1283,7 +1412,9 @@
             employeeData.specialTotal = parseInt(document.getElementById('specialLeave').value) || 0;
             employeeData.settingsUpdated = true;
             if (!employeeData.userId) employeeData.userId = generateUserId(employeeData.name, employeeData.code);
-            localStorage.setItem('employeeData', JSON.stringify(employeeData));
+            try {
+                localStorage.setItem('employeeData', JSON.stringify(employeeData));
+            } catch(e) {}
             invalidateBalanceCache();
             showAlert('Settings saved successfully!', "Success");
             loadSettings();
@@ -1301,9 +1432,9 @@
         }
 
         function generateUserId(name, code) {
-            const firstThreeLetters = name.substring(0, 3).toLowerCase().replace(/\s/g, '');
-            const cleanCode = code.replace(/\s/g, '');
-            return `${firstThreeLetters}_${cleanCode}`;
+            const cleanName = (name || '').substring(0, 3).toLowerCase().replace(/[^a-z0-9]/g, '');
+            const cleanCode = (code || '').replace(/[^a-z0-9]/g, '');
+            return (cleanName || 'usr') + '_' + cleanCode;
         }
 
         function showUserRegisterModal() {
@@ -1313,12 +1444,14 @@
         function registerUser() {
             const name = document.getElementById('regName').value.trim();
             const code = document.getElementById('regCode').value.trim();
-            if (!name || !code) { showAlert("Please enter both name and code", "Registration Error"); return; }
+            if (!name || !code) { showAlert("Please fill out both Name and Code", "Input Error"); return; }
             employeeData.name = name;
             employeeData.code = code;
             employeeData.userId = generateUserId(name, code);
             employeeData.settingsUpdated = true;
-            localStorage.setItem('employeeData', JSON.stringify(employeeData));
+            try {
+                localStorage.setItem('employeeData', JSON.stringify(employeeData));
+            } catch(e) {}
             document.getElementById('userRegisterModal').style.display = 'none';
             loadSettings();
             showMonth(currentMonth);
@@ -1329,7 +1462,8 @@
             document.getElementById('calendar-tab').style.display = tab === 'calendar' ? 'block' : 'none';
             document.getElementById('settings-tab').style.display = tab === 'settings' ? 'block' : 'none';
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelector(`.tab-btn[onclick="showTab('${tab}')"]`).classList.add('active');
+            const activeBtn = document.querySelector(`.tab-btn[onclick="showTab('${tab}')"]`);
+            if (activeBtn) activeBtn.classList.add('active');
             if (tab === 'calendar') updateSummaryBox();
         }
 
@@ -1340,30 +1474,30 @@
                 let totalLeave = 0, totalOT = 0, totalPresent = 0;
                 const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
                 for (let d = 1; d <= daysInMonth; d++) {
-                    const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                    const dateStr = currentYear + '-' + String(currentMonth + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
                     const data = attendanceData[dateStr] || {};
                     const dateObj = new Date(currentYear, currentMonth, d);
-                    const isHol = isHoliday(dateStr, dateObj.getDay(), dateObj);
-                    const leaveStr = data.leave ? `${data.leave}${data.halfDay === 'Yes' ? ' (Half)' : ''}` : (isHol ? 'Holiday' : '');
+                    const isHol = isHoliday(dateStr, dateObj.getDay());
+                    const leaveStr = data.leave ? (data.leave + (data.halfDay === 'Yes' ? ' (Half)' : '')) : (isHol ? 'Holiday' : '');
                     if (data.leave) totalLeave += getLeaveDeduction(data.leave, data.halfDay);
                     else if (data.inPunch && data.outPunch && !isHol) totalPresent += 1;
                     if (data.ot) totalOT += parseFloat(data.ot) || 0;
                     tableData.push({
                         date: dateStr, shift: data.shift || '', inTime: data.inPunch || '',
                         outTime: data.outPunch || '', leave: leaveStr,
-                        ot: data.ot ? `${formatTimeFromHours(data.ot)} hrs` : '0',
+                        ot: data.ot ? formatTimeFromHours(data.ot) + ' hrs' : '0',
                         isHoliday: isHol, leaveType: (data.leave || '').toLowerCase()
                     });
                 }
                 const pdfData = {
                     name: employeeData.name || 'Unknown', code: employeeData.code || 'Unknown',
-                    month: `${monthName} ${currentYear}`, table: tableData,
+                    month: monthName + ' ' + currentYear, table: tableData,
                     totalLeave: totalLeave.toFixed(1), totalOT: formatTimeFromHours(totalOT),
                     totalPresent: totalPresent
                 };
                 const encodedData = encodeURIComponent(JSON.stringify(pdfData));
                 window.location.href = `openchrome://vishnuputhur.github.io/cslv2/atnpdf.html?data=${encodedData}`;
-            } catch (error) { showAlert('Failed to generate PDF: ' + error.message, "PDF Error"); }
+            } catch (error) { showAlert('Failed to build PDF payload: ' + error.message, "PDF Error"); }
         }
 
         // ======================= APP INITIALIZATION =======================
@@ -1374,15 +1508,17 @@
             }
             if (!employeeData.userId) {
                 employeeData.userId = generateUserId(employeeData.name, employeeData.code);
-                localStorage.setItem('employeeData', JSON.stringify(employeeData));
+                try {
+                    localStorage.setItem('employeeData', JSON.stringify(employeeData));
+                } catch(e) {}
             }
             updateEarnedLeave();
             loadSettings();
             showMonth(currentMonth);
             updateSyncStatus('Ready');
             setTimeout(() => {
-                autoSyncCurrentMonth().catch(e => console.log("Auto-sync deferred failed", e));
-            }, 500);
+                autoSyncCurrentMonth().catch(e => console.log("Auto-sync silent catch", e));
+            }, 600);
         }
 
         document.addEventListener('click', function (e) {
@@ -1393,11 +1529,10 @@
         window.addEventListener('DOMContentLoaded', initApp);
     </script>
 
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw-atn.js');
-  }
-</script>
-
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw-atn.js?v=3.4');
+      }
+    </script>
 </body>
 </html>
