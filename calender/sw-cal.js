@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cal-v3'; // അടുത്ത തവണ മാറ്റം വരുത്തുമ്പോൾ v4 ആക്കുക
+const CACHE_NAME = 'cal-v4'; // അടുത്ത തവണ മാറ്റം വരുത്തുമ്പോൾ v4 ആക്കുക
 const ASSETS = [
   'index.html',
   'manifest-cal.json',
