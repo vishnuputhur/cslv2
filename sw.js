@@ -1,4 +1,4 @@
-const CACHE_NAME = 'csl-atn-v3.4';
+const CACHE_NAME = 'csl-atn-v3.5';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
